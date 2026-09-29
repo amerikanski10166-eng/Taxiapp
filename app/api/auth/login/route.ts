@@ -6,11 +6,12 @@ import { createSession } from "../../../../lib/auth";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const phone = String(body.phone ?? "").replace(/\\s+/g, "");
+    const phone = String(body.phone ?? "").replace(/\s+/g, "");
     const password = String(body.password ?? "");
     await ensureSchema();
 
-    const rows = await db()`)SELECT id, name, phone, password_hash, car, plate, status
+    const sql = db();
+    const rows = await sql`SELECT id, name, phone, password_hash, car, plate, status
       FROM drivers WHERE phone = ${phone} LIMIT 1`;
     if (!rows.length || !(await bcrypt.compare(password, String(rows[0].password_hash)))) {
       return NextResponse.json({ error: "Неверный номер телефона или пароль" }, { status: 401 });
