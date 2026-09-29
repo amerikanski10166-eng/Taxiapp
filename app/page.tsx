@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Heart, User, Wallet, CarFront, X, Camera, Zap, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal } from "lucide-react";
 
 const seed = [
   {id:"1", title:"Toyota Camry 70", year:2021, price:14500000, city:"Астана", mileage:62000, fuel:"Бензин", seller:"Частник", promoted:true},
@@ -79,8 +79,8 @@ export default function HomePage(){
     </nav>
 
     {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}><button className="closeBtn" onClick={()=>setModal(null)}><X size={18}/></button>
-      {modal==="add"&&<><div className="eyebrow">НОВОЕ ОБЪЯВЛЕНИЕ</div><h2>Продать автомобиль</h2><p className="muted">Заполни данные. Фото можно добавить следующим шагом.</p>
-        <label className="photoUpload" htmlFor="vehicle-photo-input"><Camera size={25}/><span>{photos.length?"Добавить ещё фото":"Добавить фото автомобиля"}</span><small>{photos.length}/10 · камера</small><input id="vehicle-photo-input" type="file" accept="image/*" capture="environment" multiple onChange={addPhotos} /></label>
+      {modal==="add"&&<><div className="eyebrow">НОВОЕ ОБЪЯВЛЕНИЕ</div><h2>Продать автомобиль</h2><p className="muted">Заполни данные и выбери фотографии автомобиля из галереи.</p>
+        <label className="photoUpload" htmlFor="vehicle-photo-input"><Images size={25}/><span>{photos.length?"Добавить ещё фото":"Выбрать фото автомобиля"}</span><small>{photos.length}/10 · галерея</small><input id="vehicle-photo-input" type="file" accept="image/*" multiple onChange={addPhotos} /></label>
         {photos.length>0&&<div className="photoPreview">{photos.map((p,i)=><div className="photoThumb" key={p}><img src={p} alt={`Фото ${i+1}`}/><button type="button" onClick={()=>removePhoto(i)}>×</button></div>)}</div>}
         <input className="marketInput" placeholder="Марка и модель *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
         <div className="two"><input className="marketInput" placeholder="Год" value={form.year} onChange={e=>setForm({...form,year:e.target.value})}/><input className="marketInput" placeholder="Пробег, км" value={form.mileage} onChange={e=>setForm({...form,mileage:e.target.value})}/></div>
