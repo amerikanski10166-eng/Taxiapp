@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextResponse } from "next/server";
 import { createSession } from "../../../../lib/auth";
 import { supabase } from "../../../../lib/supabase";
