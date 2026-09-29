@@ -1,38 +1,14 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { ensureSchema, db } from "../../../../lib/db";
 import { createSession } from "../../../../lib/auth";
-
+import { supabase } from "../../../../lib/supabase";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const name = String(body.name ?? "").trim();
-    const phone = String(body.phone ?? "").replace(/\s+/g, "");
-    const password = String(body.password ?? "");
-    const car = String(body.car ?? "").trim();
-    const plate = String(body.plate ?? "").trim();
-    const color = String(body.color ?? "").trim();
-
-    if (!name || !phone || password.length < 6) {
-      return NextResponse.json({ error: "Введите имя, телефон и пароль от 6 символов" }, { status: 400 });
-    }
-
-    await ensureSchema();
-    const sql = db();
-    const exists = await sql`SELECT id FROM drivers WHERE phone = ${phone} LIMIT 1`;
-    if (exists.length) {
-      return NextResponse.json({ error: "Водитель с таким номером уже зарегистрирован" }, { status: 409 });
-    }
-
-    const passwordHash = await bcrypt.hash(password, 12);
-    const rows = await sql`INSERT INTO drivers (name, phone, password_hash, car, plate, color)
-      VALUES (${name}, ${phone}, ${passwordHash}, ${car || null}, ${plate || null}, ${color || null})
-      RETURNING id, name, phone, car, plate, color, public_code, status`;
-
-    await createSession(String(rows[0].id));
-    return NextResponse.json({ driver: rows[0] }, { status: 201 });
-  } catch (error) {
-    console.error("register", error);
-    return NextResponse.json({ error: "Не удалось зарегистрировать водителя" }, { status: 500 });
-  }
+    const name=String(body.name??"").trim(), phone=String(body.phone??"").replace(/\s+/g,""), password=String(body.password??"");
+    const car=String(body.car??"").trim(), plate=String(body.plate??"").trim(), color=String(body.color??"").trim();
+    if(!name||!phone||password.length<6) return NextResponse.json({error:"Введите имя, телефон и пароль от 6 символов"},{status:400});
+    const {data,error}=await supabase.rpc("taxi_register",{p_name:name,p_phone:phone,p_password:password,p_car:car,p_plate:plate,p_color:color});
+    if(error){if(error.message.includes("duplicate key")||error.code==="23505") return NextResponse.json({error:"Водитель с таким номером уже зарегистрирован"},{status:409});throw error;}
+    await createSession(String(data.id)); return NextResponse.json({driver:data},{status:201});
+  } catch(error){console.error("register",error);return NextResponse.json({error:"Не удалось зарегистрировать водителя"},{status:500});}
 }
