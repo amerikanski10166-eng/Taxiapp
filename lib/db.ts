@@ -1,25 +1,19 @@
-let pool: any = null;
+let sqlClient: any = null;
 
-async function getPool() {
+async function getSqlClient() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not configured");
-  if (!pool) {
-    const { Pool } = await import("pg");
-    pool = new Pool({
-      connectionString: url,
-      ssl: { rejectUnauthorized: false },
-      max: 1,
-    });
+  if (!sqlClient) {
+    const mod = await import("postgres");
+    const postgres = mod.default ?? mod;
+    sqlClient = postgres(url, { ssl: "require", max: 1, prepare: false });
   }
-  return pool;
+  return sqlClient;
 }
 
 export async function sql(strings: TemplateStringsArray, ...values: unknown[]) {
-  const text = strings.reduce((query, part, index) => {
-    return query + part + (index < values.length ? "$" + (index + 1) : "");
-  }, "");
-  const result = await (await getPool()).query(text, values);
-  return result.rows;
+  const client = await getSqlClient();
+  return client(strings, ...values);
 }
 
 let schemaPromise: Promise<unknown> | null = null;
