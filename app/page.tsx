@@ -58,7 +58,7 @@ export default function HomePage(){
       <div className="carGrid">{filtered.map(car=><div key={car.id} className={"carCard "+(car.promoted?"promoted":"")}><button className="cardMain" onClick={()=>{setSelected(car);setModal("listing")}}>
         <div className="carPhoto"><CarFront size={48}/>{car.promoted&&<b><Zap size={12}/> ТОП</b>}</div>
         <div className="carBody"><h3>{car.title}</h3><strong>{money(car.price)}</strong><p>{car.year} · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel}</p><small>{car.city} · {car.seller}</small></div>
-      </button>)}</div>
+      </button><button className={"favBtn "+(favorites.includes(car.id)?"favOn":"")} onClick={()=>toggleFavorite(car.id)} aria-label="Избранное"><Heart size={16} fill={favorites.includes(car.id)?"currentColor":"none"}/></button></div>)}</div>
     </section>
 
     <section className="sellerBanner"><div><span>ДЛЯ ПРОДАВЦОВ</span><h2>Разместить авто<br/>можно за минуту</h2><p>Создай объявление, добавь фото и получай звонки от покупателей.</p></div><button onClick={()=>setModal("add")}>Подать объявление <ChevronRight size={16}/></button></section>
