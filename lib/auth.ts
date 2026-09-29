@@ -25,7 +25,7 @@ export async function getCurrentDriver() {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   const sql = db();
-  const rows = await sql`SELECT d.id, d.name, d.phone, d.car, d.plate, d.status
+  const rows = await sql`SELECT d.id, d.name, d.phone, d.car, d.plate, d.public_code, d.status
     FROM driver_sessions s
     JOIN drivers d ON d.id = s.driver_id
     WHERE s.token = ${token} AND s.expires_at > NOW()
