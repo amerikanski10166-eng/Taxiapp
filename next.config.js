@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["pg", "bcryptjs"],
+  serverExternalPackages: ["postgres", "bcryptjs"],
 };
 
 module.exports = nextConfig;
