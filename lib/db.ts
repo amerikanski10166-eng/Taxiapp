@@ -23,6 +23,7 @@ export function ensureSchema() {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )`;
       await sql`ALTER TABLE drivers ADD COLUMN IF NOT EXISTS public_code TEXT`;
+      await sql`ALTER TABLE drivers ADD COLUMN IF NOT EXISTS color TEXT`;
       await sql`UPDATE drivers SET public_code = LOWER(SUBSTRING(REPLACE(id::text, '-', ''), 1, 10)) WHERE public_code IS NULL`;
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS drivers_public_code_idx ON drivers(public_code)`;
       await sql`CREATE TABLE IF NOT EXISTS ride_requests (
