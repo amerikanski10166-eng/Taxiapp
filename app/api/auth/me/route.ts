@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentDriver } from "@/lib/auth";
+import { getCurrentDriver } from "../../../../lib/auth";
 
 export async function GET() {
   try {
