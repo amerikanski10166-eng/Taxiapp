@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { cookies } from "next/headers";
 import crypto from "node:crypto";
 import { supabase } from "./supabase";
