@@ -14,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ cod
     if (!rows.length) return NextResponse.json({ error: "Заказ не найден" }, { status: 404 });
     return NextResponse.json({ request: rows[0] });
   }
-  const rows = await sql`SELECT id, name, car, plate, public_code FROM drivers WHERE public_code = ${code} LIMIT 1`;
+  const rows = await sql`SELECT id, name, car, plate, color, public_code FROM drivers WHERE public_code = ${code} LIMIT 1`;
   if (!rows.length) return NextResponse.json({ error: "Водитель не найден" }, { status: 404 });
   return NextResponse.json({ driver: rows[0] });
 }
