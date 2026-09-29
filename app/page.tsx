@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Home, Map, Wallet, User, Radio, TrendingUp, Car, ChevronRight, Bell, CircleHelp, Gift, X } from "lucide-react";
+import { Home, Map, Wallet, User, Radio, TrendingUp, Car, ChevronRight, Bell, CircleHelp, Gift, X, QrCode } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 
 const orders=[
   {from:"ЖК Северное сияние",to:"ТРЦ Хан Шатыр",price:"2 450 ₸",time:"12 мин",coef:"КЭФ 1.8"},
@@ -19,6 +20,7 @@ export default function HomePage(){
  const [authMode,setAuthMode]=useState<"login"|"register">("login");
  const [authForm,setAuthForm]=useState({name:"",phone:"",password:"",car:"",plate:""});
  const [authBusy,setAuthBusy]=useState(false);
+ const [qrOpen,setQrOpen]=useState(false);
  useEffect(()=>{fetch("/api/auth/me").then(r=>r.json()).then(d=>setDriver(d.driver??null)).catch(()=>{});},[]);
  const submitAuth=async()=>{setAuthBusy(true);try{const endpoint=authMode==="login"?"/api/auth/login":"/api/auth/register";const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(authMode==="login"?{phone:authForm.phone,password:authForm.password}:authForm)});const data=await res.json();if(!res.ok)throw new Error(data.error||"Ошибка");setDriver(data.driver);setModal(null);notify(authMode==="login"?"Вход выполнен":"Регистрация завершена");}catch(e){notify(e instanceof Error?e.message:"Ошибка авторизации");}finally{setAuthBusy(false);}};
  const logout=async()=>{await fetch("/api/auth/logout",{method:"POST"});setDriver(null);setModal(null);notify("Вы вышли из аккаунта");};
@@ -65,7 +67,7 @@ export default function HomePage(){
    </section>
 
    <section className="section">
-    <div className="sectionHead"><h2>Радар КЭФА</h2><span className="livePill"><Radio size={13}/> LIVE</span></div>
+    <div className="sectionHead"><h2>Радар КЭФА</h2><button className="qrDriverBtn" onClick={()=>setQrOpen(true)}><QrCode size={15}/> Мой QR</button><span className="livePill"><Radio size={13}/> LIVE</span></div>
     <div className="radarCard">
       <div className="radarCircle"><div className="radarCore">1.8x</div></div>
       <div className="radarInfo"><span>Сейчас повышенный спрос</span><strong>КЭФ 1.8 — 2.1</strong><p>Больше заказов в районе центра</p><button onClick={()=>setModal("map")}>Открыть карту <ChevronRight size={16}/></button></div>
@@ -108,8 +110,20 @@ export default function HomePage(){
        {modal==="income" && <><div className="eyebrow">ДОХОД</div><h2>Сегодня 18 750 ₸</h2><p>12 поездок · 6ч 40м · средний чек 1 560 ₸.</p></>}
               {modal==="profile" && driver && <><div className="eyebrow">ПРОФИЛЬ</div><h2>{driver.name}</h2><p>Телефон: {driver.phone}<br/>Статус: {online?"на линии":"офлайн"}<br/>Аккаунт: {driver.status==="pending"?"На проверке":"Активен"}</p><button className="modalAction" onClick={()=>setModal("car")}>Мой автомобиль</button><button className="modalAction" style={{marginTop:8}} onClick={logout}>Выйти из аккаунта</button></>}
        {modal==="profile" && !driver && <><div className="eyebrow">{authMode==="login"?"ВХОД":"РЕГИСТРАЦИЯ"}</div><h2>{authMode==="login"?"Вход водителя":"Регистрация водителя"}</h2>{authMode==="register" && <input className="authInput" placeholder="Имя и фамилия" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/>}<input className="authInput" placeholder="Номер телефона" value={authForm.phone} onChange={e=>setAuthForm({...authForm,phone:e.target.value})}/><input className="authInput" type="password" placeholder="Пароль (от 6 символов)" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/>{authMode==="register" && <><input className="authInput" placeholder="Автомобиль" value={authForm.car} onChange={e=>setAuthForm({...authForm,car:e.target.value})}/><input className="authInput" placeholder="Гос. номер" value={authForm.plate} onChange={e=>setAuthForm({...authForm,plate:e.target.value})}/></>}<button className="modalAction" disabled={authBusy} onClick={submitAuth}>{authBusy?"Подождите…":authMode==="login"?"Войти":"Зарегистрироваться"}</button><button className="authSwitch" onClick={()=>setAuthMode(authMode==="login"?"register":"login")}>{authMode==="login"?"Новый водитель? Зарегистрироваться":"Уже есть аккаунт? Войти"}</button></>}
-       {modal==="car" && <><div className="eyebrow">АВТОМОБИЛЬ</div><h2>Ваш автомобиль</h2><p>Toyota Camry · гос. номер не указан.</p><button className="modalAction" onClick={()=>notify("Данные автомобиля готовы к изменению")}>Изменить данные</button></>}
+       {modal==="car" && <><div className="eyebrow">АВТОМОБИЛЬ</div><h2>Ваш автомобиль</h2><p>{driver?.car || "Toyota Camry"} · гос. номер {driver?.plate || "не указан"}.</p><button className="modalAction" onClick={()=>notify("Данные автомобиля готовы к изменению")}>Изменить данные</button></>}
        {modal==="help" && <><div className="eyebrow">ПОДДЕРЖКА</div><h2>Помощь и поддержка</h2><p>Выберите действие: мы сохранили интерфейс без изменений.</p><button className="modalAction" onClick={()=>notify("Запрос в поддержку создан")}>Связаться с поддержкой</button></>}
+     </div>
+   </div>}
+
+   {qrOpen && <div className="modalBackdrop" onClick={()=>setQrOpen(false)}>
+     <div className="modalCard qrCard" onClick={e=>e.stopPropagation()}>
+       <button aria-label="Закрыть" className="modalClose" onClick={()=>setQrOpen(false)}><X size={18}/></button>
+       <div className="eyebrow">ВАШ QR-КОД</div>
+       <h2>Клиенты могут найти вас</h2>
+       <p>Покажите этот QR-код клиенту. После сканирования он сможет написать вам и предложить цену поездки.</p>
+       <div className="qrBox"><QRCodeCanvas value={window.location.origin+"/ride/"+(driver?.id ?? "demo")} size={220} includeMargin /></div>
+       <small className="qrCodeText">Код водителя: {driver?.id ?? "Войдите в аккаунт"}</small>
+       {!driver && <p>Для персонального QR-кода войдите в аккаунт водителя.</p>}
      </div>
    </div>}
 
