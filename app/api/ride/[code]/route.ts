@@ -1,55 +1,17 @@
 import { NextResponse } from "next/server";
-import { ensureSchema, db } from "../../../../lib/db";
-
-const payments = new Set(["kaspi", "card", "cash"]);
-
-export async function GET(_request: Request, { params }: { params: Promise<{ code: string }> }) {
-  await ensureSchema();
-  const { code } = await params;
-  const sql = db();
-  const url = new URL(request.url);
-  const requestId = url.searchParams.get("request");
-  if (requestId) {
-    const rows = await sql`SELECT id, status, offer_price, payment_method, driver_reply, agreed_price, created_at FROM ride_requests WHERE id = ${requestId} LIMIT 1`;
-    if (!rows.length) return NextResponse.json({ error: "Заказ не найден" }, { status: 404 });
-    return NextResponse.json({ request: rows[0] });
-  }
-  const rows = await sql`SELECT id, name, car, plate, color, public_code FROM drivers WHERE public_code = ${code} LIMIT 1`;
-  if (!rows.length) return NextResponse.json({ error: "Водитель не найден" }, { status: 404 });
-  return NextResponse.json({ driver: rows[0] });
+import { supabase } from "../../../../lib/supabase";
+const payments=new Set(["kaspi","card","cash"]);
+export async function GET(request:Request,{params}:{params:Promise<{code:string}>}){
+  const {code}=await params; const requestId=new URL(request.url).searchParams.get("request");
+  if(requestId){const {data,error}=await supabase.rpc("taxi_ride_status",{p_request_id:requestId});if(error) return NextResponse.json({error:"Ошибка базы данных"},{status:500});if(!data)return NextResponse.json({error:"Заказ не найден"},{status:404});return NextResponse.json({request:data});}
+  const {data,error}=await supabase.rpc("taxi_public_driver",{p_code:code});if(error)return NextResponse.json({error:"Ошибка базы данных"},{status:500});if(!data)return NextResponse.json({error:"Водитель не найден"},{status:404});return NextResponse.json({driver:data});
 }
-
-export async function POST(request: Request, { params }: { params: Promise<{ code: string }> }) {
-  try {
-    await ensureSchema();
-    const { code } = await params;
-    const body = await request.json();
-    const destination = String(body.destination ?? "").trim();
-    const offerPrice = Number(body.offerPrice);
-    const paymentMethod = String(body.paymentMethod ?? "");
-    const passengerName = String(body.passengerName ?? "").trim();
-    const passengerPhone = String(body.passengerPhone ?? "").trim();
-    const message = String(body.message ?? "").trim();
-
-    if (!destination || !Number.isInteger(offerPrice) || offerPrice <= 0 || !payments.has(paymentMethod)) {
-      return NextResponse.json({ error: "Укажите маршрут, цену и способ оплаты" }, { status: 400 });
-    }
-
-    const sql = db();
-    const drivers = await sql`SELECT id, name FROM drivers WHERE public_code = ${code} LIMIT 1`;
-    if (!drivers.length) return NextResponse.json({ error: "Водитель не найден" }, { status: 404 });
-
-    const rows = await sql`INSERT INTO ride_requests
-      (driver_id, passenger_name, passenger_phone, message, destination, offer_price, payment_method)
-      VALUES (${drivers[0].id}, ${passengerName || null}, ${passengerPhone || null}, ${message || null}, ${destination}, ${offerPrice}, ${paymentMethod})
-      RETURNING id, status, offer_price, payment_method, created_at`;
-
-    if (message) {
-      await sql`INSERT INTO ride_messages (ride_id, sender, message) VALUES (${rows[0].id}, 'passenger', ${message})`;
-    }
-    return NextResponse.json({ request: rows[0], driver: drivers[0] }, { status: 201 });
-  } catch (error) {
-    console.error("ride request", error);
-    return NextResponse.json({ error: "Не удалось отправить заказ" }, { status: 500 });
-  }
+export async function POST(request:Request,{params}:{params:Promise<{code:string}>}){
+ try{const {code}=await params;const body=await request.json();const destination=String(body.destination??"").trim(),offerPrice=Number(body.offerPrice),paymentMethod=String(body.paymentMethod??"");
+ const passengerName=String(body.passengerName??"").trim(),passengerPhone=String(body.passengerPhone??"").trim(),message=String(body.message??"").trim();
+ if(!destination||!Number.isInteger(offerPrice)||offerPrice<=0||!payments.has(paymentMethod))return NextResponse.json({error:"Укажите маршрут, цену и способ оплаты"},{status:400});
+ const {data,error}=await supabase.rpc("taxi_create_ride",{p_code:code,p_passenger_name:passengerName,p_passenger_phone:passengerPhone,p_message:message,p_destination:destination,p_offer_price:offerPrice,p_payment_method:paymentMethod});
+ if(error){if(error.message.includes("DRIVER_NOT_FOUND"))return NextResponse.json({error:"Водитель не найден"},{status:404});throw error;}
+ return NextResponse.json({request:{id:data.id,status:data.status,offer_price:data.offer_price,payment_method:data.payment_method,created_at:data.created_at},driver:data.driver},{status:201});
+ }catch(error){console.error("ride request",error);return NextResponse.json({error:"Не удалось отправить заказ"},{status:500});}
 }
