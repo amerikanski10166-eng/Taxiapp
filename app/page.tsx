@@ -123,7 +123,9 @@ export default function HomePage(){
        const newest=next.find((x:any)=>x.status==="pending");
        if(newest && newest.id!==lastSeen) {
          setLastSeen(newest.id);
-         playOrderSound(); if("vibrate" in navigator) navigator.vibrate([250,120,250]); notify("🔔 Новый заказ: "+Number(newest.offer_price||0).toLocaleString("ru-RU")+" ₸");
+         playOrderSound(); if("vibrate" in navigator) navigator.vibrate([250,120,250]);
+         setActiveRide(newest);
+         notify("🔔 НОВЫЙ ЗАКАЗ · "+Number(newest.offer_price||0).toLocaleString("ru-RU")+" ₸");
        }
        setRequests(next);
        if(activeRide) {
