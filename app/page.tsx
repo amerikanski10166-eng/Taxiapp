@@ -19,11 +19,16 @@ export default function HomePage(){
   const [selected,setSelected]=useState<any>(null);
   const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",description:""});
   const [notice,setNotice]=useState("");
+  const [city,setCity]=useState("Все города");
+  const [sort,setSort]=useState("new");
+  const [favorites,setFavorites]=useState<string[]>([]);
 
-  useEffect(()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x));}catch{}},[]);
+  useEffect(()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x)); const f=localStorage.getItem("auto-market-favorites");if(f)setFavorites(JSON.parse(f));}catch{}},[]);
   useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
+  useEffect(()=>{try{localStorage.setItem("auto-market-favorites",JSON.stringify(favorites));}catch{}},[favorites]);
 
-  const filtered=useMemo(()=>listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())),[listings,query]);
+  const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort]);
+  const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
 
   const addListing=()=>{
     if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;}
@@ -43,13 +48,14 @@ export default function HomePage(){
       <button className="addBtn" onClick={()=>setModal("add")}><Plus size={18}/> Продать авто</button>
     </section>
 
-    <div className="searchBox"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button><SlidersHorizontal size={18}/></button></div>
+    <div className="searchBox"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")} title="Сортировка"><SlidersHorizontal size={18}/></button></div>
+    <div className="filters"><select value={city} onChange={e=>setCity(e.target.value)}><option>Все города</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option></select><select value={sort} onChange={e=>setSort(e.target.value)}><option value="new">Сначала новые</option><option value="priceAsc">Цена: дешевле</option><option value="priceDesc">Цена: дороже</option><option value="year">Год: новее</option></select></div>
 
     <div className="chips"><button className="chip active">Все авто</button><button className="chip">С пробегом</button><button className="chip">Новые</button><button className="chip">Салоны</button></div>
 
     <section className="marketSection">
       <div className="sectionHead"><div><h2>Автомобили</h2><span>{filtered.length} объявлений</span></div><button className="textBtn">Сортировка <ChevronRight size={14}/></button></div>
-      <div className="carGrid">{filtered.map(car=><button key={car.id} className={"carCard "+(car.promoted?"promoted":"")} onClick={()=>{setSelected(car);setModal("listing")}}>
+      <div className="carGrid">{filtered.map(car=><div key={car.id} className={"carCard "+(car.promoted?"promoted":"")}><button className="cardMain" onClick={()=>{setSelected(car);setModal("listing")}}>
         <div className="carPhoto"><CarFront size={48}/>{car.promoted&&<b><Zap size={12}/> ТОП</b>}</div>
         <div className="carBody"><h3>{car.title}</h3><strong>{money(car.price)}</strong><p>{car.year} · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel}</p><small>{car.city} · {car.seller}</small></div>
       </button>)}</div>
@@ -75,7 +81,7 @@ export default function HomePage(){
         <button className="primaryBtn" onClick={addListing}>Опубликовать объявление</button>
       </>}
 
-      {modal==="listing"&&selected&&<><div className="carPhoto big"><CarFront size={75}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city}</div><h2>{selected.title}</h2></div><Heart size={21}/></div><strong className="bigPrice">{money(selected.price)}</strong><p className="muted">{selected.year} · {selected.mileage.toLocaleString("ru-RU")} км · {selected.fuel}</p><p>{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div><button className="primaryBtn" onClick={promote}><Zap size={17}/> Продвинуть объявление — 500 ₸</button><small className="paymentNote">Сейчас демонстрационный режим. Реальная оплата подключается через официальный платёжный сервис.</small></>}
+      {modal==="listing"&&selected&&<><div className="carPhoto big"><CarFront size={75}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city}</div><h2>{selected.title}</h2></div><button className={"favoriteLarge "+(favorites.includes(selected.id)?"favOn":"")} onClick={()=>toggleFavorite(selected.id)}><Heart size={21} fill={favorites.includes(selected.id)?"currentColor":"none"}/></button></div><strong className="bigPrice">{money(selected.price)}</strong><p className="muted">{selected.year} · {selected.mileage.toLocaleString("ru-RU")} км · {selected.fuel}</p><p>{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div><button className="primaryBtn" onClick={promote}><Zap size={17}/> Продвинуть объявление — 500 ₸</button><small className="paymentNote">Сейчас демонстрационный режим. Реальная оплата подключается через официальный платёжный сервис.</small></>}
 
       {modal==="cabinet"&&<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="cabStat"><b>{listings.length}</b><span>объявлений</span></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(x.price)}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}
 
