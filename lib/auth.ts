@@ -7,7 +7,8 @@ const COOKIE = "taxikz_session";
 export async function createSession(driverId: string) {
   await ensureSchema();
   const token = crypto.randomBytes(32).toString("hex");
-  await db()`)INSERT INTO driver_sessions (token, driver_id, expires_at)
+  const sql = db();
+  await sql`INSERT INTO driver_sessions (token, driver_id, expires_at)
     VALUES (${token}, ${driverId}, NOW() + INTERVAL '30 days')`;
   const jar = await cookies();
   jar.set(COOKIE, token, {
@@ -23,7 +24,8 @@ export async function getCurrentDriver() {
   await ensureSchema();
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
-  const rows = await db()`)SELECT d.id, d.name, d.phone, d.car, d.plate, d.status
+  const sql = db();
+  const rows = await sql`SELECT d.id, d.name, d.phone, d.car, d.plate, d.status
     FROM driver_sessions s
     JOIN drivers d ON d.id = s.driver_id
     WHERE s.token = ${token} AND s.expires_at > NOW()
@@ -35,6 +37,9 @@ export async function clearSession() {
   await ensureSchema();
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;
-  if (token) await db()`)DELETE FROM driver_sessions WHERE token = ${token}`;
+  if (token) {
+    const sql = db();
+    await sql`DELETE FROM driver_sessions WHERE token = ${token}`;
+  }
   jar.delete(COOKIE);
 }
