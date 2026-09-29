@@ -9,6 +9,7 @@ type RideRequest = { id:string; status:string; offer_price:number; payment_metho
 export default function PassengerRidePage({ params }: { params: Promise<{ code:string }> }) {
   const [code,setCode]=useState("");
   const [driver,setDriver]=useState<Driver|null>(null);
+  const [pickup,setPickup]=useState("");
   const [destination,setDestination]=useState("");
   const [offerPrice,setOfferPrice]=useState("");
   const [paymentMethod,setPaymentMethod]=useState("kaspi");
@@ -32,10 +33,10 @@ export default function PassengerRidePage({ params }: { params: Promise<{ code:s
 
   const send=async()=>{
     setError("");
-    if(!destination.trim()||!offerPrice||Number(offerPrice)<=0){setError("Укажите пункт назначения и предложенную цену");return;}
+    if(!pickup.trim()||!destination.trim()||!offerPrice||Number(offerPrice)<=0){setError("Укажите пункт назначения и предложенную цену");return;}
     setBusy(true);
     try{
-      const r=await fetch("/api/ride/"+encodeURIComponent(code),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({destination,offerPrice:Number(offerPrice),paymentMethod,passengerName:name,passengerPhone:phone,message})});
+      const r=await fetch("/api/ride/"+encodeURIComponent(code),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pickup,destination,offerPrice:Number(offerPrice),paymentMethod,passengerName:name,passengerPhone:phone,message})});
       const d=await r.json();
       if(!r.ok) throw new Error(d.error||"Ошибка");
       setSent(d.request);
@@ -50,7 +51,8 @@ export default function PassengerRidePage({ params }: { params: Promise<{ code:s
       <h1>{driver.name}</h1>
       <p className="passengerMuted">{driver.car||"Автомобиль"}{driver.plate ? " · "+driver.plate : ""}</p>
       {sent ? <><div className="passengerSuccess"><b>Предложение отправлено</b><span>Цена: {sent.offer_price.toLocaleString("ru-RU")} ₸</span><span>Оплата: {paymentMethod==="kaspi"?"Kaspi перевод":paymentMethod==="card"?"Перевод на карту":"Наличные"}</span></div><p className="passengerMuted">{sent.status==="accepted" ? "Водитель принял предложение." : sent.status==="countered" ? "Водитель предложил другую цену: "+Number(sent.agreed_price||0).toLocaleString("ru-RU")+" ₸." : sent.status==="rejected" ? "Водитель отклонил предложение." : "Ждём ответа водителя. Если он предложит другую цену, она появится здесь."}</p></> :
-      <><label>Куда едем?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Адрес или место назначения"/></label>
+      <><label>Откуда забрать?<input value={pickup} onChange={e=>setPickup(e.target.value)} placeholder="Адрес, где вас забрать"/></label>
+      <label>Куда едем?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Адрес или место назначения"/></label>
       <label>Ваша цена, ₸<input type="number" min="1" value={offerPrice} onChange={e=>setOfferPrice(e.target.value)} placeholder="Например, 4000"/></label>
       <label>Способ оплаты<select value={paymentMethod} onChange={e=>setPaymentMethod(e.target.value)}><option value="kaspi">Перевод по Kaspi</option><option value="card">Перевод на карту</option><option value="cash">Наличные</option></select></label>
       <label>Имя (необязательно)<input value={name} onChange={e=>setName(e.target.value)} placeholder="Как к вам обращаться"/></label>
