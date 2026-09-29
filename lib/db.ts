@@ -1,11 +1,10 @@
-import { Pool } from "pg";
+let pool: any = null;
 
-let pool: Pool | null = null;
-
-function getPool() {
+async function getPool() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not configured");
   if (!pool) {
+    const { Pool } = await import("pg");
     pool = new Pool({
       connectionString: url,
       ssl: { rejectUnauthorized: false },
@@ -19,7 +18,7 @@ export async function sql(strings: TemplateStringsArray, ...values: unknown[]) {
   const text = strings.reduce((query, part, index) => {
     return query + part + (index < values.length ? "$" + (index + 1) : "");
   }, "");
-  const result = await getPool().query(text, values);
+  const result = await (await getPool()).query(text, values);
   return result.rows;
 }
 
