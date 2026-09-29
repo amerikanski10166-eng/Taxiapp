@@ -17,7 +17,7 @@ export default function HomePage(){
   const [query,setQuery]=useState("");
   const [modal,setModal]=useState<"add"|"listing"|"cabinet"|"income"|null>(null);
   const [selected,setSelected]=useState<any>(null);
-  const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",description:""});
+  const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});
   const [notice,setNotice]=useState("");
   const [city,setCity]=useState("Все города");
   const [sort,setSort]=useState("new");
@@ -31,9 +31,9 @@ export default function HomePage(){
   const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
 
   const addListing=()=>{
-    if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;}
+    if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;} if(!form.phone){setNotice("Укажите номер телефона продавца");return;}
     const item={id:Date.now().toString(),...form,year:Number(form.year)||2020,price:Number(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false};
-    setListings([item,...listings]);setModal(null);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",description:""});setNotice("Объявление сохранено");
+    setListings([item,...listings]);setModal(null);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});setNotice("Объявление сохранено");
   };
   const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Продвижение выбрано. Подключение реальной оплаты — следующий шаг.");};
 
@@ -75,13 +75,13 @@ export default function HomePage(){
         <div className="photoUpload"><Camera size={25}/><span>Добавить фото</span><small>до 10 фотографий</small></div>
         <input className="marketInput" placeholder="Марка и модель *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
         <div className="two"><input className="marketInput" placeholder="Год" value={form.year} onChange={e=>setForm({...form,year:e.target.value})}/><input className="marketInput" placeholder="Пробег, км" value={form.mileage} onChange={e=>setForm({...form,mileage:e.target.value})}/></div>
-        <input className="marketInput" placeholder="Цена, ₸ *" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>
+        <input className="marketInput" placeholder="Цена, ₸ *" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/><input className="marketInput" type="tel" inputMode="tel" placeholder="Телефон продавца *" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
         <select className="marketInput" value={form.city} onChange={e=>setForm({...form,city:e.target.value})}><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Другой город</option></select>
         <textarea className="marketInput" placeholder="Описание" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
         <button className="primaryBtn" onClick={addListing}>Опубликовать объявление</button>
       </>}
 
-      {modal==="listing"&&selected&&<><div className="carPhoto big"><CarFront size={75}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city}</div><h2>{selected.title}</h2></div><button className={"favoriteLarge "+(favorites.includes(selected.id)?"favOn":"")} onClick={()=>toggleFavorite(selected.id)}><Heart size={21} fill={favorites.includes(selected.id)?"currentColor":"none"}/></button></div><strong className="bigPrice">{money(selected.price)}</strong><p className="muted">{selected.year} · {selected.mileage.toLocaleString("ru-RU")} км · {selected.fuel}</p><p>{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div><button className="primaryBtn" onClick={promote}><Zap size={17}/> Продвинуть объявление — 500 ₸</button><small className="paymentNote">Сейчас демонстрационный режим. Реальная оплата подключается через официальный платёжный сервис.</small></>}
+      {modal==="listing"&&selected&&<><div className="carPhoto big"><CarFront size={75}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city}</div><h2>{selected.title}</h2></div><button className={"favoriteLarge "+(favorites.includes(selected.id)?"favOn":"")} onClick={()=>toggleFavorite(selected.id)}><Heart size={21} fill={favorites.includes(selected.id)?"currentColor":"none"}/></button></div><strong className="bigPrice">{money(selected.price)}</strong><p className="muted">{selected.year} · {selected.mileage.toLocaleString("ru-RU")} км · {selected.fuel}</p><p>{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><b>{selected.seller}</b><span>Продавец на AutoKZ</span>{selected.phone&&<a href={"tel:"+selected.phone}>Позвонить: {selected.phone}</a>}</div><button className="primaryBtn" onClick={promote}><Zap size={17}/> Продвинуть объявление — 500 ₸</button><small className="paymentNote">Сейчас демонстрационный режим. Реальная оплата подключается через официальный платёжный сервис.</small></>}
 
       {modal==="cabinet"&&<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="cabStat"><b>{listings.length}</b><span>объявлений</span></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(x.price)}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}
 
