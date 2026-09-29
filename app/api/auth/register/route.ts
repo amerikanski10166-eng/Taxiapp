@@ -11,6 +11,7 @@ export async function POST(request: Request) {
     const password = String(body.password ?? "");
     const car = String(body.car ?? "").trim();
     const plate = String(body.plate ?? "").trim();
+    const color = String(body.color ?? "").trim();
 
     if (!name || !phone || password.length < 6) {
       return NextResponse.json({ error: "Введите имя, телефон и пароль от 6 символов" }, { status: 400 });
@@ -24,9 +25,9 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const rows = await sql`INSERT INTO drivers (name, phone, password_hash, car, plate)
-      VALUES (${name}, ${phone}, ${passwordHash}, ${car || null}, ${plate || null})
-      RETURNING id, name, phone, car, plate, public_code, status`;
+    const rows = await sql`INSERT INTO drivers (name, phone, password_hash, car, plate, color)
+      VALUES (${name}, ${phone}, ${passwordHash}, ${car || null}, ${plate || null}, ${color || null})
+      RETURNING id, name, phone, car, plate, color, public_code, status`;
 
     await createSession(String(rows[0].id));
     return NextResponse.json({ driver: rows[0] }, { status: 201 });
