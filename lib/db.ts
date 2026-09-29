@@ -1,9 +1,26 @@
-import postgres from "postgres";
+import { Pool } from "pg";
 
-export function getSql() {
+let pool: Pool | null = null;
+
+function getPool() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not configured");
-  return postgres(url, { ssl: "require", max: 1, prepare: false });
+  if (!pool) {
+    pool = new Pool({
+      connectionString: url,
+      ssl: { rejectUnauthorized: false },
+      max: 1,
+    });
+  }
+  return pool;
+}
+
+export async function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  const text = strings.reduce((query, part, index) => {
+    return query + part + (index < values.length ? "$" + (index + 1) : "");
+  }, "");
+  const result = await getPool().query(text, values);
+  return result.rows;
 }
 
 let schemaPromise: Promise<unknown> | null = null;
@@ -11,7 +28,6 @@ let schemaPromise: Promise<unknown> | null = null;
 export function ensureSchema() {
   if (!schemaPromise) {
     schemaPromise = (async () => {
-      const sql = getSql();
       await sql`CREATE TABLE IF NOT EXISTS drivers (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL,
@@ -56,8 +72,4 @@ export function ensureSchema() {
     })();
   }
   return schemaPromise;
-}
-
-export function db() {
-  return getSql();
 }
