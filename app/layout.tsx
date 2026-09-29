@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Taxi KZ — приложение для таксистов",
-  description: "Рабочий кабинет водителя: заказы, доход, коэффициенты и бонусы.",
+  title: "AutoKZ — автомобили Казахстана",
+  description: "Маркетплейс автомобилей Казахстана: купить, продать и продвинуть объявление.",
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
