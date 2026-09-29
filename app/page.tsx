@@ -1,251 +1,86 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Home, Map, Wallet, User, Radio, TrendingUp, Car, ChevronRight, Bell, CircleHelp, Gift, X, QrCode, Navigation, Clock } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
+import { useEffect, useMemo, useState } from "react";
+import { Search, Plus, Heart, User, Wallet, CarFront, X, Camera, Zap, ChevronRight, SlidersHorizontal } from "lucide-react";
 
-function DriverMap({ ride }: { ride:any }) {
-  const mapRef = useRef<any>(null);
-  const mapObj = useRef<any>(null);
-  const layers = useRef<any[]>([]);
-  const [mapReady,setMapReady] = useState(false);
+const seed = [
+  {id:"1", title:"Toyota Camry 70", year:2021, price:14500000, city:"Астана", mileage:62000, fuel:"Бензин", seller:"Частник", promoted:true},
+  {id:"2", title:"Hyundai Tucson", year:2022, price:16900000, city:"Астана", mileage:41000, fuel:"Бензин", seller:"Автосалон"},
+  {id:"3", title:"Lexus RX 350", year:2019, price:23500000, city:"Алматы", mileage:78000, fuel:"Бензин", seller:"Частник"},
+];
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const load = async () => {
-      if (!(window as any).L) {
-        await new Promise<void>((resolve) => {
-          const css = document.createElement("link");
-          css.rel = "stylesheet";
-          css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-          document.head.appendChild(css);
-          const script = document.createElement("script");
-          script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-          script.onload = () => resolve();
-          document.body.appendChild(script);
-        });
-      }
-      if (!mapRef.current || mapObj.current) return;
-      const L = (window as any).L;
-      mapObj.current = L.map(mapRef.current, { zoomControl:false }).setView([51.1605,71.4704], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(mapObj.current);
-      L.control.zoom({ position:"bottomright" }).addTo(mapObj.current);
-      setMapReady(true);
-    };
-    load();
-    return () => {
-      if (mapObj.current) {
-        mapObj.current.remove();
-        mapObj.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!mapReady || !mapObj.current || !ride) return;
-    const L = (window as any).L;
-    const clear = () => { layers.current.forEach(x => x.remove()); layers.current=[]; };
-    clear();
-
-    const geocode = async (q:string) => {
-      if (!q) return null;
-      try {
-        const r = await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=kz&q="+encodeURIComponent(q));
-        const d = await r.json();
-        return d?.[0] ? [Number(d[0].lat),Number(d[0].lon)] : null;
-      } catch { return null; }
-    };
-
-    (async () => {
-      const from = await geocode(ride.pickup || "");
-      const to = await geocode(ride.destination || "");
-      if (!from && !to) return;
-      const points:any[] = [];
-      if (from) {
-        const marker=L.marker(from,{icon:L.divIcon({className:"pickupMarker",html:"<div>●</div>",iconSize:[28,28],iconAnchor:[14,14]})}).addTo(mapObj.current);
-        marker.bindPopup("Точка A · "+(ride.pickup||"")).openPopup();
-        layers.current.push(marker); points.push(from);
-      }
-      if (to) {
-        const marker=L.marker(to,{icon:L.divIcon({className:"destinationMarker",html:"<div>B</div>",iconSize:[30,30],iconAnchor:[15,15]})}).addTo(mapObj.current);
-        marker.bindPopup("Точка B · "+ride.destination);
-        layers.current.push(marker); points.push(to);
-      }
-      if (from && to) {
-        try {
-          const rr=await fetch("https://router.project-osrm.org/route/v1/driving/"+from[1]+","+from[0]+";"+to[1]+","+to[0]+"?overview=full&geometries=geojson");
-          const rd=await rr.json();
-          const coords=rd?.routes?.[0]?.geometry?.coordinates?.map((p:any)=>[p[1],p[0]]);
-          if (coords?.length) {
-            const line=L.polyline(coords,{weight:5,opacity:.9}).addTo(mapObj.current);
-            layers.current.push(line);
-          }
-        } catch {}
-      }
-      if (points.length) mapObj.current.fitBounds(L.latLngBounds(points),{padding:[35,35]});
-    })();
-  }, [mapReady, ride?.id, ride?.pickup, ride?.destination]);
-
-  return <div className="driverMapWrap">
-    <div className="mapHeader"><div><b>{ride ? "Маршрут заказа" : "Карта города"}</b><span>{ride ? "A → B · навигация готова" : "Вы на линии"}</span></div><Navigation size={21}/></div>
-    <div ref={mapRef} className="driverMap"/>
-    <div className="mapAttribution">Карта © OpenStreetMap · маршрут OSRM</div>
-  </div>;
-}
+const money=(n:number)=>new Intl.NumberFormat("ru-RU").format(n)+" ₸";
 
 export default function HomePage(){
- const [tab,setTab]=useState("Главная");
- const [online,setOnline]=useState(false);
- const [modal,setModal]=useState<"notifications"|"car"|"help"|"map"|"referral"|"orders"|"income"|"profile"|null>(null);
- const [message,setMessage]=useState("");
- const [driver,setDriver]=useState<any>(null);
- const [authMode,setAuthMode]=useState<"login"|"register">("login");
- const [authForm,setAuthForm]=useState({name:"",phone:"",password:"",car:"",plate:"",color:""});
- const [authBusy,setAuthBusy]=useState(false);
- const [qrOpen,setQrOpen]=useState(false);
- const [requests,setRequests]=useState<any[]>([]);
- const [activeRide,setActiveRide]=useState<any>(null);
- const [lastSeen,setLastSeen]=useState("");
- const audioRef=useRef<any>(null);
- const wakeRef=useRef<any>(null);
- 
- const playOrderSound=()=>{ try { const C=window.AudioContext||window.webkitAudioContext; const ctx=new C(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type="sine"; o.frequency.value=880; g.gain.value=.0001; o.connect(g); g.connect(ctx.destination); const t=ctx.currentTime; g.gain.exponentialRampToValueAtTime(.22,t+.03); o.frequency.exponentialRampToValueAtTime(660,t+.35); g.gain.exponentialRampToValueAtTime(.0001,t+.8); o.start(t); o.stop(t+.85); } catch {} };
- const loadRequests=async()=>{
-   if(!driver || !online) return;
-   try{
-     const r=await fetch("/api/ride/requests",{cache:"no-store"});
-     const d=await r.json();
-     if(r.ok) {
-       const next=d.requests??[];
-       const newest=next.find((x:any)=>x.status==="pending");
-       if(newest && newest.id!==lastSeen) {
-         setLastSeen(newest.id);
-         playOrderSound(); if("vibrate" in navigator) navigator.vibrate([250,120,250]);
-         setActiveRide(newest);
-         notify("🔔 НОВЫЙ ЗАКАЗ · "+Number(newest.offer_price||0).toLocaleString("ru-RU")+" ₸");
-       }
-       setRequests(next);
-       if(activeRide) {
-         const fresh=next.find((x:any)=>x.id===activeRide.id);
-         if(fresh) setActiveRide(fresh);
-       }
-     }
-   }catch{}
- };
+  const [listings,setListings]=useState<any[]>(seed);
+  const [query,setQuery]=useState("");
+  const [modal,setModal]=useState<"add"|"listing"|"cabinet"|"income"|null>(null);
+  const [selected,setSelected]=useState<any>(null);
+  const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",description:""});
+  const [notice,setNotice]=useState("");
 
- useEffect(()=>{
-   fetch("/api/auth/me",{cache:"no-store"}).then(r=>r.json()).then(d=>{
-     if(d.driver){setDriver(d.driver);setOnline(Boolean(d.driver.is_online));}
-   }).catch(()=>{});
- },[]);
+  useEffect(()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x));}catch{}},[]);
+  useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
 
- useEffect(()=>{
-   if(!driver || !online) return;
-   loadRequests();
-   const timer=window.setInterval(loadRequests,3000);
-   return ()=>window.clearInterval(timer);
- },[driver?.id,online,activeRide?.id,lastSeen]);
+  const filtered=useMemo(()=>listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())),[listings,query]);
 
- const notify=(text:string)=>{
-   setMessage(text);
-   window.setTimeout(()=>setMessage(""),2600);
- };
+  const addListing=()=>{
+    if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;}
+    const item={id:Date.now().toString(),...form,year:Number(form.year)||2020,price:Number(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false};
+    setListings([item,...listings]);setModal(null);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",description:""});setNotice("Объявление сохранено");
+  };
+  const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Продвижение выбрано. Подключение реальной оплаты — следующий шаг.");};
 
- const setOnlineStatus=async(next:boolean)=>{
-   setOnline(next);
-   if(next){ try { const C=window.AudioContext||window.webkitAudioContext; const ctx=new C(); await ctx.resume(); } catch {} }
-   try{
-     const r=await fetch("/api/driver/status",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({online:next})});
-     if(!r.ok) throw new Error();
-     notify(next?"Вы вышли в онлайн — ждём заказы":"Вы вышли из онлайна");
-     if(next) loadRequests();
-   }catch{setOnline(!next);notify("Не удалось изменить статус");}
- };
+  return <main className="market">
+    <header className="marketTop">
+      <div><div className="brand">AUTO<span>KZ</span></div><div className="brandSub">автомобили Казахстана</div></div>
+      <button className="roundBtn" onClick={()=>setModal("cabinet")}><User size={20}/></button>
+    </header>
 
- const submitAuth=async()=>{
-   setAuthBusy(true);
-   try{
-     const endpoint=authMode==="login"?"/api/auth/login":"/api/auth/register";
-     const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(authMode==="login"?{phone:authForm.phone,password:authForm.password}:authForm)});
-     const data=await res.json(); if(!res.ok) throw new Error(data.error||"Ошибка");
-     setDriver(data.driver); setOnline(Boolean(data.driver?.is_online)); setModal(null); notify(authMode==="login"?"Вход выполнен":"Регистрация завершена");
-   }catch(e){notify(e instanceof Error?e.message:"Ошибка авторизации");}
-   finally{setAuthBusy(false);}
- };
+    <section className="hero">
+      <div><div className="eyebrow">AUTO MARKETPLACE</div><h1>Купи или продай<br/>автомобиль</h1><p>Объявления по всему Казахстану.</p></div>
+      <button className="addBtn" onClick={()=>setModal("add")}><Plus size={18}/> Продать авто</button>
+    </section>
 
- const logout=async()=>{if(driver) await fetch("/api/driver/status",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({online:false})}).catch(()=>{}); await fetch("/api/auth/logout",{method:"POST"});setDriver(null);setOnline(false);setModal(null);setRequests([]);setActiveRide(null);notify("Вы вышли из аккаунта");};
+    <div className="searchBox"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button><SlidersHorizontal size={18}/></button></div>
 
- const respondRide=async(id:string,status:"accepted"|"countered"|"rejected",price?:number)=>{
-   const ride=requests.find(x=>x.id===id);
-   const reply=status==="accepted"?"Цена принята":status==="rejected"?"Предложение отклонено":"Могу поехать за "+Number(price||0).toLocaleString("ru-RU")+" ₸";
-   const res=await fetch("/api/ride/requests/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status,agreedPrice:price,reply})});
-   const data=await res.json();
-   if(res.ok){
-     const updated={...ride,...data.request};
-     setRequests(rs=>rs.filter(x=>x.id!==id || status!=="accepted").map(x=>x.id===id?updated:x));
-     if(status==="accepted"){setActiveRide(updated);notify("Заказ принят — строим маршрут");}
-     else if(status==="countered"){setActiveRide(updated);notify("Новая цена отправлена");}
-     else notify("Предложение отклонено");
-   } else notify(data.error||"Не удалось ответить");
- };
+    <div className="chips"><button className="chip active">Все авто</button><button className="chip">С пробегом</button><button className="chip">Новые</button><button className="chip">Салоны</button></div>
 
- const copyReferral=async()=>{
-   const link=window.location.origin+"/invite/TAXIKZ";
-   try{await navigator.clipboard.writeText(link);notify("Реферальная ссылка скопирована");}catch{notify("Ссылка: "+link);}
- };
+    <section className="marketSection">
+      <div className="sectionHead"><div><h2>Автомобили</h2><span>{filtered.length} объявлений</span></div><button className="textBtn">Сортировка <ChevronRight size={14}/></button></div>
+      <div className="carGrid">{filtered.map(car=><button key={car.id} className={"carCard "+(car.promoted?"promoted":"")} onClick={()=>{setSelected(car);setModal("listing")}}>
+        <div className="carPhoto"><CarFront size={48}/>{car.promoted&&<b><Zap size={12}/> ТОП</b>}</div>
+        <div className="carBody"><h3>{car.title}</h3><strong>{money(car.price)}</strong><p>{car.year} · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel}</p><small>{car.city} · {car.seller}</small></div>
+      </button>)}</div>
+    </section>
 
- const nav=[{name:"Главная",icon:Home},{name:"Заказы",icon:Map},{name:"Доход",icon:Wallet},{name:"Профиль",icon:User}];
- const selectTab=(name:string)=>{setTab(name);if(name==="Заказы")setModal("orders");if(name==="Доход")setModal("income");if(name==="Профиль")setModal("profile");};
- const pending=requests.filter(r=>r.status==="pending");
- const current=activeRide || pending[0] || null;
+    <section className="sellerBanner"><div><span>ДЛЯ ПРОДАВЦОВ</span><h2>Разместить авто<br/>можно за минуту</h2><p>Создай объявление, добавь фото и получай звонки от покупателей.</p></div><button onClick={()=>setModal("add")}>Подать объявление <ChevronRight size={16}/></button></section>
 
- return <main className="shell">
-   <header className="topbar">
-    <div><div className="eyebrow">TAXI KZ</div><h1>{driver?.name ? "Привет, "+driver.name+" 👋" : "Привет, водитель 👋"}</h1></div>
-    <button aria-label="Уведомления" onClick={()=>{setModal("notifications");loadRequests();}} className="iconBtn"><Bell size={20}/>{pending.length>0&&<span/>}</button>
-   </header>
+    <nav className="marketNav">
+      <button className="active"><CarFront size={20}/><span>Авто</span></button>
+      <button onClick={()=>setModal("add")}><Plus size={20}/><span>Продать</span></button>
+      <button onClick={()=>setModal("income")}><Wallet size={20}/><span>Доход</span></button>
+      <button onClick={()=>setModal("cabinet")}><User size={20}/><span>Кабинет</span></button>
+    </nav>
 
-   <section className="statusCard">
-    <div className="statusTop"><div><span className={online?"dot live":"dot"}></span>{online?"Вы на линии":"Вы офлайн"}</div><button aria-label="Переключить статус" onClick={()=>driver?setOnlineStatus(!online):setModal("profile")} className={online?"switch on":"switch"}><i/></button></div>
-    <button className={online?"goOnline online":"goOnline"} onClick={()=>driver?setOnlineStatus(!online):setModal("profile")}>{online?"ВЫЙТИ ИЗ ОНЛАЙНА":"ВЫЙТИ В ОНЛАЙН"}</button>
-    <div className="statusMain"><div><span>Сегодня</span><strong>18 750 ₸</strong></div><div><span>Поездок</span><strong>12</strong></div><div><span>Часов</span><strong>6ч 40м</strong></div></div>
-    <div className="progress"><span style={{width:"72%"}}/></div><div className="goal"><span>До цели 25 000 ₸</span><b>75%</b></div>
-   </section>
+    {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}><button className="closeBtn" onClick={()=>setModal(null)}><X size={18}/></button>
+      {modal==="add"&&<><div className="eyebrow">НОВОЕ ОБЪЯВЛЕНИЕ</div><h2>Продать автомобиль</h2><p className="muted">Заполни данные. Фото можно добавить следующим шагом.</p>
+        <div className="photoUpload"><Camera size={25}/><span>Добавить фото</span><small>до 10 фотографий</small></div>
+        <input className="marketInput" placeholder="Марка и модель *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
+        <div className="two"><input className="marketInput" placeholder="Год" value={form.year} onChange={e=>setForm({...form,year:e.target.value})}/><input className="marketInput" placeholder="Пробег, км" value={form.mileage} onChange={e=>setForm({...form,mileage:e.target.value})}/></div>
+        <input className="marketInput" placeholder="Цена, ₸ *" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>
+        <select className="marketInput" value={form.city} onChange={e=>setForm({...form,city:e.target.value})}><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Другой город</option></select>
+        <textarea className="marketInput" placeholder="Описание" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
+        <button className="primaryBtn" onClick={addListing}>Опубликовать объявление</button>
+      </>}
 
-   {online && <DriverMap ride={current}/>}
-   
-   <section className="section">
-    <div className="sectionHead"><h2>Доступные заказы</h2><button onClick={()=>setModal("orders")} className="textBtn">Все</button></div>
-    <div className="orders">
-     {pending.length ? pending.slice(0,5).map((o:any,i:number)=><button key={o.id} onClick={()=>setActiveRide(o)} className="order">
-       <div className="route"><span className="pickup"/><div><b>{o.pickup||"Точка подачи"}</b><small>{o.destination}</small></div></div>
-       <div className="orderRight"><strong>{Number(o.offer_price).toLocaleString("ru-RU")} ₸</strong><small><Clock size={11}/> {o.payment_method==="kaspi"?"Kaspi":o.payment_method==="card"?"Карта":"Наличные"}</small></div>
-     </button>) : <div className="emptyOrders">{online?"Ждём новые заказы…":"Выйдите в онлайн, чтобы получать заказы"}</div>}
-    </div>
-   </section>
+      {modal==="listing"&&selected&&<><div className="carPhoto big"><CarFront size={75}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city}</div><h2>{selected.title}</h2></div><Heart size={21}/></div><strong className="bigPrice">{money(selected.price)}</strong><p className="muted">{selected.year} · {selected.mileage.toLocaleString("ru-RU")} км · {selected.fuel}</p><p>{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div><button className="primaryBtn" onClick={promote}><Zap size={17}/> Продвинуть объявление — 500 ₸</button><small className="paymentNote">Сейчас демонстрационный режим. Реальная оплата подключается через официальный платёжный сервис.</small></>}
 
-   <section className="statsGrid"><div className="miniCard"><div className="miniIcon"><TrendingUp size={18}/></div><span>Средний чек</span><strong>1 560 ₸</strong><small>+8% сегодня</small></div><div className="miniCard"><div className="miniIcon"><Gift size={18}/></div><span>Бонусы</span><strong>12 500 ₸</strong><small>за приглашения</small></div></section>
+      {modal==="cabinet"&&<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="cabStat"><b>{listings.length}</b><span>объявлений</span></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(x.price)}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}
 
-   <section className="promo"><div><span>ПРИГЛАШАЙ ВОДИТЕЛЕЙ</span><h3>Зарабатывай бонус<br/>за каждого друга</h3><p>Пригласи водителя в Taxi KZ и получай бонусы.</p><button onClick={copyReferral}>Моя реферальная ссылка <ChevronRight size={16}/></button></div><div className="giftArt"><Gift size={48}/></div></section>
-
-   <section className="quick"><button onClick={()=>setModal("car")}><Car size={19}/><span>Мой автомобиль</span><ChevronRight/></button><button onClick={()=>setModal("help")}><CircleHelp size={19}/><span>Помощь и поддержка</span><ChevronRight/></button></section>
-   <nav className="bottomNav">{nav.map(n=>{const Icon=n.icon;return <button key={n.name} onClick={()=>selectTab(n.name)} className={tab===n.name?"navItem active":"navItem"}><Icon size={21}/><span>{n.name}</span></button>})}</nav>
-
-   {modal && <div className="modalBackdrop" onClick={()=>setModal(null)}><div className="modalCard" onClick={e=>e.stopPropagation()}><button aria-label="Закрыть" className="modalClose" onClick={()=>setModal(null)}><X size={18}/></button>
-     {modal==="notifications" && <><div className="eyebrow">ЗАКАЗЫ В ОНЛАЙНЕ</div><h2>{pending.length?"Новый заказ":"Всё спокойно"}</h2>{pending.length?pending.map((r:any)=><div key={r.id} className="rideRequest"><b>{r.pickup||"Точка подачи"} → {r.destination}</b><span>{Number(r.offer_price).toLocaleString("ru-RU")} ₸ · {r.payment_method==="kaspi"?"Kaspi":r.payment_method==="card"?"Карта":"Наличные"}</span>{r.message&&<small>«{r.message}»</small>}<em>Клиент ждёт водителя</em><div className="rideActions"><button onClick={()=>respondRide(r.id,"accepted",r.offer_price)}>Принять</button><button onClick={()=>{const p=window.prompt("Ваша цена, ₸",String(r.offer_price));if(p)respondRide(r.id,"countered",Number(p))}}>Своя цена</button><button onClick={()=>respondRide(r.id,"rejected")}>Отказать</button></div></div>):<p>{online?"Новые заказы будут появляться автоматически каждые несколько секунд.":"Выйдите в онлайн, чтобы получать заказы."}</p>}</>}
-     {modal==="orders" && <><div className="eyebrow">ЗАКАЗЫ</div><h2>Доступные заказы</h2>{pending.length?pending.map((o:any)=><button key={o.id} className="modalRow" onClick={()=>{setActiveRide(o);setModal(null)}}><span>{o.pickup||"Подача"} → {o.destination}</span><b>{Number(o.offer_price).toLocaleString("ru-RU")} ₸</b></button>):<p>Новых заказов нет.</p>}</>}
-     {modal==="map" && <><div className="eyebrow">КАРТА</div><h2>Навигация</h2><p>Выходите в онлайн — карта и маршрут заказа будут доступны прямо на главном экране.</p></>}
-     {modal==="income" && <><div className="eyebrow">ДОХОД</div><h2>Сегодня 18 750 ₸</h2><p>12 поездок · 6ч 40м · средний чек 1 560 ₸.</p></>}
-     {modal==="profile" && driver && <><div className="eyebrow">ПРОФИЛЬ</div><h2>{driver.name}</h2><p>Телефон: {driver.phone}<br/>Статус: {online?"на линии":"офлайн"}<br/>Аккаунт: {driver.status==="pending"?"На проверке":"Активен"}</p><button className="modalAction" onClick={()=>setQrOpen(true)}>Мой QR-код</button><button className="modalAction" style={{marginTop:8}} onClick={logout}>Выйти из аккаунта</button></>}
-     {modal==="profile" && !driver && <><div className="eyebrow">{authMode==="login"?"ВХОД":"РЕГИСТРАЦИЯ"}</div><h2>{authMode==="login"?"Вход водителя":"Регистрация водителя"}</h2>{authMode==="register"&&<input className="authInput" placeholder="Имя и фамилия" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/>}<input className="authInput" placeholder="Номер телефона" value={authForm.phone} onChange={e=>setAuthForm({...authForm,phone:e.target.value})}/><input className="authInput" type="password" placeholder="Пароль (от 6 символов)" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/>{authMode==="register"&&<><input className="authInput" placeholder="Автомобиль" value={authForm.car} onChange={e=>setAuthForm({...authForm,car:e.target.value})}/><input className="authInput" placeholder="Гос. номер" value={authForm.plate} onChange={e=>setAuthForm({...authForm,plate:e.target.value})}/><input className="authInput" placeholder="Цвет автомобиля" value={authForm.color} onChange={e=>setAuthForm({...authForm,color:e.target.value})}/></>}<button className="modalAction" disabled={authBusy} onClick={submitAuth}>{authBusy?"Подождите…":authMode==="login"?"Войти":"Зарегистрироваться"}</button><button className="authSwitch" onClick={()=>setAuthMode(authMode==="login"?"register":"login")}>{authMode==="login"?"Новый водитель? Зарегистрироваться":"Уже есть аккаунт? Войти"}</button></>}
-     {modal==="car"&&<><div className="eyebrow">АВТОМОБИЛЬ</div><h2>Ваш автомобиль</h2><p>{driver?.car||"Автомобиль"} · {driver?.color||"цвет не указан"} · гос. номер {driver?.plate||"не указан"}.</p></>}
-     {modal==="help"&&<><div className="eyebrow">ПОДДЕРЖКА</div><h2>Помощь и поддержка</h2><p>Заказы, онлайн и навигация работают автоматически. Если что-то не отображается, откройте приложение заново.</p></>}
-   </div></div>}
-
-   {qrOpen&&<div className="modalBackdrop" onClick={()=>setQrOpen(false)}><div className="modalCard qrCard" onClick={e=>e.stopPropagation()}><button aria-label="Закрыть" className="modalClose" onClick={()=>setQrOpen(false)}><X size={18}/></button><div className="eyebrow">ВАШ QR-КОД</div><h2>Клиенты могут найти вас</h2><p>Покажите этот QR-код клиенту — заказ попадёт в общий эфир водителей Taxi KZ.</p><div className="qrBox"><QRCodeCanvas value={window.location.origin+"/ride/"+(driver?.public_code??"demo")} size={220} includeMargin/></div></div></div>}
-   {message&&<div className="toast" role="status">{message}</div>}
- </main>
+      {modal==="income"&&<><div className="eyebrow">ДОХОД ВЛАДЕЛЬЦА</div><h2>Доход</h2><div className="incomeBox"><Wallet size={22}/><b>0 ₸</b><span>Реальные платежи появятся после подключения платёжного сервиса.</span></div><p className="muted">Здесь будет закрытая админ-панель: платежи, продвижения, продавцы и статистика. Сейчас это только интерфейс, без притворной оплаты.</p></>}
+    </div></div>}
+    {notice&&<div className="marketToast">{notice}</div>}
+  </main>;
 }
