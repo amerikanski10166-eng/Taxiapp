@@ -21,9 +21,18 @@ export default function HomePage(){
  const [authForm,setAuthForm]=useState({name:"",phone:"",password:"",car:"",plate:""});
  const [authBusy,setAuthBusy]=useState(false);
  const [qrOpen,setQrOpen]=useState(false);
+ const [requests,setRequests]=useState<any[]>([]);
  useEffect(()=>{fetch("/api/auth/me").then(r=>r.json()).then(d=>setDriver(d.driver??null)).catch(()=>{});},[]);
+ useEffect(()=>{if(modal==="notifications" && driver){fetch("/api/ride/requests").then(r=>r.json()).then(d=>setRequests(d.requests??[])).catch(()=>{});}},[modal,driver]);
  const submitAuth=async()=>{setAuthBusy(true);try{const endpoint=authMode==="login"?"/api/auth/login":"/api/auth/register";const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(authMode==="login"?{phone:authForm.phone,password:authForm.password}:authForm)});const data=await res.json();if(!res.ok)throw new Error(data.error||"Ошибка");setDriver(data.driver);setModal(null);notify(authMode==="login"?"Вход выполнен":"Регистрация завершена");}catch(e){notify(e instanceof Error?e.message:"Ошибка авторизации");}finally{setAuthBusy(false);}};
  const logout=async()=>{await fetch("/api/auth/logout",{method:"POST"});setDriver(null);setModal(null);notify("Вы вышли из аккаунта");};
+ const respondRide=async(id:string,status:"accepted"|"countered"|"rejected",price?:number)=>{
+   const reply=status==="accepted"?"Цена принята":status==="rejected"?"Предложение отклонено":"Могу поехать за "+Number(price||0).toLocaleString("ru-RU")+" ₸";
+   const res=await fetch("/api/ride/requests/"+id,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status,agreedPrice:price,reply})});
+   const data=await res.json();
+   if(res.ok){setRequests(rs=>rs.map(x=>x.id===id?{...x,...data.request}:x));notify(status==="accepted"?"Заказ принят":status==="countered"?"Новая цена отправлена":"Предложение отклонено");}
+   else notify(data.error||"Не удалось ответить");
+ };
 
  const notify=(text:string)=>{
    setMessage(text);
@@ -104,7 +113,7 @@ export default function HomePage(){
    {modal && <div className="modalBackdrop" onClick={()=>setModal(null)}>
      <div className="modalCard" onClick={e=>e.stopPropagation()}>
        <button aria-label="Закрыть" className="modalClose" onClick={()=>setModal(null)}><X size={18}/></button>
-       {modal==="notifications" && <><div className="eyebrow">УВЕДОМЛЕНИЯ</div><h2>Всё спокойно</h2><p>Новых важных уведомлений нет.</p></>}
+       {modal==="notifications" && <><div className="eyebrow">ЗАПРОСЫ КЛИЕНТОВ</div><h2>{requests.length ? "Новые предложения" : "Всё спокойно"}</h2>{requests.length ? requests.map((r:any)=><div key={r.id} className="rideRequest"><b>{r.destination}</b><span>{Number(r.offer_price).toLocaleString("ru-RU")} ₸ · {r.payment_method==="kaspi"?"Kaspi":r.payment_method==="card"?"Карта":"Наличные"}</span>{r.message&&<small>«{r.message}»</small>}<em>{r.status==="pending"?"Ожидает ответа":r.status==="accepted"?"Принято":r.status==="countered"?"Водитель предложил другую цену":"Отклонено"}</em>{r.status==="pending"&&<div className="rideActions"><button onClick={()=>respondRide(r.id,"accepted",r.offer_price)}>Принять</button><button onClick={()=>{const p=window.prompt("Ваша цена, ₸",String(r.offer_price));if(p)respondRide(r.id,"countered",Number(p))}}>Своя цена</button><button onClick={()=>respondRide(r.id,"rejected")}>Отказать</button></div>}</div>) : <p>Когда клиент отсканирует ваш QR и предложит цену, запрос появится здесь.</p>}</>}
        {modal==="map" && <><div className="eyebrow">РАДАР КЭФА</div><h2>Карта спроса</h2><p>Повышенный спрос сейчас в районе центра Астаны. Откройте карты, чтобы построить маршрут.</p><button className="modalAction" onClick={()=>window.open("https://www.google.com/maps/search/?api=1&query=Astana","_blank","noopener,noreferrer")}>Открыть карты</button></>}
        {modal==="orders" && <><div className="eyebrow">ЗАКАЗЫ</div><h2>Доступные заказы</h2>{orders.map((o,i)=><button key={i} className="modalRow" onClick={()=>{setSelected(i);setModal(null);notify(`Выбран заказ на ${o.price}`)}}><span>{o.from} → {o.to}</span><b>{o.price}</b></button>)}</>}
        {modal==="income" && <><div className="eyebrow">ДОХОД</div><h2>Сегодня 18 750 ₸</h2><p>12 поездок · 6ч 40м · средний чек 1 560 ₸.</p></>}
