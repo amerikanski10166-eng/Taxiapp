@@ -37,10 +37,13 @@ export default function HomePage(){
   };
   const [photos,setPhotos]=useState<string[]>([]);
   const addPhotos=(e:any)=>{
-    const files=Array.from(e.target.files||[]).filter((f:any)=>f.type.startsWith("image/")).slice(0,10-photos.length) as File[];
+    const input=e.currentTarget as HTMLInputElement;
+    const files=Array.from(input.files||[])
+      .filter((f:any)=>f.type.startsWith("image/"))
+      .slice(0,Math.max(0,10-photos.length)) as File[];
     const urls=files.map((file:any)=>URL.createObjectURL(file));
-    setPhotos(xs=>[...xs,...urls].slice(0,10));
-    e.target.value="";
+    if(urls.length)setPhotos(xs=>[...xs,...urls].slice(0,10));
+    input.value="";
   };
   const removePhoto=(i:number)=>setPhotos(xs=>xs.filter((_,n)=>n!==i));
   const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Продвижение выбрано. Подключение реальной оплаты — следующий шаг.");};
@@ -80,7 +83,7 @@ export default function HomePage(){
 
     {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}><button className="closeBtn" onClick={()=>setModal(null)}><X size={18}/></button>
       {modal==="add"&&<><div className="eyebrow">НОВОЕ ОБЪЯВЛЕНИЕ</div><h2>Продать автомобиль</h2><p className="muted">Заполни данные и выбери фотографии автомобиля из галереи.</p>
-        <label className="photoUpload" htmlFor="vehicle-photo-input"><Images size={25}/><span>{photos.length?"Выбрать ещё фото":"Выбрать фото автомобиля"}</span><input id="vehicle-photo-input" type="file" accept="image/*" multiple onChange={addPhotos} /></label>
+        <div className="photoUpload"><Images size={25}/><span>{photos.length?"Выбрать ещё фото":"Выбрать фото автомобиля"}</span><input id="vehicle-photo-input" className="photoInput" type="file" accept="image/*" multiple onChange={addPhotos} /></div>
         {photos.length>0&&<div className="photoPreview">{photos.map((p,i)=><div className="photoThumb" key={p}><img src={p} alt={`Фото ${i+1}`}/><button type="button" onClick={()=>removePhoto(i)}>×</button></div>)}</div>}
         <input className="marketInput" placeholder="Марка и модель *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
         <div className="two"><input className="marketInput" placeholder="Год" value={form.year} onChange={e=>setForm({...form,year:e.target.value})}/><input className="marketInput" placeholder="Пробег, км" value={form.mileage} onChange={e=>setForm({...form,mileage:e.target.value})}/></div>
