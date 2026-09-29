@@ -130,7 +130,7 @@ export default function HomePage(){
        <div className="eyebrow">ВАШ QR-КОД</div>
        <h2>Клиенты могут найти вас</h2>
        <p>Покажите этот QR-код клиенту. После сканирования он сможет написать вам и предложить цену поездки.</p>
-       <div className="qrBox"><QRCodeCanvas value={window.location.origin+"/ride/"+(driver?.id ?? "demo")} size={220} includeMargin /></div>
+       <div className="qrBox"><QRCodeCanvas value={window.location.origin+"/ride/"+(driver?.public_code ?? "demo")} size={220} includeMargin /></div>
        <small className="qrCodeText">Код водителя: {driver?.id ?? "Войдите в аккаунт"}</small>
        {!driver && <p>Для персонального QR-кода войдите в аккаунт водителя.</p>}
      </div>
