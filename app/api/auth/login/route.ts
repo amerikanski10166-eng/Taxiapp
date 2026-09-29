@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { ensureSchema, sql } from "../../../../lib/db";
+import { ensureSchema, db } from "../../../../lib/db";
 import { createSession } from "../../../../lib/auth";
 
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const password = String(body.password ?? "");
     await ensureSchema();
 
-    const rows = await sql`SELECT id, name, phone, password_hash, car, plate, status
+    const rows = await db()`)SELECT id, name, phone, password_hash, car, plate, status
       FROM drivers WHERE phone = ${phone} LIMIT 1`;
     if (!rows.length || !(await bcrypt.compare(password, String(rows[0].password_hash)))) {
       return NextResponse.json({ error: "Неверный номер телефона или пароль" }, { status: 401 });
