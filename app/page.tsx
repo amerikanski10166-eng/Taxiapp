@@ -19,23 +19,9 @@ export default function HomePage(){
  const [authMode,setAuthMode]=useState<"login"|"register">("login");
  const [authForm,setAuthForm]=useState({name:"",phone:"",password:"",car:"",plate:""});
  const [authBusy,setAuthBusy]=useState(false);
-
- useEffect(()=>{ fetch("/api/auth/me").then(r=>r.ok?r.json():null).then(d=>{if(d?.driver)setDriver(d.driver)}).catch(()=>{}); },[]);
-
- const submitAuth=async()=>{
-   setAuthBusy(true);
-   try{
-     const endpoint=authMode==="login"?"/api/auth/login":"/api/auth/register";
-     const payload=authMode==="login"?{phone:authForm.phone,password:authForm.password}:authForm;
-     const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-     const data=await res.json();
-     if(!res.ok) throw new Error(data.error||"Ошибка");
-     setDriver(data.driver); setModal(null); notify(authMode==="login"?"Вход выполнен":"Регистрация завершена");
-   }catch(e){ notify(e instanceof Error?e.message:"Ошибка авторизации"); }
-   finally{setAuthBusy(false);}
- };
-
- const logout=async()=>{ await fetch("/api/auth/logout",{method:"POST"}); setDriver(null); setModal(null); notify("Вы вышли из аккаунта"); };
+ useEffect(()=>{fetch("/api/auth/me").then(r=>r.json()).then(d=>setDriver(d.driver??null)).catch(()=>{});},[]);
+ const submitAuth=async()=>{setAuthBusy(true);try{const endpoint=authMode==="login"?"/api/auth/login":"/api/auth/register";const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(authMode==="login"?{phone:authForm.phone,password:authForm.password}:authForm)});const data=await res.json();if(!res.ok)throw new Error(data.error||"Ошибка");setDriver(data.driver);setModal(null);notify(authMode==="login"?"Вход выполнен":"Регистрация завершена");}catch(e){notify(e instanceof Error?e.message:"Ошибка авторизации");}finally{setAuthBusy(false);}};
+ const logout=async()=>{await fetch("/api/auth/logout",{method:"POST"});setDriver(null);setModal(null);notify("Вы вышли из аккаунта");};
 
  const notify=(text:string)=>{
    setMessage(text);
@@ -68,7 +54,7 @@ export default function HomePage(){
 
  return <main className="shell">
    <header className="topbar">
-    <div><div className="eyebrow">TAXI KZ</div><h1>Привет, водитель 👋</h1></div>
+    <div><div className="eyebrow">TAXI KZ</div><h1>{driver?.name ? "Привет, "+driver.name+" 👋" : "Привет, водитель 👋"}</h1></div>
     <button aria-label="Уведомления" onClick={()=>setModal("notifications")} className="iconBtn"><Bell size={20}/><span/></button>
    </header>
 
@@ -120,7 +106,7 @@ export default function HomePage(){
        {modal==="map" && <><div className="eyebrow">РАДАР КЭФА</div><h2>Карта спроса</h2><p>Повышенный спрос сейчас в районе центра Астаны. Откройте карты, чтобы построить маршрут.</p><button className="modalAction" onClick={()=>window.open("https://www.google.com/maps/search/?api=1&query=Astana","_blank","noopener,noreferrer")}>Открыть карты</button></>}
        {modal==="orders" && <><div className="eyebrow">ЗАКАЗЫ</div><h2>Доступные заказы</h2>{orders.map((o,i)=><button key={i} className="modalRow" onClick={()=>{setSelected(i);setModal(null);notify(`Выбран заказ на ${o.price}`)}}><span>{o.from} → {o.to}</span><b>{o.price}</b></button>)}</>}
        {modal==="income" && <><div className="eyebrow">ДОХОД</div><h2>Сегодня 18 750 ₸</h2><p>12 поездок · 6ч 40м · средний чек 1 560 ₸.</p></>}
-       {modal==="profile" && <>{driver ? <><div className="eyebrow">ПРОФИЛЬ</div><h2>{driver.name}</h2><p>Телефон: {driver.phone}<br/>Статус: {online?"на линии":"офлайн"}<br/>Аккаунт: {driver.status==="pending"?"На проверке":"Активен"}</p><button className="modalAction" onClick={()=>setModal("car")}>Мой автомобиль</button><button className="modalAction" style={{marginTop:8}} onClick={logout}>Выйти из аккаунта</button></> : <><div className="eyebrow">{authMode==="login"?"ВХОД":"РЕГИСТРАЦИЯ"}</div><h2>{authMode==="login"?"Вход водителя":"Регистрация водителя"}</h2>{authMode==="register" ? <><input className="authInput" placeholder="Имя и фамилия" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/><input className="authInput" placeholder="Автомобиль" value={authForm.car} onChange={e=>setAuthForm({...authForm,car:e.target.value})}/><input className="authInput" placeholder="Гос. номер" value={authForm.plate} onChange={e=>setAuthForm({...authForm,plate:e.target.value})}/></> : null}<input className="authInput" placeholder="Номер телефона" value={authForm.phone} onChange={e=>setAuthForm({...authForm,phone:e.target.value})}/><input className="authInput" type="password" placeholder="Пароль (от 6 символов)" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/><button className="modalAction" disabled={authBusy} onClick={submitAuth}>{authBusy?"Подождите…":authMode==="login"?"Войти":"Зарегистрироваться"}</button><button className="authSwitch" onClick={()=>setAuthMode(authMode==="login"?"register":"login")}>{authMode==="login"?"Новый водитель? Зарегистрироваться":"Уже есть аккаунт? Войти"}</button></>}</>}
+              {modal==="profile" && <><div className="eyebrow">{driver?"ПРОФИЛЬ":(authMode==="login"?"ВХОД":"РЕГИСТРАЦИЯ")}</div>{driver ? <><h2>{driver.name}</h2><p>Телефон: {driver.phone}<br/>Статус: {online?"на линии":"офлайн"}<br/>Аккаунт: {driver.status==="pending"?"На проверке":"Активен"}</p><button className="modalAction" onClick={()=>setModal("car")}>Мой автомобиль</button><button className="modalAction" style={{marginTop:8}} onClick={logout}>Выйти из аккаунта</button></> : <><h2>{authMode==="login"?"Вход водителя":"Регистрация водителя"}</h2>{authMode==="register" && <><input className="authInput" placeholder="Имя и фамилия" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/><input className="authInput" placeholder="Автомобиль" value={authForm.car} onChange={e=>setAuthForm({...authForm,car:e.target.value})}/><input className="authInput" placeholder="Гос. номер" value={authForm.plate} onChange={e=>setAuthForm({...authForm,plate:e.target.value})}/></>}<input className="authInput" placeholder="Номер телефона" value={authForm.phone} onChange={e=>setAuthForm({...authForm,phone:e.target.value})}/><input className="authInput" type="password" placeholder="Пароль (от 6 символов)" value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/><button className="modalAction" disabled={authBusy} onClick={submitAuth}>{authBusy?"Подождите…":authMode==="login"?"Войти":"Зарегистрироваться"}</button><button className="authSwitch" onClick={()=>setAuthMode(authMode==="login"?"register":"login")}>{authMode==="login"?"Новый водитель? Зарегистрироваться":"Уже есть аккаунт? Войти"}</button></>}</>}
        {modal==="car" && <><div className="eyebrow">АВТОМОБИЛЬ</div><h2>Ваш автомобиль</h2><p>Toyota Camry · гос. номер не указан.</p><button className="modalAction" onClick={()=>notify("Данные автомобиля готовы к изменению")}>Изменить данные</button></>}
        {modal==="help" && <><div className="eyebrow">ПОДДЕРЖКА</div><h2>Помощь и поддержка</h2><p>Выберите действие: мы сохранили интерфейс без изменений.</p><button className="modalAction" onClick={()=>notify("Запрос в поддержку создан")}>Связаться с поддержкой</button></>}
      </div>
