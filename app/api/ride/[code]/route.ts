@@ -7,6 +7,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ cod
   await ensureSchema();
   const { code } = await params;
   const sql = db();
+  const url = new URL(request.url);
+  const requestId = url.searchParams.get("request");
+  if (requestId) {
+    const rows = await sql`SELECT id, status, offer_price, payment_method, driver_reply, agreed_price, created_at FROM ride_requests WHERE id = ${requestId} LIMIT 1`;
+    if (!rows.length) return NextResponse.json({ error: "Заказ не найден" }, { status: 404 });
+    return NextResponse.json({ request: rows[0] });
+  }
   const rows = await sql`SELECT id, name, car, plate, public_code FROM drivers WHERE public_code = ${code} LIMIT 1`;
   if (!rows.length) return NextResponse.json({ error: "Водитель не найден" }, { status: 404 });
   return NextResponse.json({ driver: rows[0] });
