@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Home, Map, Wallet, User, Radio, TrendingUp, Car, ChevronRight, Bell, CircleHelp, Gift, Clock3, Navigation } from "lucide-react";
+import { Home, Map, Wallet, User, Radio, TrendingUp, Car, ChevronRight, Bell, CircleHelp, Gift, X } from "lucide-react";
 
 const orders=[
   {from:"ЖК Северное сияние",to:"ТРЦ Хан Шатыр",price:"2 450 ₸",time:"12 мин",coef:"КЭФ 1.8"},
@@ -13,20 +13,46 @@ export default function HomePage(){
  const [tab,setTab]=useState("Главная");
  const [online,setOnline]=useState(true);
  const [selected,setSelected]=useState(0);
+ const [modal,setModal]=useState<"notifications"|"car"|"help"|"map"|"referral"|"orders"|"income"|"profile"|null>(null);
+ const [message,setMessage]=useState("");
+
+ const notify=(text:string)=>{
+   setMessage(text);
+   window.setTimeout(()=>setMessage(""),2200);
+ };
+
+ const copyReferral=async()=>{
+   const link=window.location.origin+"/invite/TAXIKZ";
+   try{
+     await navigator.clipboard.writeText(link);
+     notify("Реферальная ссылка скопирована");
+   }catch{
+     notify("Ссылка: "+link);
+   }
+ };
+
  const nav=[
   {name:"Главная",icon:Home},
   {name:"Заказы",icon:Map},
   {name:"Доход",icon:Wallet},
   {name:"Профиль",icon:User},
  ];
+
+ const selectTab=(name:string)=>{
+   setTab(name);
+   if(name==="Заказы") setModal("orders");
+   if(name==="Доход") setModal("income");
+   if(name==="Профиль") setModal("profile");
+ };
+
  return <main className="shell">
    <header className="topbar">
     <div><div className="eyebrow">TAXI KZ</div><h1>Привет, водитель 👋</h1></div>
-    <button className="iconBtn"><Bell size={20}/><span/></button>
+    <button aria-label="Уведомления" onClick={()=>setModal("notifications")} className="iconBtn"><Bell size={20}/><span/></button>
    </header>
 
    <section className="statusCard">
-    <div className="statusTop"><div><span className={online?"dot live":"dot"}></span>{online?"Вы на линии":"Вы офлайн"}</div><button onClick={()=>setOnline(!online)} className={online?"switch on":"switch"}><i/></button></div>
+    <div className="statusTop"><div><span className={online?"dot live":"dot"}></span>{online?"Вы на линии":"Вы офлайн"}</div><button aria-label="Переключить статус" onClick={()=>{setOnline(!online);notify(online?"Вы вышли с линии":"Вы снова на линии")}} className={online?"switch on":"switch"}><i/></button></div>
     <div className="statusMain"><div><span>Сегодня</span><strong>18 750 ₸</strong></div><div><span>Поездок</span><strong>12</strong></div><div><span>Часов</span><strong>6ч 40м</strong></div></div>
     <div className="progress"><span style={{width:"72%"}}/></div><div className="goal"><span>До цели 25 000 ₸</span><b>75%</b></div>
    </section>
@@ -35,14 +61,14 @@ export default function HomePage(){
     <div className="sectionHead"><h2>Радар КЭФА</h2><span className="livePill"><Radio size={13}/> LIVE</span></div>
     <div className="radarCard">
       <div className="radarCircle"><div className="radarCore">1.8x</div></div>
-      <div className="radarInfo"><span>Сейчас повышенный спрос</span><strong>КЭФ 1.8 — 2.1</strong><p>Больше заказов в районе центра</p><button>Открыть карту <ChevronRight size={16}/></button></div>
+      <div className="radarInfo"><span>Сейчас повышенный спрос</span><strong>КЭФ 1.8 — 2.1</strong><p>Больше заказов в районе центра</p><button onClick={()=>setModal("map")}>Открыть карту <ChevronRight size={16}/></button></div>
     </div>
    </section>
 
    <section className="section">
-    <div className="sectionHead"><h2>Доступные заказы</h2><button className="textBtn">Все</button></div>
+    <div className="sectionHead"><h2>Доступные заказы</h2><button onClick={()=>setModal("orders")} className="textBtn">Все</button></div>
     <div className="orders">
-     {orders.map((o,i)=><button key={i} onClick={()=>setSelected(i)} className={selected===i?"order active":"order"}>
+     {orders.map((o,i)=><button key={i} onClick={()=>{setSelected(i);notify(`Заказ выбран: ${o.from} → ${o.to}`)}} className={selected===i?"order active":"order"}>
        <div className="route"><span className="pickup"/><div><b>{o.from}</b><small>{o.to}</small></div></div>
        <div className="orderRight"><strong>{o.price}</strong><small>{o.time} · {o.coef}</small></div>
      </button>)}
@@ -55,15 +81,30 @@ export default function HomePage(){
    </section>
 
    <section className="promo">
-    <div><span>ПРИГЛАШАЙ ВОДИТЕЛЕЙ</span><h3>Зарабатывай бонус<br/>за каждого друга</h3><p>Пригласи водителя в Taxi KZ и получай бонусы.</p><button>Моя реферальная ссылка <ChevronRight size={16}/></button></div>
+    <div><span>ПРИГЛАШАЙ ВОДИТЕЛЕЙ</span><h3>Зарабатывай бонус<br/>за каждого друга</h3><p>Пригласи водителя в Taxi KZ и получай бонусы.</p><button onClick={copyReferral}>Моя реферальная ссылка <ChevronRight size={16}/></button></div>
     <div className="giftArt"><Gift size={48}/></div>
    </section>
 
    <section className="quick">
-    <button><Car size={19}/><span>Мой автомобиль</span><ChevronRight/></button>
-    <button><CircleHelp size={19}/><span>Помощь и поддержка</span><ChevronRight/></button>
+    <button onClick={()=>setModal("car")}><Car size={19}/><span>Мой автомобиль</span><ChevronRight/></button>
+    <button onClick={()=>setModal("help")}><CircleHelp size={19}/><span>Помощь и поддержка</span><ChevronRight/></button>
    </section>
 
-   <nav className="bottomNav">{nav.map(n=>{const Icon=n.icon; return <button key={n.name} onClick={()=>setTab(n.name)} className={tab===n.name?"navItem active":"navItem"}><Icon size={21}/><span>{n.name}</span></button>})}</nav>
+   <nav className="bottomNav">{nav.map(n=>{const Icon=n.icon; return <button key={n.name} onClick={()=>selectTab(n.name)} className={tab===n.name?"navItem active":"navItem"}><Icon size={21}/><span>{n.name}</span></button>})}</nav>
+
+   {modal && <div className="modalBackdrop" onClick={()=>setModal(null)}>
+     <div className="modalCard" onClick={e=>e.stopPropagation()}>
+       <button aria-label="Закрыть" className="modalClose" onClick={()=>setModal(null)}><X size={18}/></button>
+       {modal==="notifications" && <><div className="eyebrow">УВЕДОМЛЕНИЯ</div><h2>Всё спокойно</h2><p>Новых важных уведомлений нет.</p></>}
+       {modal==="map" && <><div className="eyebrow">РАДАР КЭФА</div><h2>Карта спроса</h2><p>Повышенный спрос сейчас в районе центра Астаны. Откройте карты, чтобы построить маршрут.</p><button className="modalAction" onClick={()=>window.open("https://www.google.com/maps/search/?api=1&query=Astana","_blank","noopener,noreferrer")}>Открыть карты</button></>}
+       {modal==="orders" && <><div className="eyebrow">ЗАКАЗЫ</div><h2>Доступные заказы</h2>{orders.map((o,i)=><button key={i} className="modalRow" onClick={()=>{setSelected(i);setModal(null);notify(`Выбран заказ на ${o.price}`)}}><span>{o.from} → {o.to}</span><b>{o.price}</b></button>)}</>}
+       {modal==="income" && <><div className="eyebrow">ДОХОД</div><h2>Сегодня 18 750 ₸</h2><p>12 поездок · 6ч 40м · средний чек 1 560 ₸.</p></>}
+       {modal==="profile" && <><div className="eyebrow">ПРОФИЛЬ</div><h2>Водитель Taxi KZ</h2><p>Статус: {online?"на линии":"офлайн"}.</p><button className="modalAction" onClick={()=>setModal("car")}>Мой автомобиль</button></>}
+       {modal==="car" && <><div className="eyebrow">АВТОМОБИЛЬ</div><h2>Ваш автомобиль</h2><p>Toyota Camry · гос. номер не указан.</p><button className="modalAction" onClick={()=>notify("Данные автомобиля готовы к изменению")}>Изменить данные</button></>}
+       {modal==="help" && <><div className="eyebrow">ПОДДЕРЖКА</div><h2>Помощь и поддержка</h2><p>Выберите действие: мы сохранили интерфейс без изменений.</p><button className="modalAction" onClick={()=>notify("Запрос в поддержку создан")}>Связаться с поддержкой</button></>}
+     </div>
+   </div>}
+
+   {message && <div className="toast" role="status">{message}</div>}
  </main>
 }
