@@ -17,13 +17,13 @@ export async function POST(request: Request) {
     }
 
     await ensureSchema();
-    const exists = await sql`SELECT id FROM drivers WHERE phone = ${phone} LIMIT 1`;
+    const exists = await db()``SELECT id FROM drivers WHERE phone = ${phone} LIMIT 1`;
     if (exists.length) {
       return NextResponse.json({ error: "Водитель с таким номером уже зарегистрирован" }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const rows = await sql`INSERT INTO drivers (name, phone, password_hash, car, plate)
+    const rows = await db()``INSERT INTO drivers (name, phone, password_hash, car, plate)
       VALUES (${name}, ${phone}, ${passwordHash}, ${car || null}, ${plate || null})
       RETURNING id, name, phone, car, plate, status`;
 
