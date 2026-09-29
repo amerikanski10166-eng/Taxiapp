@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const passwordHash = await bcrypt.hash(password, 12);
     const rows = await sql`INSERT INTO drivers (name, phone, password_hash, car, plate)
       VALUES (${name}, ${phone}, ${passwordHash}, ${car || null}, ${plate || null})
-      RETURNING id, name, phone, car, plate, status`;
+      RETURNING id, name, phone, car, plate, public_code, status`;
 
     await createSession(String(rows[0].id));
     return NextResponse.json({ driver: rows[0] }, { status: 201 });
