@@ -1,4 +1,4 @@
-import postgres = require("postgres");
+import postgres from "postgres";
 
 export function getSql() {
   const url = process.env.DATABASE_URL;
