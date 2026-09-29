@@ -109,7 +109,10 @@ export default function HomePage(){
  const [requests,setRequests]=useState<any[]>([]);
  const [activeRide,setActiveRide]=useState<any>(null);
  const [lastSeen,setLastSeen]=useState("");
+ const audioRef=useRef<any>(null);
+ const wakeRef=useRef<any>(null);
  
+ const playOrderSound=()=>{ try { const C=window.AudioContext||window.webkitAudioContext; const ctx=new C(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type="sine"; o.frequency.value=880; g.gain.value=.0001; o.connect(g); g.connect(ctx.destination); const t=ctx.currentTime; g.gain.exponentialRampToValueAtTime(.22,t+.03); o.frequency.exponentialRampToValueAtTime(660,t+.35); g.gain.exponentialRampToValueAtTime(.0001,t+.8); o.start(t); o.stop(t+.85); } catch {} };
  const loadRequests=async()=>{
    if(!driver || !online) return;
    try{
@@ -120,7 +123,7 @@ export default function HomePage(){
        const newest=next.find((x:any)=>x.status==="pending");
        if(newest && newest.id!==lastSeen) {
          setLastSeen(newest.id);
-         notify("Новый заказ: "+Number(newest.offer_price||0).toLocaleString("ru-RU")+" ₸");
+         playOrderSound(); if("vibrate" in navigator) navigator.vibrate([250,120,250]); notify("🔔 Новый заказ: "+Number(newest.offer_price||0).toLocaleString("ru-RU")+" ₸");
        }
        setRequests(next);
        if(activeRide) {
@@ -151,6 +154,7 @@ export default function HomePage(){
 
  const setOnlineStatus=async(next:boolean)=>{
    setOnline(next);
+   if(next){ try { const C=window.AudioContext||window.webkitAudioContext; const ctx=new C(); await ctx.resume(); } catch {} }
    try{
      const r=await fetch("/api/driver/status",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({online:next})});
      if(!r.ok) throw new Error();
