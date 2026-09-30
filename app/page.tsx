@@ -49,7 +49,7 @@ export default function HomePage(){
   const [category,setCategory]=useState("all");
   const [galleryIndex,setGalleryIndex]=useState(0);
 
-  useEffect(()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x)); const f=localStorage.getItem("auto-market-favorites");if(f)setFavorites(JSON.parse(f));}catch{}},[]);
+  useEffect(()=>{(async()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x)); const f=localStorage.getItem("auto-market-favorites");if(f)setFavorites(JSON.parse(f));}catch{} try{const {data,error}=await supabase.from("listings").select("*").eq("status","published").order("created_at",{ascending:false}).limit(100); if(!error&&Array.isArray(data)&&data.length){const remote=data.map((x:any)=>({...x,year:Number(x.year)||2020,price:Number(x.price)||0,mileage:Number(x.mileage)||0,seller:x.seller||"Частник",vehicleCondition:x.vehicle_condition||"used",photos:Array.isArray(x.photos)?x.photos:[]})); setListings(remote);}}catch{}})();},[]);
   useEffect(()=>{setGalleryIndex(0);},[selected]);
   useEffect(()=>{const id=new URLSearchParams(window.location.search).get("listing"); if(!id)return; (async()=>{const {data,error}=await supabase.from("listings").select("*").eq("id",id).eq("status","published").maybeSingle(); if(!error&&data){setSelected({...data,price:Number(data.price)||0,mileage:Number(data.mileage)||0,photos:Array.isArray(data.photos)?data.photos:[]});setModal("listing");}})();},[]);
   useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
