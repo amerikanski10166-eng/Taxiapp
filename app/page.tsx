@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 const KZ_CITIES=["Все города","Астана","Алматы","Шымкент","Караганда","Актобе","Тараз","Павлодар","Усть-Каменогорск","Семей","Костанай","Кызылорда","Атырау","Актау","Петропавловск","Кокшетау","Талдыкорган","Туркестан","Жезказган","Темиртау","Экибастуз","Рудный","Балхаш","Каскелен","Другой город"];
 
@@ -48,12 +49,14 @@ export default function HomePage(){
   const [category,setCategory]=useState("all");
 
   useEffect(()=>{try{const x=localStorage.getItem("auto-market-listings");if(x)setListings(JSON.parse(x)); const f=localStorage.getItem("auto-market-favorites");if(f)setFavorites(JSON.parse(f));}catch{}},[]);
+  useEffect(()=>{const id=new URLSearchParams(window.location.search).get("listing"); if(!id)return; (async()=>{const {data,error}=await supabase.from("listings").select("*").eq("id",id).eq("status","published").maybeSingle(); if(!error&&data){setSelected({...data,price:Number(data.price)||0,mileage:Number(data.mileage)||0,photos:Array.isArray(data.photos)?data.photos:[]});setModal("listing");}})();},[]);
   useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
   useEffect(()=>{try{localStorage.setItem("auto-market-favorites",JSON.stringify(favorites));}catch{}},[favorites]);
 
   const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>Number(x.mileage)>0); if(category==="new") xs=xs.filter(x=>Number(x.mileage)===0); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort,category]);
   const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
-  const shareListing=async()=>{if(!selected)return; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:selected.title,text}); else {await navigator.clipboard?.writeText(text);setNotice("Ссылка/описание объявления скопировано");}}catch{}};
+  const shareListing=async()=>{if(!selected)return; const url=`${window.location.origin}/?listing=${encodeURIComponent(selected.id)}`; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:`${selected.title} — AutoKZ`,text,url}); else {await navigator.clipboard?.writeText(url);setNotice("Ссылка на объявление AutoKZ скопирована");}}catch{}};
+  const uploadSharePhotos=async(id:string,items:string[])=>{const urls:string[]=[]; for(let i=0;i<Math.min(items.length,6);i++){try{const blob=await (await fetch(items[i])).blob(); const path=`shares/${id}-${i}.jpg`; const {error}=await supabase.storage.from("vehicle-photos").upload(path,blob,{contentType:"image/jpeg",upsert:true}); if(!error){const {data}=supabase.storage.from("vehicle-photos").getPublicUrl(path); urls.push(data.publicUrl);}}catch{}} return urls;};
 
   const addListing=()=>{
     if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;} if(!form.phone){setNotice("Укажите номер телефона продавца");return;}
