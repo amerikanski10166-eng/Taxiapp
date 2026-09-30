@@ -36,3 +36,5 @@ html,body{background:var(--auto-bg);color:var(--auto-ink)}
 
 /* Organic sharing */
 .detailActions{display:flex;gap:7px;align-items:center}.shareBtn,.favoriteLarge{width:40px;height:40px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;color:#475569;display:grid;place-items:center;cursor:pointer}.shareBtn:hover{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}.favoriteLarge{background:#fff}.favoriteLarge.favOn{color:#ef4444;border-color:#fecaca;background:#fff5f5}
+
+.listingGallery{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:-21px -21px 17px}.listingGallery img{width:100%;height:160px;object-fit:cover;border-radius:16px;display:block}.listingGallery img:first-child{grid-column:1/-1;height:230px}@media(max-width:520px){.listingGallery img{height:130px}.listingGallery img:first-child{height:210px}}
