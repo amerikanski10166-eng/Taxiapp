@@ -10,7 +10,28 @@ const seed = [
   {id:"3", title:"Lexus RX 350", year:2019, price:23500000, city:"Алматы", mileage:78000, fuel:"Бензин", seller:"Частник"},
 ];
 
-const money=(n:number)=>new Intl.NumberFormat("ru-RU").format(n)+" ₸";
+const money=(n:number|string)=>{const value=Number(String(n??"").replace(/[^0-9.-]/g,""));return (Number.isFinite(value)?value:0).toLocaleString("ru-RU")+" ₸";};
+const normalizePrice=(n:number|string)=>Number(String(n??"").replace(/[^0-9.-]/g,""))||0;
+const fileToDataUrl=(file:File,maxSize=1600,quality=.82)=>new Promise<string>((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onerror=()=>reject(reader.error);
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(1,maxSize/Math.max(img.width,img.height));
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round(img.width*scale));
+      canvas.height=Math.max(1,Math.round(img.height*scale));
+      const ctx=canvas.getContext("2d");
+      if(!ctx)return reject(new Error("Не удалось обработать фото"));
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      resolve(canvas.toDataURL("image/jpeg",quality));
+    };
+    img.onerror=()=>reject(new Error("Не удалось прочитать фото"));
+    img.src=String(reader.result);
+  };
+  reader.readAsDataURL(file);
+});
 
 export default function HomePage(){
   const [listings,setListings]=useState<any[]>(seed);
@@ -30,22 +51,25 @@ export default function HomePage(){
 
   const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>Number(x.mileage)>0); if(category==="new") xs=xs.filter(x=>Number(x.year)>=2025); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort]);
   const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
-  const shareListing=async()=>{if(!selected)return; const text=`${selected.title} — ${money(selected.price)} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:selected.title,text}); else {await navigator.clipboard?.writeText(text);setNotice("Ссылка/описание объявления скопировано");}}catch{}};
+  const shareListing=async()=>{if(!selected)return; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:selected.title,text}); else {await navigator.clipboard?.writeText(text);setNotice("Ссылка/описание объявления скопировано");}}catch{}};
 
   const addListing=()=>{
     if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;} if(!form.phone){setNotice("Укажите номер телефона продавца");return;}
-    const item={id:Date.now().toString(),...form,year:Number(form.year)||2020,price:Number(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false,photos:[...photos]};
+    const item={id:Date.now().toString(),...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false,photos:[...photos]};
     setListings(xs=>[item,...xs]);setSelected(item);setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано");
   };
   const [photos,setPhotos]=useState<string[]>([]);
-  const addPhotos=(e:any)=>{
+  const addPhotos=async(e:any)=>{
     const input=e.currentTarget as HTMLInputElement;
     const files=Array.from(input.files||[])
       .filter((f:any)=>f.type.startsWith("image/"))
       .slice(0,Math.max(0,10-photos.length)) as File[];
-    const urls=files.map((file:any)=>URL.createObjectURL(file));
-    if(urls.length)setPhotos(xs=>[...xs,...urls].slice(0,10));
-    input.value="";
+    try{
+      const urls=await Promise.all(files.map((file:any)=>fileToDataUrl(file)));
+      if(urls.length)setPhotos(xs=>[...xs,...urls].slice(0,10));
+    }catch{
+      setNotice("Не удалось загрузить фото. Попробуйте другое изображение.");
+    }finally{input.value="";}
   };
   const removePhoto=(i:number)=>setPhotos(xs=>xs.filter((_,n)=>n!==i));
   const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Продвижение выбрано. Подключение реальной оплаты — следующий шаг.");};
@@ -69,8 +93,12 @@ export default function HomePage(){
     <section className="marketSection">
       <div className="sectionHead"><div><h2>Автомобили</h2><span>{filtered.length} объявлений</span></div><button className="textBtn">Сортировка <ChevronRight size={14}/></button></div>
       <div className="carGrid">{filtered.map(car=><div key={car.id} className={"carCard "+(car.promoted?"promoted":"")}><button className="cardMain" onClick={()=>{setSelected(car);setModal("listing")}}>
-        <div className="carPhoto"><div className="carPhotoGlow"></div><CarFront size={52}/>{car.promoted&&<b><Zap size={12}/> ТОП</b>}<span className="photoCount"><Images size={12}/> фото</span></div>
-        <div className="carBody"><div className="cardCity">{car.city}</div><h3>{car.title}</h3><strong>{money(car.price)}</strong><div className="carSpecs"><span>{car.year}</span><span>{car.mileage.toLocaleString("ru-RU")} км</span><span>{car.fuel}</span></div><small>{car.seller}</small></div>
+        <div className="carPhoto">
+  {car.photos?.[0] ? <img className="cardVehiclePhoto" src={car.photos[0]} alt={car.title}/> : <><div className="carPhotoGlow"></div><CarFront size={52}/></>}
+  {car.promoted&&<b><Zap size={12}/> ТОП</b>}
+  <span className="photoCount"><Images size={12}/> {car.photos?.length||0} фото</span>
+</div>
+        <div className="carBody"><div className="cardCity">{car.city}</div><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><div className="carSpecs"><span>{car.year}</span><span>{car.mileage.toLocaleString("ru-RU")} км</span><span>{car.fuel}</span></div><small>{car.seller}</small></div>
       </button><button className={"favBtn "+(favorites.includes(car.id)?"favOn":"")} onClick={()=>toggleFavorite(car.id)} aria-label="Избранное"><Heart size={16} fill={favorites.includes(car.id)?"currentColor":"none"}/></button></div>)}</div>
     </section>
 
@@ -95,9 +123,9 @@ export default function HomePage(){
         <div className="freePublishNote"><b>Размещение бесплатно</b><span>Без оплаты и комиссий. Добавь фото и контакты — покупатели смогут позвонить.</span></div><button className="primaryBtn" onClick={addListing}>Опубликовать бесплатно</button>
       </>}
 
-      {modal==="listing"&&selected&&<><div className="detailTop">{selected.photos?.length ? <div className="listingGallery">{selected.photos.map((p:string,i:number)=><img key={p} src={p} alt={`Фото ${selected.title} ${i+1}`} />)}</div> : <div className="carPhoto big"><div className="carPhotoGlow"></div><CarFront size={82}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}<span className="photoCount"><Images size={12}/> Галерея</span></div>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city} · {selected.seller}</div><h2>{selected.title}</h2></div><div className="detailActions"><button className="shareBtn" onClick={shareListing} aria-label="Поделиться"><Share2 size={18}/></button><button className={"favoriteLarge "+(favorites.includes(selected.id)?"favOn":"")} onClick={()=>toggleFavorite(selected.id)}><Heart size={21} fill={favorites.includes(selected.id)?"currentColor":"none"}/></button></div></div><strong className="bigPrice">{money(selected.price)}</strong><div className="detailSpecs"><div><span>Год</span><b>{selected.year}</b></div><div><span>Пробег</span><b>{selected.mileage.toLocaleString("ru-RU")} км</b></div><div><span>Топливо</span><b>{selected.fuel}</b></div></div><p className="detailDescription">{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><div className="sellerIdentity"><div className="sellerAvatar"><User size={18}/></div><div><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div></div>{selected.phone&&<a className="callBtn" href={"tel:"+selected.phone}>Позвонить продавцу</a>}</div><button className="secondaryAction" onClick={()=>setNotice("Платное продвижение пока отключено. Сейчас объявления размещаются бесплатно.")}><Zap size={17}/> Продвижение — скоро</button><small className="paymentNote">Сейчас публикация объявлений бесплатная. Платные функции подключим позже.</small></>}
+      {modal==="listing"&&selected&&<><div className="detailTop">{selected.photos?.length ? <div className="listingGallery">{selected.photos.map((p:string,i:number)=><img key={p} src={p} alt={`Фото ${selected.title} ${i+1}`} />)}</div> : <div className="carPhoto big"><div className="carPhotoGlow"></div><CarFront size={82}/>{selected.promoted&&<b><Zap size={12}/> ТОП</b>}<span className="photoCount"><Images size={12}/> Галерея</span></div>}</div><div className="listingHead"><div><div className="eyebrow">{selected.city} · {selected.seller}</div><h2>{selected.title}</h2></div><div className="detailActions"><button className="shareBtn" onClick={shareListing} aria-label="Поделиться"><Share2 size={18}/></button><button className={"favoriteLarge "+(favorites.includes(selected.id)?"favOn":"")} onClick={()=>toggleFavorite(selected.id)}><Heart size={21} fill={favorites.includes(selected.id)?"currentColor":"none"}/></button></div></div><strong className="bigPrice">{money(normalizePrice(selected.price))}</strong><div className="detailSpecs"><div><span>Год</span><b>{selected.year}</b></div><div><span>Пробег</span><b>{selected.mileage.toLocaleString("ru-RU")} км</b></div><div><span>Топливо</span><b>{selected.fuel}</b></div></div><p className="detailDescription">{selected.description||"Описание автомобиля будет отображаться здесь."}</p><div className="sellerBox"><div className="sellerIdentity"><div className="sellerAvatar"><User size={18}/></div><div><b>{selected.seller}</b><span>Продавец на AutoKZ</span></div></div>{selected.phone&&<a className="callBtn" href={"tel:"+selected.phone}>Позвонить продавцу</a>}</div><button className="secondaryAction" onClick={()=>setNotice("Платное продвижение пока отключено. Сейчас объявления размещаются бесплатно.")}><Zap size={17}/> Продвижение — скоро</button><small className="paymentNote">Сейчас публикация объявлений бесплатная. Платные функции подключим позже.</small></>}
 
-      {modal==="cabinet"&&<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="profileCard"><div className="profileAvatar"><User size={22}/></div><div className="profileInfo"><b>Мой профиль</b><span>Продавец на AutoKZ</span></div><div className="profileBadge">Бесплатно</div></div><div className="cabStat"><div><b>{listings.length}</b><span>объявлений</span></div><div><b>{favorites.length}</b><span>в избранном</span></div><div><b>{listings.filter(x=>x.promoted).length}</b><span>ТОП</span></div></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(x.price)}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}
+      {modal==="cabinet"&&<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="profileCard"><div className="profileAvatar"><User size={22}/></div><div className="profileInfo"><b>Мой профиль</b><span>Продавец на AutoKZ</span></div><div className="profileBadge">Бесплатно</div></div><div className="cabStat"><div><b>{listings.length}</b><span>объявлений</span></div><div><b>{favorites.length}</b><span>в избранном</span></div><div><b>{listings.filter(x=>x.promoted).length}</b><span>ТОП</span></div></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(normalizePrice(x.price))}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}
 
       {modal==="income"&&<><div className="eyebrow">ДОХОД ВЛАДЕЛЬЦА</div><h2>Доход</h2><div className="incomeBox"><Wallet size={22}/><b>0 ₸</b><span>Реальные платежи появятся после подключения платёжного сервиса.</span></div><p className="muted">Здесь будет закрытая админ-панель: платежи, продвижения, продавцы и статистика. Сейчас это только интерфейс, без притворной оплаты.</p></>}
     </div></div>}
