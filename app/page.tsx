@@ -41,7 +41,7 @@ export default function HomePage(){
   const [query,setQuery]=useState("");
   const [modal,setModal]=useState<"add"|"listing"|"cabinet"|"income"|null>(null);
   const [selected,setSelected]=useState<any>(null);
-  const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});
+  const [form,setForm]=useState({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:""});
   const [notice,setNotice]=useState("");
   const [city,setCity]=useState("Все города");
   const [sort,setSort]=useState("new");
@@ -53,7 +53,7 @@ export default function HomePage(){
   useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
   useEffect(()=>{try{localStorage.setItem("auto-market-favorites",JSON.stringify(favorites));}catch{}},[favorites]);
 
-  const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>Number(x.mileage)>0); if(category==="new") xs=xs.filter(x=>Number(x.mileage)===0); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort,category]);
+  const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>(x.vehicleCondition||x.vehicle_condition||(Number(x.mileage)>0?"used":"new"))==="used"); if(category==="new") xs=xs.filter(x=>(x.vehicleCondition||x.vehicle_condition||(Number(x.mileage)>0?"used":"new"))==="new"); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort,category]);
   const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
   const shareListing=async()=>{if(!selected)return; const url=`${window.location.origin}/listing/${encodeURIComponent(selected.id)}`; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:`${selected.title} — AutoKZ`,text,url}); else {await navigator.clipboard?.writeText(url);setNotice("Ссылка на объявление AutoKZ скопирована");}}catch{}};
   const uploadSharePhotos=async(id:string,items:string[])=>{const urls:string[]=[]; for(let i=0;i<Math.min(items.length,6);i++){try{const blob=await (await fetch(items[i])).blob(); const path=`shares/${id}-${i}.jpg`; const {error}=await supabase.storage.from("vehicle-photos").upload(path,blob,{contentType:"image/jpeg",upsert:true}); if(!error){const {data}=supabase.storage.from("vehicle-photos").getPublicUrl(path); urls.push(data.publicUrl);}}catch{}} return urls;};
@@ -63,10 +63,10 @@ export default function HomePage(){
     setNotice("Публикуем объявление…");
     const id=crypto.randomUUID();
     const sharePhotos=await uploadSharePhotos(id,photos);
-    const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
-    const {error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone});
+    const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:Number(form.mileage)||0,vehicleCondition:form.vehicleCondition,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
+    const {error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone,vehicle_condition:item.vehicleCondition});
     if(error){setNotice("Не удалось опубликовать объявление в AutoKZ. Попробуйте ещё раз.");return;}
-    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
+    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
   };
   const [photos,setPhotos]=useState<string[]>([]);
   const addPhotos=async(e:any)=>{
