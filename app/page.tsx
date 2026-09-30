@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2 } from "lucide-react";
 
-const seed = [
+const KZ_CITIES=["Все города","Астана","Алматы","Шымкент","Караганда","Актобе","Тараз","Павлодар","Усть-Каменогорск","Семей","Костанай","Кызылорда","Атырау","Актау","Петропавловск","Кокшетау","Талдыкорган","Туркестан","Жезказган","Темиртау","Экибастуз","Рудный","Балхаш","Каскелен","Другой город"];\n\nconst seed = [
   {id:"1", title:"Toyota Camry 70", year:2021, price:14500000, city:"Астана", mileage:62000, fuel:"Бензин", seller:"Частник", promoted:true},
   {id:"2", title:"Hyundai Tucson", year:2022, price:16900000, city:"Астана", mileage:41000, fuel:"Бензин", seller:"Автосалон"},
   {id:"3", title:"Lexus RX 350", year:2019, price:23500000, city:"Алматы", mileage:78000, fuel:"Бензин", seller:"Частник"},
@@ -49,7 +49,7 @@ export default function HomePage(){
   useEffect(()=>{try{localStorage.setItem("auto-market-listings",JSON.stringify(listings));}catch{}},[listings]);
   useEffect(()=>{try{localStorage.setItem("auto-market-favorites",JSON.stringify(favorites));}catch{}},[favorites]);
 
-  const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>Number(x.mileage)>0); if(category==="new") xs=xs.filter(x=>Number(x.year)>=2025); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort]);
+  const filtered=useMemo(()=>{let xs=listings.filter(x=>(x.title+" "+x.city).toLowerCase().includes(query.toLowerCase())); if(city!=="Все города") xs=xs.filter(x=>x.city===city); if(category==="used") xs=xs.filter(x=>Number(x.mileage)>0); if(category==="new") xs=xs.filter(x=>Number(x.mileage)===0); if(category==="dealer") xs=xs.filter(x=>x.seller==="Автосалон"); return [...xs].sort((a,b)=>sort==="priceAsc"?a.price-b.price:sort==="priceDesc"?b.price-a.price:sort==="year"?b.year-a.year:(Number(b.promoted)-Number(a.promoted)));},[listings,query,city,sort]);
   const toggleFavorite=(id:string)=>setFavorites(xs=>xs.includes(id)?xs.filter(x=>x!==id):[...xs,id]);
   const shareListing=async()=>{if(!selected)return; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:selected.title,text}); else {await navigator.clipboard?.writeText(text);setNotice("Ссылка/описание объявления скопировано");}}catch{}};
 
@@ -86,7 +86,7 @@ export default function HomePage(){
     </section>
 
     <div className="searchBox"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")} title="Сортировка"><SlidersHorizontal size={18}/></button></div>
-    <div className="filters"><select value={city} onChange={e=>setCity(e.target.value)}><option>Все города</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option></select><select value={sort} onChange={e=>setSort(e.target.value)}><option value="new">Сначала новые</option><option value="priceAsc">Цена: дешевле</option><option value="priceDesc">Цена: дороже</option><option value="year">Год: новее</option></select></div>
+    <div className="filters"><select value={city} onChange={e=>setCity(e.target.value)}>{KZ_CITIES.map(x=><option key={x}>{x}</option>)}</select><select value={sort} onChange={e=>setSort(e.target.value)}><option value="new">Сначала новые</option><option value="priceAsc">Цена: дешевле</option><option value="priceDesc">Цена: дороже</option><option value="year">Год: новее</option></select></div>
 
     <div className="chips"><button className={"chip "+(category==="all"?"active":"")} onClick={()=>setCategory("all")}>Все авто</button><button className={"chip "+(category==="used"?"active":"")} onClick={()=>setCategory("used")}>С пробегом</button><button className={"chip "+(category==="new"?"active":"")} onClick={()=>setCategory("new")}>Новые</button><button className={"chip "+(category==="dealer"?"active":"")} onClick={()=>setCategory("dealer")}>Салоны</button></div>
 
@@ -118,7 +118,7 @@ export default function HomePage(){
         <input className="marketInput" placeholder="Марка и модель *" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
         <div className="two"><input className="marketInput" placeholder="Год" value={form.year} onChange={e=>setForm({...form,year:e.target.value})}/><input className="marketInput" placeholder="Пробег, км" value={form.mileage} onChange={e=>setForm({...form,mileage:e.target.value})}/></div>
         <input className="marketInput" placeholder="Цена, ₸ *" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/><input className="marketInput" type="tel" inputMode="tel" placeholder="Телефон продавца *" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/>
-        <select className="marketInput" value={form.city} onChange={e=>setForm({...form,city:e.target.value})}><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Другой город</option></select>
+        <select className="marketInput" value={form.city} onChange={e=>setForm({...form,city:e.target.value})}>{KZ_CITIES.filter(x=>x!=="Все города").map(x=><option key={x}>{x}</option>)}</select>
         <textarea className="marketInput" placeholder="Описание" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
         <div className="freePublishNote"><b>Размещение бесплатно</b><span>Без оплаты и комиссий. Добавь фото и контакты — покупатели смогут позвонить.</span></div><button className="primaryBtn" onClick={addListing}>Опубликовать бесплатно</button>
       </>}
