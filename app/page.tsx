@@ -58,10 +58,15 @@ export default function HomePage(){
   const shareListing=async()=>{if(!selected)return; const url=`${window.location.origin}/listing/${encodeURIComponent(selected.id)}`; const text=`${selected.title} — ${money(normalizePrice(selected.price))} · ${selected.city} · AutoKZ`; try{if(navigator.share) await navigator.share({title:`${selected.title} — AutoKZ`,text,url}); else {await navigator.clipboard?.writeText(url);setNotice("Ссылка на объявление AutoKZ скопирована");}}catch{}};
   const uploadSharePhotos=async(id:string,items:string[])=>{const urls:string[]=[]; for(let i=0;i<Math.min(items.length,6);i++){try{const blob=await (await fetch(items[i])).blob(); const path=`shares/${id}-${i}.jpg`; const {error}=await supabase.storage.from("vehicle-photos").upload(path,blob,{contentType:"image/jpeg",upsert:true}); if(!error){const {data}=supabase.storage.from("vehicle-photos").getPublicUrl(path); urls.push(data.publicUrl);}}catch{}} return urls;};
 
-  const addListing=()=>{
+  const addListing=async()=>{
     if(!form.title||!form.price){setNotice("Укажите марку/модель и цену");return;} if(!form.phone){setNotice("Укажите номер телефона продавца");return;}
-    const item={id:Date.now().toString(),...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false,photos:[...photos]};
-    setListings(xs=>[item,...xs]);setSelected(item);setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано");
+    setNotice("Публикуем объявление…");
+    const id=crypto.randomUUID();
+    const sharePhotos=await uploadSharePhotos(id,photos);
+    const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:Number(form.mileage)||0,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
+    const {error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone});
+    if(error){setNotice("Не удалось опубликовать объявление в AutoKZ. Попробуйте ещё раз.");return;}
+    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
   };
   const [photos,setPhotos]=useState<string[]>([]);
   const addPhotos=async(e:any)=>{
