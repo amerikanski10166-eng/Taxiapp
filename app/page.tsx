@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2, Home, MessageCircle, Settings, Globe2, Info, BookOpen, UsersRound } from "lucide-react";
+import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2, Home, MessageCircle, Settings, Globe2, Info, BookOpen, UsersRound, Truck, Wrench, Bike, Calculator, Megaphone, BadgeCheck } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 const KZ_CITIES=["Все города","Астана","Алматы","Шымкент","Караганда","Актобе","Тараз","Павлодар","Усть-Каменогорск","Семей","Костанай","Кызылорда","Атырау","Актау","Петропавловск","Кокшетау","Талдыкорган","Туркестан","Жезказган","Темиртау","Экибастуз","Рудный","Балхаш","Каскелен","Другой город"];
@@ -110,41 +110,38 @@ export default function HomePage(){
   const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Объявление отмечено как ТОП в этом браузере. Платные функции пока отключены.");};
 
   return <main className="market">
-    <header className="marketTop">
-      <div><div className="brand">AUTO<span>KZ</span></div><div className="brandSub">автомобили Казахстана</div></div>
-      <button className="roundBtn" onClick={()=>{setCabinetEntered(false);setModal("cabinet")}}><User size={20}/></button>
-    </header>
-
-    <section className="hero">
-      <div><div className="eyebrow">AUTO MARKETPLACE</div><h1>Купи или продай<br/>автомобиль</h1><p>Объявления по всему Казахстану.</p></div>
-      <button className="addBtn" onClick={()=>setModal("add")}><Plus size={18}/> Продать авто</button>
+    <header className="kolesaTop"><div className="brand">Auto<span>KZ</span></div></header>
+    <section className="marketSearch"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")}><SlidersHorizontal size={18}/></button></section>
+    <section className="categoryGrid">
+      <button className="categoryLarge" onClick={()=>setCategory("all")}><span>Легковые<br/>авто</span><CarFront size={55}/></button>
+      <button className="categoryLarge" onClick={()=>setCategory("dealer")}><span>Коммер-<br/>ческие</span><Truck size={50}/></button>
+      <button className="categoryLarge" onClick={()=>setNotice("Раздел запчастей готовится к запуску.")}><span>Запчасти,<br/>автотовары</span><Wrench size={47}/></button>
+      <button className="categorySmall" onClick={()=>setNotice("Откройте любое объявление, чтобы использовать кредитный калькулятор.")}><Calculator size={29}/><span>Авто в кредит</span></button>
+      <button className="categorySmall" onClick={()=>setCategory("new")}><CarFront size={31}/><span>Новые авто</span></button>
+      <button className="categorySmall" onClick={()=>setNotice("Раздел мототехники готовится к запуску.")}><Bike size={31}/><span>Мототехника</span></button>
     </section>
-
-    <div className="searchBox"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")} title="Сортировка"><SlidersHorizontal size={18}/></button></div>
-    <div className="filters"><select value={city} onChange={e=>setCity(e.target.value)}>{KZ_CITIES.map(x=><option key={x}>{x}</option>)}</select><select value={sort} onChange={e=>setSort(e.target.value)}><option value="new">Сначала новые</option><option value="priceAsc">Цена: дешевле</option><option value="priceDesc">Цена: дороже</option><option value="year">Год: новее</option></select></div>
-
-    <div className="chips"><button className={"chip "+(category==="all"?"active":"")} onClick={()=>setCategory("all")}>Все авто</button><button className={"chip "+(category==="used"?"active":"")} onClick={()=>setCategory("used")}>С пробегом</button><button className={"chip "+(category==="new"?"active":"")} onClick={()=>setCategory("new")}>Новые</button><button className={"chip "+(category==="dealer"?"active":"")} onClick={()=>setCategory("dealer")}>Салоны</button></div>
-
-    <section className="marketSection">
-      <div className="sectionHead"><div><h2>Автомобили</h2><span>{filtered.length} объявлений</span></div><button className="textBtn">Сортировка <ChevronRight size={14}/></button></div>
-      <div className="carGrid">{filtered.map(car=><div key={car.id} className={"carCard "+(car.promoted?"promoted":"")}><button className="cardMain" onClick={()=>{setSelected(car);setModal("listing")}}>
-        <div className="carPhoto">
-  {car.photos?.[0] ? <img className="cardVehiclePhoto" src={car.photos[0]} alt={car.title}/> : <><div className="carPhotoGlow"></div><CarFront size={52}/></>}
-  {car.promoted&&<b><Zap size={12}/> ТОП</b>}
-  <span className="photoCount"><Images size={12}/> {car.photos?.length||0} фото</span>
-</div>
-        <div className="carBody"><div className="cardCity">{car.city}</div><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><div className="carSpecs"><span>{car.year}</span><span>{car.mileage.toLocaleString("ru-RU")} км</span><span>{car.fuel}</span></div><small>{car.seller}</small></div>
-      </button><button className={"favBtn "+(favorites.includes(car.id)?"favOn":"")} onClick={()=>toggleFavorite(car.id)} aria-label="Избранное"><Heart size={16} fill={favorites.includes(car.id)?"currentColor":"none"}/></button></div>)}</div>
+    <section className="serviceGrid">
+      <button onClick={()=>setNotice("Проверка VIN доступна внутри объявления.")}><BadgeCheck size={32}/><span>История авто</span></button>
+      <button onClick={()=>{setSort("priceAsc");setNotice("Показываем объявления от более доступных.")}}><Calculator size={31}/><span>Оценка авто</span></button>
+      <button onClick={()=>setNotice("Новости AutoKZ скоро появятся здесь.")}><Megaphone size={31}/><span>Новости</span></button>
+      <button onClick={()=>setNotice("AutoKZ Plus — раздел в разработке.")}><Zap size={31}/><span>AutoKZ Plus</span></button>
     </section>
-
-    <section className="sellerBanner"><div><span>ДЛЯ ПРОДАВЦОВ</span><h2>Разместить авто<br/>можно за минуту</h2><p>Создай объявление, добавь фото и получай звонки от покупателей.</p></div><button onClick={()=>setModal("add")}>Подать объявление <ChevronRight size={16}/></button></section>
+    <section className="listingFeed">
+      <div className="feedTitle"><h2>Объявления</h2><button onClick={()=>setSort(sort==="new"?"priceAsc":"new")}>Сортировка <ChevronRight size={15}/></button></div>
+      {filtered.map(car=><article key={car.id} className="feedCard"><button className="feedOpen" onClick={()=>{setSelected(car);setModal("listing")}}>
+        <div className="feedPhoto">{car.photos?.[0]?<img src={car.photos[0]} alt={car.title}/>:<CarFront size={58}/>}<span>{car.photos?.length||0}</span></div>
+        <div className="feedInfo"><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><div className="creditTag">{Math.round(normalizePrice(car.price)*0.037).toLocaleString("ru-RU")} ₸ <small>×36</small></div><p>Б/у · {car.year} г. · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel} · {car.city}</p><small>{car.city}</small></div>
+      </button><button className={"feedFav "+(favorites.includes(car.id)?"favOn":"")} onClick={()=>toggleFavorite(car.id)}><Heart size={22} fill={favorites.includes(car.id)?"currentColor":"none"}/></button></article>)}
+    </section>
 
     <nav className="marketNav">
-      <button className="active" onClick={()=>{setModal(null);window.scrollTo({top:0,behavior:"smooth"})}}><Home size={20}/><span>Главная</span></button>
-      <button onClick={()=>{setModal("income")}}><Heart size={20}/><span>Избранные</span></button>
-      <button className="marketNavAdd" onClick={()=>setModal("add")}><span className="navPlus"><Plus size={23}/></span><span>Подать объявление</span></button>
-      <button onClick={()=>setNotice("Сообщения появятся здесь, когда покупатель или продавец начнёт диалог.")}><MessageCircle size={20}/><span>Сообщения</span></button>
-      <button onClick={()=>{setCabinetEntered(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
+      <button className={modal===null&&notice!=="__messages__"?"active":""} onClick={()=>{setNotice("");setModal(null);setSettingsOpen(false);window.scrollTo({top:0,behavior:"smooth"})}}><Home size={20}/><span>AutoKZ</span></button>
+      <button className={modal==="income"?"active":""} onClick={()=>{setNotice("");setModal("income")}}><Heart size={20}/><span>Избранное</span></button>
+      <button className="marketNavAdd" onClick={()=>{setNotice("");setModal("add")}}><span className="navPlus"><Plus size={22}/></span><span>Подать</span></button>
+      <button className={notice==="__messages__"?"active":""} onClick={()=>{setNotice("__messages__");setModal(null)}}><MessageCircle size={20}/><span>Сообщения</span></button>
+      <button className={notice==="__messages__"&&<div className="messagesScreen"><h2>Сообщения</h2><div className="messagesEmpty"><MessageCircle size={74}/><h3>Пока сообщений нет</h3><p>Войдите в кабинет, чтобы увидеть диалоги</p></div><div className="messageAd"><div><b>С нами рули —<br/>больше выгоды лови!</b><strong>AutoKZ</strong></div><Megaphone size={50}/></div></div>}
+
+      {modal==="cabinet"?"active":""} onClick={()=>{setNotice("");setCabinetEntered(false);setSettingsOpen(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
     </nav>
 
     {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}><button className="closeBtn" onClick={()=>setModal(null)}><X size={18}/></button>
@@ -163,7 +160,7 @@ export default function HomePage(){
 
       {modal==="cabinet"&&<><div className="cabinetHeader"><h2>Мой кабинет</h2><button className="cabinetSettingsBtn" onClick={()=>setSettingsOpen(true)} aria-label="Настройки"><Settings size={19}/></button></div>{!cabinetEntered?<><div className="cabinetLanding"><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>У вас есть объявления?</h2><p className="muted">Войдите в кабинет, чтобы управлять своими автомобилями, смотреть предложения покупателей и добавлять новые объявления.</p><button className="cabinetLoginBtn" onClick={()=>setCabinetEntered(true)}><User size={17}/> Войти в кабинет</button></div><div className="cabinetPublish"><div className="cabinetPublishBrand">AUTO<span>KZ</span></div><h3>Размещайтесь на AutoKZ</h3><p>Ваше объявление увидят тысячи покупателей.</p><button className="cabinetPublishBtn" onClick={()=>setModal("add")}><Plus size={17}/> Подать объявление</button></div></>:<><div className="eyebrow">ЛИЧНЫЙ КАБИНЕТ</div><h2>Мои объявления</h2><div className="profileCard"><div className="profileAvatar"><User size={22}/></div><div className="profileInfo"><b>Мой профиль</b><span>Продавец на AutoKZ</span></div><div className="profileBadge">Бесплатно</div></div><div className="cabStat"><div><b>{listings.length}</b><span>объявлений</span></div><div><b>{favorites.length}</b><span>в избранном</span></div><div><b>{listings.filter(x=>x.promoted).length}</b><span>ТОП</span></div></div>{listings.slice(0,5).map(x=><button className="cabRow" key={x.id} onClick={()=>{setSelected(x);setModal("listing")}}><span>{x.title}</span><b>{money(normalizePrice(x.price))}</b></button>)}<button className="primaryBtn" onClick={()=>setModal("add")}><Plus size={16}/> Добавить автомобиль</button></>}</>}
 
-      {settingsOpen&&<div className="cabinetSettings"><div className="cabinetSettingsHead"><div><div className="eyebrow">НАСТРОЙКИ</div><h3>Настройки</h3></div><button className="settingsClose" onClick={()=>setSettingsOpen(false)}><X size={18}/></button></div><div className="settingsLabel"><Globe2 size={17}/> Язык</div><div className="languageOptions">{["Қазақша","Русский","English"].map(x=><button key={x} className={language===x?"active":""} onClick={()=>setLanguage(x)}>{x}{language===x&&<span>✓</span>}</button>)}</div><div className="cabinetMenuList"><button><Info size={17}/><span>О приложении</span><ChevronRight size={16}/></button><button><BookOpen size={17}/><span>Auto KZ Гид</span><ChevronRight size={16}/></button><button><UsersRound size={17}/><span>Auto KZ Group</span><ChevronRight size={16}/></button></div><div className="aboutMore"><b>Узнайте о нас больше</b><p>Новости Auto KZ, команда, идеи и развитие проекта.</p></div></div>} {modal==="income"&&<><div className="eyebrow">ДОХОД ВЛАДЕЛЬЦА</div><h2>Доход</h2><div className="incomeBox"><Wallet size={22}/><b>0 ₸</b><span>Реальные платежи появятся после подключения платёжного сервиса.</span></div><p className="muted">Здесь будет закрытая админ-панель: платежи, продвижения, продавцы и статистика. Сейчас это только интерфейс, без притворной оплаты.</p></>}
+      {settingsOpen&&<div className="cabinetSettings"><div className="cabinetSettingsHead"><div><div className="eyebrow">НАСТРОЙКИ</div><h3>Настройки</h3></div><button className="settingsClose" onClick={()=>setSettingsOpen(false)}><X size={18}/></button></div><div className="settingsLabel"><Globe2 size={17}/> Язык</div><div className="languageOptions">{["Қазақша","Русский","English"].map(x=><button key={x} className={language===x?"active":""} onClick={()=>setLanguage(x)}>{x}{language===x&&<span>✓</span>}</button>)}</div><div className="cabinetMenuList"><button><Info size={17}/><span>О приложении</span><ChevronRight size={16}/></button><button><BookOpen size={17}/><span>Auto KZ Гид</span><ChevronRight size={16}/></button><button><UsersRound size={17}/><span>Auto KZ Group</span><ChevronRight size={16}/></button></div><div className="aboutMore"><b>Узнайте о нас больше</b><p>Новости Auto KZ, команда, идеи и развитие проекта.</p></div></div>} {modal==="income"&&<div className="favoritesScreen"><h2>Избранное</h2>{favorites.length===0?<div className="favoritesEmpty"><Heart size={62}/><h3>Пока ничего нет</h3><p>Нажимайте на сердечко у понравившихся автомобилей.</p></div>:<div>{listings.filter(x=>favorites.includes(x.id)).map(car=><article className="feedCard" key={car.id}><button className="feedOpen" onClick={()=>{setSelected(car);setModal("listing")}}><div className="feedPhoto">{car.photos?.[0]?<img src={car.photos[0]} alt={car.title}/>:<CarFront size={58}/>}</div><div className="feedInfo"><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><p>{car.year} г. · {car.mileage.toLocaleString("ru-RU")} км · {car.city}</p></div></button><button className="feedFav favOn" onClick={()=>toggleFavorite(car.id)}><Heart size={22} fill="currentColor"/></button></article>)}</div>}</div>}
     </div></div>}
     {lightboxOpen&&selected?.photos?.length>0&&<div className="photoLightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографии" onClick={()=>setLightboxOpen(false)}><button className="lightboxClose" onClick={()=>setLightboxOpen(false)} aria-label="Закрыть"><X size={22}/></button><button className="lightboxImageButton" onClick={e=>e.stopPropagation()} aria-label="Фотография"><img src={selected.photos[galleryIndex]} alt={`Фото ${selected.title} ${galleryIndex+1} на весь экран`}/></button>{selected.photos.length>1&&<><button className="lightboxArrow lightboxPrev" onClick={e=>{e.stopPropagation();setGalleryIndex(i=>(i-1+selected.photos.length)%selected.photos.length)}} aria-label="Предыдущее фото">‹</button><button className="lightboxArrow lightboxNext" onClick={e=>{e.stopPropagation();setGalleryIndex(i=>(i+1)%selected.photos.length)}} aria-label="Следующее фото">›</button><div className="lightboxCounter">{galleryIndex+1} / {selected.photos.length}</div></>}</div>}
     {notice&&<div className="marketToast">{notice}</div>}
