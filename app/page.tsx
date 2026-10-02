@@ -165,9 +165,3 @@ export default function HomePage(){
   </main>;
 }
 
-
-/* Clear navigation and strict image clipping */
-.backBtn{position:absolute;left:10px;top:10px;z-index:12;width:40px;height:40px;border:1px solid #e2e8f0;background:#fff;color:#334155;border-radius:12px;display:grid;place-items:center;cursor:pointer;transform:rotate(180deg);box-shadow:0 4px 14px #0f172a12}
-.settingsBackBtn{width:40px;height:40px;border:1px solid #e2e8f0;background:#f8fafc;color:#334155;border-radius:12px;display:grid;place-items:center;cursor:pointer;transform:rotate(180deg);position:absolute;left:14px;top:14px;z-index:5}
-.cabinetSettings{position:absolute;overflow:auto}
-.categoryPhoto,.categoryPhoto img,.feedPhoto,.feedPhoto img{contain:paint}
