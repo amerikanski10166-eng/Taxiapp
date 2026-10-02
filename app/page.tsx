@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2 } from "lucide-react";
+import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2, Home, MessageCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 const KZ_CITIES=["Все города","Астана","Алматы","Шымкент","Караганда","Актобе","Тараз","Павлодар","Усть-Каменогорск","Семей","Костанай","Кызылорда","Атырау","Актау","Петропавловск","Кокшетау","Талдыкорган","Туркестан","Жезказган","Темиртау","Экибастуз","Рудный","Балхаш","Каскелен","Другой город"];
@@ -138,9 +138,10 @@ export default function HomePage(){
     <section className="sellerBanner"><div><span>ДЛЯ ПРОДАВЦОВ</span><h2>Разместить авто<br/>можно за минуту</h2><p>Создай объявление, добавь фото и получай звонки от покупателей.</p></div><button onClick={()=>setModal("add")}>Подать объявление <ChevronRight size={16}/></button></section>
 
     <nav className="marketNav">
-      <button className="active"><CarFront size={20}/><span>Авто</span></button>
-      <button onClick={()=>setModal("add")}><Plus size={20}/><span>Продать</span></button>
-      <button onClick={()=>setModal("income")}><Wallet size={20}/><span>Доход</span></button>
+      <button className="active" onClick={()=>{setModal(null);window.scrollTo({top:0,behavior:"smooth"})}}><Home size={20}/><span>Главная</span></button>
+      <button onClick={()=>{setModal("income")}}><Heart size={20}/><span>Избранные</span></button>
+      <button className="marketNavAdd" onClick={()=>setModal("add")}><span className="navPlus"><Plus size={23}/></span><span>Подать объявление</span></button>
+      <button onClick={()=>setNotice("Сообщения появятся здесь, когда покупатель или продавец начнёт диалог.")}><MessageCircle size={20}/><span>Сообщения</span></button>
       <button onClick={()=>{setCabinetEntered(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
     </nav>
 
