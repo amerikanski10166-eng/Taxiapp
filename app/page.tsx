@@ -78,9 +78,11 @@ export default function HomePage(){
     const id=crypto.randomUUID();
     const sharePhotos=await uploadSharePhotos(id,photos);
     const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:mileage,vehicleCondition:form.vehicleCondition,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
-    const {error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone,vehicle_condition:item.vehicleCondition,vin:form.vin||null,vin_valid:!!form.vin&&validateVin(form.vin)});
+    const {data:created,error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone,vehicle_condition:item.vehicleCondition,vin:form.vin||null,vin_valid:!!form.vin&&validateVin(form.vin)}).select("id,status,moderation_status,moderation_score,moderation_reason").maybeSingle();
     if(error){setNotice("Не удалось опубликовать объявление в AutoKZ. Попробуйте ещё раз.");return;}
-    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});try{localStorage.setItem("autokz_seller_phone",item.phone);}catch{}setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:"",vin:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
+    const finalStatus=created?.status||"published";
+    const finalItem={...item,status:finalStatus,moderation_status:created?.moderation_status||null,moderation_score:created?.moderation_score??null,moderation_reason:created?.moderation_reason||null};
+    setListings(xs=>[finalItem,...xs]);setSelected({...finalItem,photos:sharePhotos.length?sharePhotos:item.photos});try{localStorage.setItem("autokz_seller_phone",item.phone);}catch{}setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:"",vin:""});setModal("listing");setNotice(finalStatus==="pending_review"?"Объявление отправлено на бесплатную проверку безопасности. После проверки оно появится в каталоге.":"Объявление опубликовано в AutoKZ");
   };
   const [photos,setPhotos]=useState<string[]>([]);
   const addPhotos=async(e:any)=>{
