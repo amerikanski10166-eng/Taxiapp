@@ -80,7 +80,7 @@ export default function HomePage(){
     const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),mileage:mileage,vehicleCondition:form.vehicleCondition,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
     const {error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone,vehicle_condition:item.vehicleCondition,vin:form.vin||null,vin_valid:!!form.vin&&validateVin(form.vin)});
     if(error){setNotice("Не удалось опубликовать объявление в AutoKZ. Попробуйте ещё раз.");return;}
-    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});try{localStorage.setItem("autokz_seller_phone",item.phone);}catch{}setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
+    setListings(xs=>[item,...xs]);setSelected({...item,photos:sharePhotos.length?sharePhotos:item.photos});try{localStorage.setItem("autokz_seller_phone",item.phone);}catch{}setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",mileage:"",vehicleCondition:"used",fuel:"Бензин",phone:"",description:"",vin:""});setModal("listing");setNotice("Объявление опубликовано в AutoKZ");
   };
   const [photos,setPhotos]=useState<string[]>([]);
   const addPhotos=async(e:any)=>{
@@ -101,7 +101,7 @@ export default function HomePage(){
   const checkVin=()=>{const vin=vinInput.trim().toUpperCase();if(!validateVin(vin)){setNotice("VIN должен содержать 17 символов и пройти контрольную проверку.");return;}setNotice("VIN корректный. Для официальной истории потребуется авторизация в госуслуге eGov.");};
   const updateOfferStatus=async(id:string,status:string)=>{const {error}=await supabase.from("auto_offers").update({status,updated_at:new Date().toISOString()}).eq("id",id);if(!error)setSellerOffers(xs=>xs.map(x=>x.id===id?{...x,status}:x));};
   const calculateCredit=()=>{const price=normalizePrice(selected?.price);const down=normalizePrice(creditDown);const principal=Math.max(0,price-down);const r=Number(creditRate)/100/12;const n=Math.max(1,Number(creditTerm)||60);const payment=r?principal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):principal/n;return Math.round(payment);};
-  const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Продвижение выбрано. Подключение реальной оплаты — следующий шаг.");};
+  const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Объявление отмечено как ТОП в этом браузере. Платные функции пока отключены.");};
 
   return <main className="market">
     <header className="marketTop">
