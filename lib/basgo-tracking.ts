@@ -1,5 +1,10 @@
 import { supabase } from "./supabase";
 
+function getSupabase() {
+  if (!supabase) throw new Error("Supabase не настроен: проверьте переменные окружения.");
+  return supabase;
+}
+
 export type TrackingPoint = {
   id?: string;
   ride_id: string;
@@ -17,7 +22,7 @@ export async function sendDriverLocation(
   rideId: string,
   point: Omit<TrackingPoint, "ride_id">
 ) {
-  return supabase.rpc("basgo_update_driver_location", {
+  return getSupabase().rpc("basgo_update_driver_location", {
     p_token: sessionToken,
     p_ride_id: rideId,
     p_latitude: point.latitude,
@@ -32,7 +37,7 @@ export function subscribeToOrderTracking(
   trackingToken: string,
   onLocation: (point: TrackingPoint) => void
 ) {
-  const channel = supabase
+  const channel = getSupabase()
     .channel(`order:${trackingToken}`)
     .on("broadcast", { event: "location" }, ({ payload }) => {
       if (
@@ -46,6 +51,6 @@ export function subscribeToOrderTracking(
     .subscribe();
 
   return () => {
-    void supabase.removeChannel(channel);
+    void getSupabase().removeChannel(channel);
   };
 }
