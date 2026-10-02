@@ -15,6 +15,7 @@ const legalItems = [
 export default function BasgoPrototype() {
   const [step, setStep] = useState<"welcome" | "legal" | "role" | "client" | "courier">("welcome");
   const [accepted, setAccepted] = useState<boolean[]>([false, false, false, false]);
+  const [mapProvider, setMapProvider] = useState<"yandex" | "2gis" | "other">("yandex");
 
   const allAccepted = accepted.every(Boolean);
   const toggle = (i: number) => setAccepted((x) => x.map((v, n) => (n === i ? !v : v)));
@@ -29,7 +30,7 @@ export default function BasgoPrototype() {
               <ChevronLeft size={20} />
             </button>
           )}
-          <div className="basgo-logo">TO<span>SO</span></div>
+          <div className="basgo-logo">BAS<span>GO</span></div>
           <div className="basgo-status"><span /> защищено</div>
         </header>
 
@@ -81,7 +82,7 @@ export default function BasgoPrototype() {
             <div className="basgo-task"><span>⚡</span><div><b>Срочное поручение</b><small>Опишите задачу своими словами</small></div><ArrowRight /></div>
             <div className="basgo-task"><span>📦</span><div><b>Доставка</b><small>Забрать и передать отправление</small></div><ArrowRight /></div>
             <div className="basgo-task"><span>🔄</span><div><b>Возврат</b><small>Вернуть товар отправителю</small></div><ArrowRight /></div>
-            <div className="basgo-trust"><ShieldCheck /><div><b>Каждая передача фиксируется</b><span>Код, время, статус и история заказа.</span></div></div>
+            <div className="basgo-map"><div className="basgo-map-head"><div><b>Карта заказа</b><span>Маршрут и точки в одном экране</span></div><MapPin size={20} /></div><div className="basgo-map-preview"><div className="map-road r1"/><div className="map-road r2"/><div className="map-point pickup">A</div><div className="map-point dropoff">B</div><div className="map-route"/></div><div className="basgo-map-switch"><button className={mapProvider==="yandex" ? "active" : ""} onClick={()=>setMapProvider("yandex")}>Яндекс</button><button className={mapProvider==="2gis" ? "active" : ""} onClick={()=>setMapProvider("2gis")}>2ГИС</button><button className={mapProvider==="other" ? "active" : ""} onClick={()=>setMapProvider("other")}>Другие</button></div><small className="basgo-map-caption">Провайдер карты: {mapProvider==="yandex" ? "Яндекс Карты" : mapProvider==="2gis" ? "2ГИС" : "другой подключённый сервис"}</small></div><div className="basgo-trust"><ShieldCheck /><div><b>Каждая передача фиксируется</b><span>Код, время, статус и история заказа.</span></div></div>
             <div className="basgo-bottom-stat"><WalletCards /> Оплата: наличные или безналичные способы, доступные в сервисе</div>
           </div>
         )}
