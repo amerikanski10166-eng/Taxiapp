@@ -27,3 +27,5 @@
 .lightboxPrev{left:14px}.lightboxNext{right:14px}
 .lightboxCounter{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:#000b;color:#fff;border-radius:12px;padding:7px 11px;font-size:11px;font-weight:800;z-index:4}
 @media(max-width:520px){.photoLightbox{padding:8px}.lightboxArrow{width:42px;height:42px}.lightboxPrev{left:8px}.lightboxNext{right:8px}.lightboxClose{right:10px;top:10px}}
+
+.offerVehicle{display:flex;gap:12px;align-items:center;margin:8px 0 10px;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px}.offerVehiclePhoto{width:88px;height:68px;flex:0 0 88px;border-radius:10px;overflow:hidden;background:#eaf2fb;display:grid;place-items:center;color:#2563eb}.offerVehiclePhoto img{width:100%;height:100%;object-fit:cover;display:block}.offerVehicle h2{margin:0 0 3px;font-size:18px}.offerVehicle .muted{margin:0}
