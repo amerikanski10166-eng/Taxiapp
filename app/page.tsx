@@ -113,12 +113,12 @@ export default function HomePage(){
     <header className="kolesaTop"><div className="brand">Auto<span>KZ</span></div></header>
     <section className="marketSearch"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")}><SlidersHorizontal size={18}/></button></section>
     <section className="categoryGrid">
-      <button className="categoryLarge" onClick={()=>setCategory("all")}><span>Легковые<br/>авто</span><CarFront size={55}/></button>
-      <button className="categoryLarge" onClick={()=>setCategory("dealer")}><span>Коммер-<br/>ческие</span><Truck size={50}/></button>
-      <button className="categoryLarge" onClick={()=>setNotice("Раздел запчастей готовится к запуску.")}><span>Запчасти,<br/>автотовары</span><Wrench size={47}/></button>
-      <button className="categorySmall" onClick={()=>setNotice("Откройте любое объявление, чтобы использовать кредитный калькулятор.")}><Calculator size={29}/><span>Авто в кредит</span></button>
-      <button className="categorySmall" onClick={()=>setCategory("new")}><CarFront size={31}/><span>Новые авто</span></button>
-      <button className="categorySmall" onClick={()=>setNotice("Раздел мототехники готовится к запуску.")}><Bike size={31}/><span>Мототехника</span></button>
+      <button className="categoryLarge categoryPhoto categoryPassenger" onClick={()=>setCategory("all")}><img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=85" alt="Легковые автомобили"/><span>Легковые<br/>авто</span></button>
+      <button className="categoryLarge categoryPhoto" onClick={()=>setCategory("dealer")}><img src="https://images.unsplash.com/photo-1586191582151-f73872dfb8f1?auto=format&fit=crop&w=900&q=85" alt="Коммерческий транспорт"/><span>Коммер-<br/>ческие</span></button>
+      <button className="categoryLarge categoryPhoto" onClick={()=>setNotice("Раздел запчастей готовится к запуску.")}><img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=900&q=85" alt="Автозапчасти"/><span>Запчасти,<br/>автотовары</span></button>
+      <button className="categorySmall categoryPhoto" onClick={()=>setNotice("Откройте любое объявление, чтобы использовать кредитный калькулятор.")}><img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=700&q=85" alt="Авто в кредит"/><span>Авто в кредит</span><i className="categoryBadge">%</i></button>
+      <button className="categorySmall categoryPhoto categoryNew" onClick={()=>setCategory("new")}><img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=700&q=85" alt="Новые автомобили"/><span>Новые авто</span><i className="giftBow">🎀</i></button>
+      <button className="categorySmall categoryPhoto" onClick={()=>setNotice("Раздел мототехники готовится к запуску.")}><img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=700&q=85" alt="Мототехника"/><span>Мототехника</span></button>
     </section>
     <section className="serviceGrid">
       <button onClick={()=>setNotice("Проверка VIN доступна внутри объявления.")}><BadgeCheck size={32}/><span>История авто</span></button>
