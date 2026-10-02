@@ -3,7 +3,7 @@
 import "./basgo.css";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, Bike, Check, ChevronLeft, FileCheck2, Headphones, ShieldCheck, UserRound, WalletCards, MapPin, PackageCheck } from "lucide-react";
+import { ArrowRight, Bike, Check, ChevronLeft, FileCheck2, Headphones, ShieldCheck, UserRound, WalletCards, MapPin, PackageCheck, Navigation, Radio } from "lucide-react";
 
 const legalItems = [
   { title: "Пользовательское соглашение", text: "Правила использования платформы BASGO." },
@@ -18,6 +18,7 @@ export default function BasgoPrototype() {
   const [mapProvider, setMapProvider] = useState<"yandex" | "2gis" | "other">("yandex");
   const [gpsEnabled, setGpsEnabled] = useState(false);
   const [gpsText, setGpsText] = useState("GPS ожидает разрешение");
+  const [trackingMode, setTrackingMode] = useState<"client" | "order">("order");
 
   const allAccepted = accepted.every(Boolean);
   useEffect(() => {
