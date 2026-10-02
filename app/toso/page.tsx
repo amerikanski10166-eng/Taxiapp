@@ -1,5 +1,7 @@
 "use client";
 
+import "./toso.css";
+
 import { useState } from "react";
 import { ArrowRight, Bike, Check, ChevronLeft, FileCheck2, Headphones, ShieldCheck, UserRound, WalletCards, MapPin, PackageCheck } from "lucide-react";
 
