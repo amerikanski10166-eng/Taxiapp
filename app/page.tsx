@@ -139,9 +139,7 @@ export default function HomePage(){
       <button className={modal==="income"?"active":""} onClick={()=>{setNotice("");setModal("income")}}><Heart size={20}/><span>Избранное</span></button>
       <button className="marketNavAdd" onClick={()=>{setNotice("");setModal("add")}}><span className="navPlus"><Plus size={22}/></span><span>Подать</span></button>
       <button className={notice==="__messages__"?"active":""} onClick={()=>{setNotice("__messages__");setModal(null)}}><MessageCircle size={20}/><span>Сообщения</span></button>
-      <button className={notice==="__messages__"&&<div className="messagesScreen"><h2>Сообщения</h2><div className="messagesEmpty"><MessageCircle size={74}/><h3>Пока сообщений нет</h3><p>Войдите в кабинет, чтобы увидеть диалоги</p></div><div className="messageAd"><div><b>С нами рули —<br/>больше выгоды лови!</b><strong>AutoKZ</strong></div><Megaphone size={50}/></div></div>}
-
-      {modal==="cabinet"?"active":""} onClick={()=>{setNotice("");setCabinetEntered(false);setSettingsOpen(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
+      <button className={modal==="cabinet"?"active":""} onClick={()=>{setNotice("");setCabinetEntered(false);setSettingsOpen(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
     </nav>
 
     {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}><button className="closeBtn" onClick={()=>setModal(null)}><X size={18}/></button>
