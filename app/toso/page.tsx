@@ -2,7 +2,7 @@
 
 import "./basgo.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Bike, Check, ChevronLeft, FileCheck2, Headphones, ShieldCheck, UserRound, WalletCards, MapPin, PackageCheck } from "lucide-react";
 
 const legalItems = [
@@ -16,9 +16,19 @@ export default function BasgoPrototype() {
   const [step, setStep] = useState<"welcome" | "legal" | "role" | "client" | "courier">("welcome");
   const [accepted, setAccepted] = useState<boolean[]>([false, false, false, false]);
   const [mapProvider, setMapProvider] = useState<"yandex" | "2gis" | "other">("yandex");
-  const [mapProvider, setMapProvider] = useState<"yandex" | "2gis" | "other">("yandex");
+  const [gpsEnabled, setGpsEnabled] = useState(false);
+  const [gpsText, setGpsText] = useState("GPS ожидает разрешение");
 
   const allAccepted = accepted.every(Boolean);
+  useEffect(() => {
+    if (step !== "client" || !navigator.geolocation) return;
+    const id = navigator.geolocation.watchPosition(
+      p => { setGpsEnabled(true); setGpsText(`GPS: ${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`); },
+      () => { setGpsEnabled(false); setGpsText("Разрешите геолокацию для отслеживания заказа"); },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [step]);
   const toggle = (i: number) => setAccepted((x) => x.map((v, n) => (n === i ? !v : v)));
 
   return (
