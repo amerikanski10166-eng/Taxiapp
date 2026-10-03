@@ -105,7 +105,7 @@ export default function BasgoPrototype() {
         <div className="basgo-glow" />
         <header className="basgo-header">
           {step !== "welcome" && (
-            <button className="basgo-icon" onClick={() => setStep(step === "legal" ? "welcome" : step === "role" ? "legal" : "role")} aria-label="Назад">
+            <button type="button" className="basgo-icon" onClick={() => setStep(step === "legal" ? "welcome" : step === "role" ? "legal" : "role")} aria-label="Назад">
               <ChevronLeft size={20} />
             </button>
           )}
@@ -120,7 +120,7 @@ export default function BasgoPrototype() {
             <h1>Нужно сейчас?<br /><strong>BASGO решит.</strong></h1>
             <p>Доставка, получение, возврат и срочные поручения — с контролем каждого шага.</p>
             <div className="basgo-pills"><span><ShieldCheck size={15} /> Проверенные исполнители</span><span><Headphones size={15} /> Поддержка</span></div>
-            <button className="basgo-primary" onClick={() => setStep("legal")}>Продолжить <ArrowRight size={18} /></button>
+            <button type="button" className="basgo-primary" onClick={() => setStep("legal")}>Продолжить <ArrowRight size={18} /></button>
             <small>Сначала ознакомимся с правилами сервиса.</small>
           </div>
         )}
@@ -139,7 +139,7 @@ export default function BasgoPrototype() {
               ))}
             </div>
             <label className="basgo-master"><input type="checkbox" checked={allAccepted} onChange={(e) => setAccepted(legalItems.map(() => e.target.checked))} /><span>Я ознакомился с документами и согласен с применимыми условиями.</span></label>
-            <button className="basgo-primary" disabled={!allAccepted} onClick={() => setStep("role")}>Продолжить <ArrowRight size={18} /></button>
+            <button type="button" className="basgo-primary" disabled={!allAccepted} onClick={() => setStep("role")}>Продолжить <ArrowRight size={18} /></button>
             <small className="basgo-note"><FileCheck2 size={14} /> Версия и время каждого согласия будут фиксироваться в системе.</small>
           </div>
         )}
@@ -149,8 +149,8 @@ export default function BasgoPrototype() {
             <div className="basgo-kicker">КАК ВЫ БУДЕТЕ ИСПОЛЬЗОВАТЬ BASGO?</div>
             <h2>Выберите роль</h2>
             <p className="basgo-muted">Роль можно будет изменить через обращение в поддержку по правилам сервиса.</p>
-            <button className="basgo-role-card" onClick={() => setStep("client")}><div className="role-icon client"><UserRound /></div><div><b>Я заказчик</b><span>Создаю поручения и отслеживаю выполнение.</span></div><ArrowRight /></button>
-            <button className="basgo-role-card" onClick={() => setStep("courier")}><div className="role-icon courier"><Bike /></div><div><b>Я исполнитель</b><span>Прохожу проверку и выполняю заказы.</span></div><ArrowRight /></button>
+            <button type="button" className="basgo-role-card" onClick={() => setStep("client")}><div className="role-icon client"><UserRound /></div><div><b>Я заказчик</b><span>Создаю поручения и отслеживаю выполнение.</span></div><ArrowRight /></button>
+            <button type="button" className="basgo-role-card" onClick={() => setStep("courier")}><div className="role-icon courier"><Bike /></div><div><b>Я исполнитель</b><span>Прохожу проверку и выполняю заказы.</span></div><ArrowRight /></button>
           </div>
         )}
 
@@ -159,7 +159,7 @@ export default function BasgoPrototype() {
             <div className="basgo-kicker">BASGO CLIENT</div>
             <h2>Чем помочь?</h2>
             <BasgoOrderFlow onTrackingToken={(token) => { setTrackingToken(token); setLivePoint(null); }} />
-            <div className="basgo-map"><div className="basgo-map-head"><div><b>Карта заказа</b><span>Маршрут и точки в одном экране</span></div><MapPin size={20} /></div><BasgoLiveMap livePoint={livePoint} clientPoint={clientPoint} provider={mapProvider} /><div className="basgo-map-switch"><button className={mapProvider==="yandex" ? "active" : ""} onClick={()=>setMapProvider("yandex")}>Яндекс</button><button className={mapProvider==="2gis" ? "active" : ""} onClick={()=>setMapProvider("2gis")}>2ГИС</button><button className={mapProvider==="other" ? "active" : ""} onClick={()=>setMapProvider("other")}>Другие</button></div><small className="basgo-map-caption">Провайдер карты: {mapProvider==="yandex" ? "Яндекс Карты" : mapProvider==="2gis" ? "2ГИС" : "другой подключённый сервис"}{trackingConnected ? " • live-канал подключён" : ""}</small></div><div className="basgo-track-card"><div className="basgo-track-head"><div><b>Живой статус</b><span>Заказ № BASGO-0001</span></div><span className="basgo-live-badge"><i/> LIVE</span></div><div className="basgo-track-line"><div className="basgo-track-node active"><strong>Исполнитель в пути</strong><small>Клиент видит движение на карте</small></div><div className="basgo-track-node"><strong>Прибытие</strong><small>GPS обновляется автоматически</small></div></div><button className="basgo-track-toggle" onClick={() => setTrackingMode(trackingMode === "order" ? "client" : "order")}><Radio size={15}/> {trackingMode === "order" ? "GPS заказа" : "Мой GPS"}</button></div><div className="basgo-trust"><ShieldCheck /><div><b>Каждая передача фиксируется</b><span>Код, время, статус и история заказа.</span></div></div>
+            <div className="basgo-map"><div className="basgo-map-head"><div><b>Карта заказа</b><span>Маршрут и точки в одном экране</span></div><MapPin size={20} /></div><BasgoLiveMap livePoint={livePoint} clientPoint={clientPoint} provider={mapProvider} /><div className="basgo-map-switch"><button type="button" className={mapProvider==="yandex" ? "active" : ""} onClick={()=>setMapProvider("yandex")}>Яндекс</button><button type="button" className={mapProvider==="2gis" ? "active" : ""} onClick={()=>setMapProvider("2gis")}>2ГИС</button><button type="button" className={mapProvider==="other" ? "active" : ""} onClick={()=>setMapProvider("other")}>Другие</button></div><small className="basgo-map-caption">Провайдер карты: {mapProvider==="yandex" ? "Яндекс Карты" : mapProvider==="2gis" ? "2ГИС" : "другой подключённый сервис"}{trackingConnected ? " • live-канал подключён" : ""}</small></div><div className="basgo-track-card"><div className="basgo-track-head"><div><b>Живой статус</b><span>Заказ № BASGO-0001</span></div><span className="basgo-live-badge"><i/> LIVE</span></div><div className="basgo-track-line"><div className="basgo-track-node active"><strong>Исполнитель в пути</strong><small>Клиент видит движение на карте</small></div><div className="basgo-track-node"><strong>Прибытие</strong><small>GPS обновляется автоматически</small></div></div><button type="button" className="basgo-track-toggle" onClick={() => setTrackingMode(trackingMode === "order" ? "client" : "order")}><Radio size={15}/> {trackingMode === "order" ? "GPS заказа" : "Мой GPS"}</button></div><div className="basgo-trust"><ShieldCheck /><div><b>Каждая передача фиксируется</b><span>Код, время, статус и история заказа.</span></div></div>
             <div className="basgo-bottom-stat"><WalletCards /> Оплата: наличные или безналичные способы, доступные в сервисе</div>
           </div>
         )}
