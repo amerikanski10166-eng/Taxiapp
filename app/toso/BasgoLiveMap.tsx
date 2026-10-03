@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TrackingPoint } from "../../lib/basgo-tracking";
 
 declare global {
@@ -75,6 +75,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const clientMarkerRef = useRef<any>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -85,6 +86,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
 
     const init = async () => {
       try {
+        setMapError(null);
         if (provider === "yandex") {
           const ymaps = await loadYandexMaps();
           if (cancelled || !containerRef.current) return;
@@ -112,7 +114,10 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
           addLeafletMarkers(L, mapRef.current, livePoint, clientPoint, markerRef, clientMarkerRef);
         }
       } catch (error) {
-        if (!cancelled) console.warn("BASGO map", error);
+        if (!cancelled) {
+          console.warn("BASGO map", error);
+          setMapError(error instanceof Error ? error.message : "Не удалось загрузить карту");
+        }
       }
     };
 
@@ -159,6 +164,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   return (
     <div className="basgo-real-map">
       <div ref={containerRef} className="basgo-yandex-map" />
+      {mapError && <div className="basgo-map-unavailable"><b>Карта временно недоступна</b><span>{mapError}</span></div>}
       <div className="basgo-map-provider">{provider === "yandex" ? "Яндекс Карты" : provider === "2gis" ? "2ГИС" : "OpenStreetMap"}</div>
       {livePoint && <div className="basgo-map-live-label">● LIVE • исполнитель</div>}
       {((provider === "yandex" && !process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY) || (provider === "2gis" && !process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY)) && (
