@@ -75,6 +75,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const clientMarkerRef = useRef<any>(null);
+  const effectiveProviderRef = useRef<"yandex" | "2gis" | "other">("other");
   const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,14 +88,17 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
     const init = async () => {
       try {
         setMapError(null);
-        if (provider === "yandex") {
+        const effectiveProvider = provider === "yandex" && process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY ? "yandex" : provider === "2gis" && process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY ? "2gis" : "other";
+        effectiveProviderRef.current = effectiveProvider;
+        if (effectiveProvider !== provider) setMapError(provider === "yandex" ? "Ключ Яндекс Карт не подключён. Временно показана OpenStreetMap." : provider === "2gis" ? "Ключ 2ГИС не подключён. Временно показана OpenStreetMap." : null);
+        if (effectiveProvider === "yandex") {
           const ymaps = await loadYandexMaps();
           if (cancelled || !containerRef.current) return;
           mapRef.current = new ymaps.Map(containerRef.current, { center, zoom: initial ? 15 : 11 }, {
             suppressMapOpenBlock: true,
           });
           addYandexMarkers(ymaps, mapRef.current, livePoint, clientPoint, markerRef, clientMarkerRef);
-        } else if (provider === "2gis") {
+        } else if (effectiveProvider === "2gis") {
           const mapgl = await load2GIS();
           if (cancelled || !containerRef.current) return;
           mapRef.current = new mapgl.Map(containerRef.current, {
@@ -125,7 +129,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
     return () => {
       cancelled = true;
       if (mapRef.current?.destroy) mapRef.current.destroy();
-      if (provider === "other" && mapRef.current?.remove) mapRef.current.remove();
+      if (mapRef.current?.remove) mapRef.current.remove();
       mapRef.current = null;
       markerRef.current = null;
       clientMarkerRef.current = null;
@@ -135,10 +139,10 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   useEffect(() => {
     if (!mapRef.current || !livePoint) return;
     const coords = [livePoint.longitude, livePoint.latitude];
-    if (provider === "yandex") {
+    if (effectiveProviderRef.current === "yandex") {
       markerRef.current?.geometry?.setCoordinates(coords);
       mapRef.current.setCenter(coords, Math.max(mapRef.current.getZoom(), 14), { duration: 300 });
-    } else if (provider === "2gis") {
+    } else if (effectiveProviderRef.current === "2gis") {
       markerRef.current?.setCoordinates?.(coords);
       mapRef.current.setCenter(coords, Math.max(mapRef.current.getZoom(), 14));
     } else {
@@ -150,8 +154,8 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   useEffect(() => {
     if (!mapRef.current || !clientPoint) return;
     const coords = [clientPoint.longitude, clientPoint.latitude];
-    if (provider === "yandex") clientMarkerRef.current?.geometry?.setCoordinates(coords);
-    else if (provider === "2gis") clientMarkerRef.current?.setCoordinates?.(coords);
+    if (effectiveProviderRef.current === "yandex") clientMarkerRef.current?.geometry?.setCoordinates(coords);
+    else if (effectiveProviderRef.current === "2gis") clientMarkerRef.current?.setCoordinates?.(coords);
     else clientMarkerRef.current?.setLatLng?.([clientPoint.latitude, clientPoint.longitude]);
   }, [clientPoint, provider]);
 
