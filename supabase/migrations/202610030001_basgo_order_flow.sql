@@ -1,6 +1,6 @@
 -- BASGO order flow and stable live-tracking token
 alter table public.ride_requests add column if not exists tracking_token text;
-update public.ride_requests set tracking_token=encode(gen_random_bytes(18),'hex') where tracking_token is null;
+update public.ride_requests set tracking_token=md5(random()::text || clock_timestamp()::text || txid_current()::text) where tracking_token is null;
 create unique index if not exists ride_requests_tracking_token_key on public.ride_requests(tracking_token);
 alter table public.ride_requests alter column tracking_token set default encode(gen_random_bytes(18),'hex');
 
