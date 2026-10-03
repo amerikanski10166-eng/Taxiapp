@@ -138,7 +138,7 @@ export default function BasgoPrototype() {
             <p className="basgo-muted">Мы показываем ключевые документы до входа в систему. Полные версии доступны по каждому пункту.</p>
             <div className="basgo-legal-list">
               {legalItems.map((item, i) => (
-                <button key={item.title} className={"basgo-legal " + (accepted[i] ? "checked" : "")} onClick={() => toggle(i)}>
+                <button type="button" key={item.title} className={"basgo-legal " + (accepted[i] ? "checked" : "")} onClick={() => toggle(i)}>
                   <div className="basgo-check">{accepted[i] ? <Check size={16} /> : null}</div>
                   <div><b>{item.title}</b><span>{item.text}</span></div>
                 </button>
