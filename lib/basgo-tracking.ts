@@ -33,6 +33,27 @@ export async function sendDriverLocation(
   });
 }
 
+export async function sendDriverLocationFromBrowser(
+  rideId: string,
+  point: Omit<TrackingPoint, "ride_id">
+) {
+  const response = await fetch("/api/driver/location", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      rideId,
+      latitude: point.latitude,
+      longitude: point.longitude,
+      accuracyMeters: point.accuracy_meters ?? null,
+      headingDegrees: point.heading_degrees ?? null,
+      speedMps: point.speed_mps ?? null,
+    }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error || "Не удалось отправить GPS");
+  return body;
+}
+
 export function subscribeToOrderTracking(
   trackingToken: string,
   onLocation: (point: TrackingPoint) => void
