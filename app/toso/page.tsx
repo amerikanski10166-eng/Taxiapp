@@ -8,6 +8,7 @@ import { sendDriverLocationFromBrowser, subscribeToOrderTracking, type TrackingP
 import BasgoLiveMap from "./BasgoLiveMap";
 import BasgoOrderFlow from "./BasgoOrderFlow";
 import BasgoCourierPanel from "./BasgoCourierPanel";
+import BasgoOrderStatus from "./BasgoOrderStatus";
 
 const legalItems = [
   { title: "Пользовательское соглашение", text: "Правила использования платформы BASGO." },
@@ -165,6 +166,7 @@ export default function BasgoPrototype() {
             <div className="basgo-kicker">BASGO CLIENT</div>
             <h2>Чем помочь?</h2>
             <BasgoOrderFlow onTrackingToken={(token) => { setTrackingToken(token); setLivePoint(null); }} />
+            <BasgoOrderStatus trackingToken={trackingToken} />
             <div className="basgo-map"><div className="basgo-map-head"><div><b>Карта заказа</b><span>Маршрут и точки в одном экране</span></div><MapPin size={20} /></div><BasgoLiveMap livePoint={livePoint} clientPoint={clientPoint} provider={mapProvider} /><div className="basgo-map-switch"><button type="button" className={mapProvider==="yandex" ? "active" : ""} onClick={()=>setMapProvider("yandex")}>Яндекс</button><button type="button" className={mapProvider==="2gis" ? "active" : ""} onClick={()=>setMapProvider("2gis")}>2ГИС</button><button type="button" className={mapProvider==="other" ? "active" : ""} onClick={()=>setMapProvider("other")}>Другие</button></div><small className="basgo-map-caption">Провайдер карты: {mapProvider==="yandex" ? "Яндекс Карты" : mapProvider==="2gis" ? "2ГИС" : "другой подключённый сервис"}{trackingConnected ? " • live-канал подключён" : ""}</small></div><div className="basgo-track-card"><div className="basgo-track-head"><div><b>Живой статус</b><span>Заказ № BASGO-0001</span></div><span className="basgo-live-badge"><i/> LIVE</span></div><div className="basgo-track-line"><div className="basgo-track-node active"><strong>Исполнитель в пути</strong><small>Клиент видит движение на карте</small></div><div className="basgo-track-node"><strong>Прибытие</strong><small>GPS обновляется автоматически</small></div></div><button type="button" className="basgo-track-toggle" onClick={() => setTrackingMode(trackingMode === "order" ? "client" : "order")}><Radio size={15}/> {trackingMode === "order" ? "GPS заказа" : "Мой GPS"}</button></div><div className="basgo-trust"><ShieldCheck /><div><b>Каждая передача фиксируется</b><span>Код, время, статус и история заказа.</span></div></div>
             <div className="basgo-bottom-stat"><WalletCards /> Оплата: наличные или безналичные способы, доступные в сервисе</div>
           </div>
