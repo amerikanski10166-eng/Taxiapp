@@ -47,6 +47,13 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
       <strong>Исполнители получили новое поручение.</strong>
       <span>{created.pickup} → {created.destination}</span>
       <small>Статус: {created.status === "pending" ? "ищем исполнителя" : created.status}</small>
+      {created.tracking_token && (
+        <div className="basgo-tracking-token">
+          <span>Код отслеживания</span>
+          <b>{created.tracking_token}</b>
+          <small>Сохраните этот код — он нужен для отслеживания заказа.</small>
+        </div>
+      )}
       <button className="basgo-secondary" onClick={() => setCreated(null)}>Создать ещё поручение</button>
     </div>;
   }
