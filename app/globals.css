@@ -162,3 +162,27 @@
   }
   .categoryPassenger>span{font-size:10px!important}
 }
+
+/* AutoKZ category polish: remove inner photo rims */
+.categoryPhoto:after{
+  display:none!important;
+  background:none!important;
+}
+.categoryPhoto{
+  background:#eef0f2!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.categoryPhoto img{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+.categoryCommercial img{
+  transform:scale(1.08)!important;
+  object-position:center center!important;
+}
+.categoryCredit img{
+  transform:scale(1.16)!important;
+  object-position:center center!important;
+}
