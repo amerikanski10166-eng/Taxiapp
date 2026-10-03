@@ -98,3 +98,19 @@ revoke execute on function public.basgo_driver_complete_order(text,uuid) from pu
 grant execute on function public.basgo_driver_complete_order(text,uuid) to anon,authenticated;
 revoke execute on function public.basgo_confirm_payment(text,uuid) from public;
 grant execute on function public.basgo_confirm_payment(text,uuid) to anon,authenticated;
+
+
+create or replace function public.basgo_get_order_status(p_tracking_token text)
+returns jsonb language sql security definer set search_path=public
+as $function$
+  select jsonb_build_object(
+    'id',r.id,'status',r.status,'payment_status',r.payment_status,
+    'payment_method',r.payment_method,'offer_price',r.offer_price,
+    'agreed_price',coalesce(r.agreed_price,r.offer_price),
+    'driver_id',r.accepted_driver_id,'accepted_at',r.accepted_at,
+    'completed_at',r.completed_at,'payment_confirmed_at',r.payment_confirmed_at
+  )
+  from public.ride_requests r where r.tracking_token=p_tracking_token limit 1
+$function$;
+revoke execute on function public.basgo_get_order_status(text) from public;
+grant execute on function public.basgo_get_order_status(text) to anon,authenticated;
