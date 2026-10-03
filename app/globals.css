@@ -81,5 +81,84 @@
 .categoryPhoto>span{background:rgba(255,255,255,.82);padding:4px 7px;border-radius:8px;line-height:1.05;text-shadow:none;box-shadow:0 2px 8px rgba(15,23,42,.06)}
 .categoryPassenger>span,.categoryCommercial>span,.categoryNew>span,.categoryMoto>span{ text-shadow:none}
 
-/* AutoKZ categories: equal cards, labels at the bottom */
-.categoryGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,96px)!important;gap:8px!important}.categoryGrid .categoryPhoto{grid-column:auto!important;grid-row:auto!important;height:auto!important;min-height:0!important;padding:0!important}.categoryPhoto img{inset:0!important;padding:4px!important;object-fit:contain!important;object-position:center center!important}.categoryPhoto:after{background:linear-gradient(180deg,rgba(255,255,255,0) 42%,rgba(15,23,42,.04) 65%,rgba(15,23,42,.62) 100%)!important;z-index:1}.categoryPhoto>span{top:auto!important;bottom:7px!important;left:7px!important;right:7px!important;width:auto!important;display:block!important;text-align:left!important;color:#fff!important;background:transparent!important;padding:0!important;border-radius:0!important;box-shadow:none!important;text-shadow:0 1px 4px rgba(0,0,0,.7)!important;font-size:11px!important;line-height:1.05!important;z-index:2}.categoryPassenger>span{font-size:11px!important}.categoryBadge{z-index:3!important}@media(max-width:520px){.categoryGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,96px)!important;gap:7px!important;padding:0 10px!important}.categoryGrid .categoryPhoto{border-radius:15px!important}}
+
+/* AutoKZ categories: equal frames, larger vehicle photos, labels below each frame */
+.categoryGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,112px)!important;
+  gap:24px 8px!important;
+  padding:0 12px!important;
+  overflow:visible!important;
+}
+.categoryGrid .categoryPhoto{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  height:112px!important;
+  min-height:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  border-radius:17px!important;
+}
+.categoryPhoto img{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:scale(1.12)!important;
+  z-index:0!important;
+}
+.categoryPassenger img{transform:scale(1.24)!important}
+.categoryCommercial img{transform:scale(1.16)!important}
+.categoryParts img{transform:scale(1.16)!important}
+.categoryCredit img{transform:scale(1.13)!important}
+.categoryNew img{transform:scale(1.13)!important}
+.categoryMoto img{transform:scale(1.13)!important}
+.categoryPhoto:after{
+  background:linear-gradient(180deg,rgba(255,255,255,0) 45%,rgba(15,23,42,.06) 72%,rgba(15,23,42,.22) 100%)!important;
+  z-index:1;
+  pointer-events:none;
+  border-radius:inherit;
+}
+.categoryPhoto>span{
+  top:auto!important;
+  bottom:-22px!important;
+  left:2px!important;
+  right:2px!important;
+  width:auto!important;
+  display:block!important;
+  text-align:left!important;
+  color:#303743!important;
+  background:transparent!important;
+  padding:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  font-size:11px!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+  z-index:5!important;
+}
+.categoryPassenger>span{font-size:11px!important}
+.categoryBadge{
+  z-index:6!important;
+  bottom:7px!important;
+}
+@media(max-width:520px){
+  .categoryGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,108px)!important;
+    gap:25px 7px!important;
+    padding:0 10px!important;
+  }
+  .categoryGrid .categoryPhoto{
+    height:108px!important;
+    border-radius:15px!important;
+  }
+  .categoryPhoto>span{
+    bottom:-22px!important;
+    font-size:10px!important;
+  }
+  .categoryPassenger>span{font-size:10px!important}
+}
