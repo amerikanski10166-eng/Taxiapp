@@ -54,3 +54,6 @@
 .basgo-tracking-token b{font-size:17px;letter-spacing:.08em;color:#fff;font-family:Arial,sans-serif}
 .basgo-tracking-token small{display:block!important;justify-content:flex-start!important;margin:0!important;color:#8496ad!important;font-size:9px!important;line-height:1.35}
 @media(max-width:360px){.basgo-order-row{grid-template-columns:1fr}.basgo-order-number{align-items:flex-start;flex-direction:column}.basgo-tracking-token b{font-size:15px}}
+
+.basgo-tracking-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:3px}.basgo-tracking-actions button{min-height:36px;border:1px solid #355b91;background:#182d49;color:#dceaff;border-radius:10px;font-size:10px;font-weight:800}.basgo-tracking-actions button:active{transform:scale(.98)}
+@media(max-width:360px){.basgo-tracking-actions{grid-template-columns:1fr}.basgo-tracking-actions button{min-height:38px}}
