@@ -86,12 +86,12 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
           </div>
         </div>
       )}
-      <button className="basgo-secondary" onClick={() => { setCreated(null); setCopied(false); setError(""); }}>Создать ещё поручение</button>
+      <button type="button" className="basgo-secondary" onClick={() => { setCreated(null); setCopied(false); setError(""); }}>Создать ещё поручение</button>
     </div>;
   }
 
   return <div className="basgo-order-box">
-    <button className="basgo-task basgo-task-main" onClick={() => setOpen(v => !v)}><span>⚡</span><div><b>Новое поручение</b><small>Опишите задачу своими словами — BASGO найдёт исполнителя</small></div><span>{open ? "×" : "›"}</span></button>
+    <button type="button" className="basgo-task basgo-task-main" onClick={() => setOpen(v => !v)}><span>⚡</span><div><b>Новое поручение</b><small>Опишите задачу своими словами — BASGO найдёт исполнителя</small></div><span>{open ? "×" : "›"}</span></button>
     {open && <div className="basgo-order-form">
       <textarea value={message} onChange={e=>setMessage(e.target.value)} placeholder="Например: забрать документы в офисе и привезти мне домой" />
       <input value={pickup} onChange={e=>setPickup(e.target.value)} placeholder="Откуда забрать" />
@@ -99,9 +99,9 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
       <div className="basgo-order-row"><input value={price} onChange={e=>setPrice(e.target.value)} inputMode="numeric" placeholder="Бюджет, ₸" /><select value={payment} onChange={e=>setPayment(e.target.value)}><option value="kaspi">Kaspi</option><option value="card">Карта</option><option value="cash">Наличные</option></select></div>
       <div className="basgo-order-row"><input value={name} onChange={e=>setName(e.target.value)} placeholder="Имя" /><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Телефон" /></div>
       {error && <div className="basgo-order-error">{error}</div>}
-      <button className="basgo-primary" disabled={busy} onClick={submit}>{busy ? "Создаём…" : "Создать поручение"}</button>
+      <button type="button" className="basgo-primary" disabled={busy} onClick={submit}>{busy ? "Создаём…" : "Создать поручение"}</button>
     </div>}
-    <div className="basgo-task"><span>📦</span><div><b>Доставка</b><small>Забрать и передать отправление</small></div><span>›</span></div>
-    <div className="basgo-task"><span>🔄</span><div><b>Возврат</b><small>Вернуть товар отправителю</small></div><span>›</span></div>
+    <button type="button" className="basgo-task" onClick={() => setOpen(true)}><span>📦</span><div><b>Доставка</b><small>Забрать и передать отправление</small></div><span>›</span></button>
+    <button type="button" className="basgo-task" onClick={() => setOpen(true)}><span>🔄</span><div><b>Возврат</b><small>Вернуть товар отправителю</small></div><span>›</span></button>
   </div>;
 }
