@@ -22,3 +22,5 @@
 .basgo-live-marker:after{content:"";position:absolute;inset:-7px;border:2px solid currentColor;border-radius:50%;opacity:.25}
 .basgo-map-preview{position:relative;overflow:hidden}
 @keyframes basgo-pulse{0%,100%{box-shadow:0 5px 18px rgba(0,0,0,.28)}50%{box-shadow:0 5px 24px rgba(0,0,0,.42)}}
+
+.basgo-real-map{position:relative;width:100%;height:270px;overflow:hidden;border-radius:18px;background:#dfe6ea}.basgo-yandex-map{width:100%;height:100%}.basgo-map-live-label{position:absolute;left:12px;top:12px;z-index:10;padding:7px 10px;border-radius:999px;background:rgba(12,20,29,.88);color:#fff;font-size:9px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2)}.basgo-map-unavailable{display:grid;place-items:center;padding:24px;text-align:center;color:#fff;background:#101923}.basgo-map-unavailable b{display:block;font-size:14px}.basgo-map-unavailable span{display:block;margin-top:7px;color:#8796a9;font-size:10px;line-height:1.45}.basgo-map-key-warning{position:absolute;left:12px;right:12px;bottom:12px;z-index:10;padding:9px 11px;border-radius:10px;background:rgba(90,38,20,.94);color:#ffd9c5;font-size:9px;text-align:center}
