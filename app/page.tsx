@@ -47,8 +47,7 @@ export default function HomePage(){
   const [offerToken,setOfferToken]=useState("");
   const [offerStatus,setOfferStatus]=useState("");
   const [inspectionPhone,setInspectionPhone]=useState("");
-  const [inspectionNote,setInspectionNote]=useState("");
-  const [vinInput,setVinInput]=useState("");
+  const [inspectionNote,setInspectionNote]=useState("");  const [vinInput,setVinInput]=useState("");
   const [creditRate,setCreditRate]=useState("18");
   const [creditTerm,setCreditTerm]=useState("60");
   const [creditDown,setCreditDown]=useState("");
@@ -97,8 +96,7 @@ export default function HomePage(){
     setListings(xs=>[finalItem,...xs]);setSelected({...finalItem,photos:sharePhotos.length?sharePhotos:item.photos});try{localStorage.setItem("autokz_seller_phone",item.phone);}catch{}setPhotos([]);setForm({title:"",year:"",price:"",city:"Астана",generation:"",engineVolume:"",mileage:"",transmission:"Автомат",drive:"Передний",steering:"Левый",color:"",customsCleared:"yes",vehicleCondition:"used",fuel:"Бензин",phone:"",description:"",vin:""});setModal("listing");setNotice(finalStatus==="pending_review"?"Объявление отправлено на бесплатную проверку безопасности. После проверки оно появится в каталоге.":"Объявление опубликовано в AutoKZ");
   };
   const [photos,setPhotos]=useState<string[]>([]);
-  const addPhotos=async(e:any)=>{
-    const input=e.currentTarget as HTMLInputElement;
+  const addPhotos=async(e:any)=>{    const input=e.currentTarget as HTMLInputElement;
     const files=Array.from(input.files||[])
       .filter((f:any)=>f.type.startsWith("image/"))
       .slice(0,Math.max(0,10-photos.length)) as File[];
@@ -121,12 +119,12 @@ export default function HomePage(){
     <header className="kolesaTop"><div className="brand">Auto<span>KZ</span></div></header>
     <section className="marketSearch"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")}><SlidersHorizontal size={18}/></button></section>
     <section className="categoryGrid">
-      <button className="categoryPhoto categoryPassenger" onClick={()=>setCategory("all")}><img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=85" alt="Легковые автомобили"/><span>Легковые автомобили</span></button>
-      <button className="categoryPhoto categoryCommercial" onClick={()=>setCategory("dealer")}><img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=85" alt="Коммерческий транспорт"/><span>Коммерческий транспорт</span></button>
+      <button className="categoryPhoto categoryPassenger" onClick={()=>setCategory("all")}><img src="https://images.unsplash.com/photo-1563405982423-fb2f0638f304?auto=format&fit=crop&w=900&q=85" alt="Легковые автомобили"/><span>Легковые автомобили</span></button>
+      <button className="categoryPhoto categoryCommercial" onClick={()=>setCategory("dealer")}><img src="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=900&q=85" alt="Коммерческий транспорт"/><span>Коммерческий транспорт</span></button>
       <button className="categoryPhoto categoryParts" onClick={()=>setNotice("Раздел запчастей готовится к запуску.")}><img src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=900&q=85" alt="Автозапчасти"/><span>Автомасло</span></button>
-      <button className="categoryPhoto categoryCredit" onClick={()=>setNotice("Откройте любое объявление, чтобы использовать кредитный калькулятор.")}><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=85" alt="Авто в кредит"/><span>Авто в кредит</span><i className="categoryBadge">%</i></button>
-      <button className="categoryPhoto categoryNew" onClick={()=>setCategory("new")}><img src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=900&q=85" alt="Новые автомобили"/><span>Новые автомобили</span></button>
-      <button className="categoryPhoto categoryMoto" onClick={()=>setNotice("Раздел мототехники готовится к запуску.")}><img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=85" alt="Мототехника"/><span>Мототехника</span></button>
+      <button className="categoryPhoto categoryCredit" onClick={()=>setNotice("Откройте любое объявление, чтобы использовать кредитный калькулятор.")}><img src="https://images.unsplash.com/photo-1563405982423-fb2f0638f304?auto=format&fit=crop&w=900&q=85" alt="Авто в кредит"/><span>Авто в кредит</span><i className="categoryBadge">%</i></button>
+      <button className="categoryPhoto categoryNew" onClick={()=>setCategory("new")}><img src="https://images.unsplash.com/photo-1720545044233-d2ac77fa6030?auto=format&fit=crop&w=900&q=85" alt="Новые автомобили"/><span>Новые автомобили</span></button>
+      <button className="categoryPhoto categoryMoto" onClick={()=>setNotice("Раздел мототехники готовится к запуску.")}><img src="https://images.unsplash.com/photo-1558981420-87aa9dad1c89?auto=format&fit=crop&w=900&q=85" alt="Мототехника"/><span>Мототехника</span></button>
     </section>
     <section className="serviceGrid">
       <button onClick={()=>setNotice("Проверка VIN доступна внутри объявления.")}><BadgeCheck size={32}/><span>История авто</span></button>
@@ -147,8 +145,7 @@ export default function HomePage(){
       <button className={modal==="income"?"active":""} onClick={()=>{setNotice("");setModal("income")}}><Heart size={20}/><span>Избранное</span></button>
       <button className="marketNavAdd" onClick={()=>{setNotice("");setModal("add")}}><span className="navPlus"><Plus size={22}/></span><span>Подать</span></button>
       <button className={notice==="__messages__"?"active":""} onClick={()=>{setNotice("__messages__");setModal(null)}}><MessageCircle size={20}/><span>Сообщения</span></button>
-      <button className={modal==="cabinet"?"active":""} onClick={()=>{setNotice("");setCabinetEntered(false);setSettingsOpen(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>
-    </nav>
+      <button className={modal==="cabinet"?"active":""} onClick={()=>{setNotice("");setCabinetEntered(false);setSettingsOpen(false);setModal("cabinet")}}><User size={20}/><span>Кабинет</span></button>    </nav>
 
     {modal&&<div className="marketBackdrop" onClick={()=>setModal(null)}><div className="marketModal" onClick={e=>e.stopPropagation()}>{modal==="cabinet"?<button className="backBtn" onClick={()=>{setModal(null);setSettingsOpen(false)}} aria-label="Назад"><ChevronRight size={20}/></button>:<button className="closeBtn" onClick={()=>setModal(null)} aria-label="Закрыть"><X size={18}/></button>}{modal==="listing"&&<button className="backBtn" onClick={()=>setModal(null)} aria-label="Назад"><ChevronRight size={20}/></button>}
       {modal==="add"&&<><div className="eyebrow">НОВОЕ ОБЪЯВЛЕНИЕ</div><h2>Продать автомобиль</h2><p className="muted">Заполни данные и выбери фотографии автомобиля из галереи.</p>
@@ -172,4 +169,3 @@ export default function HomePage(){
     {notice&&notice!=="__messages__"&&<div className="marketToast">{notice}</div>}
   </main>;
 }
-
