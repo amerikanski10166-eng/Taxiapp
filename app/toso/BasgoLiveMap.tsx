@@ -6,6 +6,8 @@ import type { TrackingPoint } from "../../lib/basgo-tracking";
 declare global {
   interface Window {
     ymaps?: any;
+    mapgl?: any;
+    L?: any;
   }
 }
 
@@ -17,38 +19,55 @@ type Props = {
 
 const FALLBACK_CENTER: [number, number] = [71.4491, 51.1694];
 
-function loadYandexMaps() {
-  return new Promise<any>((resolve, reject) => {
-    if (window.ymaps) {
-      window.ymaps.ready(() => resolve(window.ymaps));
-      return;
-    }
-
-    const key = process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY;
-    if (!key) {
-      reject(new Error("Не задан NEXT_PUBLIC_YANDEX_MAPS_API_KEY"));
-      return;
-    }
-
-    const existing = document.querySelector<HTMLScriptElement>('script[data-basgo-yandex="true"]');
+function loadScript(src: string, id: string) {
+  return new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(`script[data-basgo-map="${id}"]`);
     if (existing) {
-      const wait = () => window.ymaps
-        ? window.ymaps.ready(() => resolve(window.ymaps))
-        : setTimeout(wait, 100);
+      if (id === "yandex" && window.ymaps) return resolve();
+      if (id === "2gis" && window.mapgl) return resolve();
+      if (id === "leaflet" && window.L) return resolve();
+      const wait = () => {
+        if ((id === "yandex" && window.ymaps) || (id === "2gis" && window.mapgl) || (id === "leaflet" && window.L)) resolve();
+        else setTimeout(wait, 100);
+      };
       wait();
       return;
     }
-
     const script = document.createElement("script");
-    script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(key)}&lang=ru_RU`;
+    script.src = src;
     script.async = true;
-    script.dataset.basgoYandex = "true";
-    script.onload = () => window.ymaps
-      ? window.ymaps.ready(() => resolve(window.ymaps))
-      : reject(new Error("Яндекс Карты не загрузились"));
-    script.onerror = () => reject(new Error("Не удалось загрузить Яндекс Карты"));
+    script.dataset.basgoMap = id;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Не удалось загрузить ${id}`));
     document.head.appendChild(script);
   });
+}
+
+function loadYandexMaps() {
+  const key = process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY;
+  if (!key) return Promise.reject(new Error("Не задан NEXT_PUBLIC_YANDEX_MAPS_API_KEY"));
+  return loadScript(`https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(key)}&lang=ru_RU`, "yandex")
+    .then(() => new Promise<any>((resolve) => window.ymaps!.ready(() => resolve(window.ymaps))));
+}
+
+function load2GIS() {
+  const key = process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY;
+  if (!key) return Promise.reject(new Error("Не задан NEXT_PUBLIC_2GIS_MAPS_API_KEY"));
+  return loadScript("https://mapgl.2gis.com/api/js/v1", "2gis").then(() => window.mapgl);
+}
+
+async function loadLeaflet() {
+  if (!window.L) {
+    await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "leaflet");
+  }
+  if (!document.querySelector('link[data-basgo-leaflet="true"]')) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    link.dataset.basgoLeaflet = "true";
+    document.head.appendChild(link);
+  }
+  return window.L;
 }
 
 export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props) {
@@ -58,111 +77,126 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   const clientMarkerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (provider !== "yandex" || !containerRef.current) return;
-
+    if (!containerRef.current) return;
     let cancelled = false;
 
-    loadYandexMaps()
-      .then((ymaps) => {
-        if (cancelled || !containerRef.current || mapRef.current) return;
+    const initial = livePoint ?? clientPoint;
+    const center = initial ? [initial.longitude, initial.latitude] : FALLBACK_CENTER;
 
-        const initial = livePoint ?? clientPoint;
-        const center: [number, number] = initial
-          ? [initial.longitude, initial.latitude]
-          : FALLBACK_CENTER;
-
-        mapRef.current = new ymaps.Map(containerRef.current, {
-          center,
-          zoom: initial ? 15 : 11,
-          controls: ["zoomControl", "geolocationControl"],
-        }, {
-          suppressMapOpenBlock: true,
-        });
-
-        if (clientPoint) {
-          clientMarkerRef.current = new ymaps.Placemark(
-            [clientPoint.longitude, clientPoint.latitude],
-            { balloonContent: "Точка клиента" },
-            { preset: "islands#blueCircleDotIcon" }
-          );
-          mapRef.current.geoObjects.add(clientMarkerRef.current);
+    const init = async () => {
+      try {
+        if (provider === "yandex") {
+          const ymaps = await loadYandexMaps();
+          if (cancelled || !containerRef.current) return;
+          mapRef.current = new ymaps.Map(containerRef.current, { center, zoom: initial ? 15 : 11 }, {
+            suppressMapOpenBlock: true,
+          });
+          addYandexMarkers(ymaps, mapRef.current, livePoint, clientPoint);
+        } else if (provider === "2gis") {
+          const mapgl = await load2GIS();
+          if (cancelled || !containerRef.current) return;
+          mapRef.current = new mapgl.Map(containerRef.current, {
+            center,
+            zoom: initial ? 15 : 11,
+            key: process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY,
+          });
+          add2GISMarkers(mapgl, mapRef.current, livePoint, clientPoint);
+        } else {
+          const L = await loadLeaflet();
+          if (cancelled || !containerRef.current) return;
+          mapRef.current = L.map(containerRef.current).setView([center[1], center[0]], initial ? 15 : 11);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19,
+          }).addTo(mapRef.current);
+          addLeafletMarkers(L, mapRef.current, livePoint, clientPoint);
         }
+      } catch (error) {
+        if (!cancelled) console.warn("BASGO map", error);
+      }
+    };
 
-        if (livePoint) {
-          markerRef.current = new ymaps.Placemark(
-            [livePoint.longitude, livePoint.latitude],
-            { balloonContent: "Исполнитель • LIVE" },
-            { preset: "islands#redCircleDotIcon" }
-          );
-          mapRef.current.geoObjects.add(markerRef.current);
-        }
-      })
-      .catch(() => {
-        // The UI below remains available and explains that the API key is required.
-      });
-
+    init();
     return () => {
       cancelled = true;
-      if (mapRef.current) {
-        mapRef.current.destroy();
-        mapRef.current = null;
-      }
+      if (mapRef.current?.destroy) mapRef.current.destroy();
+      if (provider === "other" && mapRef.current?.remove) mapRef.current.remove();
+      mapRef.current = null;
       markerRef.current = null;
       clientMarkerRef.current = null;
     };
   }, [provider]);
 
   useEffect(() => {
-    if (provider !== "yandex" || !mapRef.current || !livePoint) return;
+    if (!mapRef.current || !livePoint) return;
     const coords = [livePoint.longitude, livePoint.latitude];
-    if (!markerRef.current && window.ymaps) {
-      markerRef.current = new window.ymaps.Placemark(
-        coords,
-        { balloonContent: "Исполнитель • LIVE" },
-        { preset: "islands#redCircleDotIcon" }
-      );
-      mapRef.current.geoObjects.add(markerRef.current);
-    } else {
+    if (provider === "yandex") {
       markerRef.current?.geometry?.setCoordinates(coords);
+      mapRef.current.setCenter(coords, Math.max(mapRef.current.getZoom(), 14), { duration: 300 });
+    } else if (provider === "2gis") {
+      markerRef.current?.setCoordinates?.(coords);
+      mapRef.current.setCenter(coords, Math.max(mapRef.current.getZoom(), 14));
+    } else {
+      markerRef.current?.setLatLng?.([livePoint.latitude, livePoint.longitude]);
+      mapRef.current.setView([livePoint.latitude, livePoint.longitude], Math.max(mapRef.current.getZoom(), 14), { animate: true });
     }
-    mapRef.current.setCenter(coords, Math.max(mapRef.current.getZoom(), 14), { duration: 300 });
   }, [livePoint, provider]);
 
   useEffect(() => {
-    if (provider !== "yandex" || !mapRef.current || !clientPoint || !window.ymaps) return;
+    if (!mapRef.current || !clientPoint) return;
     const coords = [clientPoint.longitude, clientPoint.latitude];
-    if (!clientMarkerRef.current) {
-      clientMarkerRef.current = new window.ymaps.Placemark(
-        coords,
-        { balloonContent: "Точка клиента" },
-        { preset: "islands#blueCircleDotIcon" }
-      );
-      mapRef.current.geoObjects.add(clientMarkerRef.current);
-    } else {
-      clientMarkerRef.current.geometry.setCoordinates(coords);
-    }
+    if (provider === "yandex") clientMarkerRef.current?.geometry?.setCoordinates(coords);
+    else if (provider === "2gis") clientMarkerRef.current?.setCoordinates?.(coords);
+    else clientMarkerRef.current?.setLatLng?.([clientPoint.latitude, clientPoint.longitude]);
   }, [clientPoint, provider]);
 
-  if (provider !== "yandex") {
-    return (
-      <div className="basgo-real-map basgo-map-unavailable">
-        <div>
-          <b>{provider === "2gis" ? "2ГИС" : "Другой провайдер"}</b>
-          <span>Этот провайдер подключим отдельным ключом. Сейчас выбран реальный режим Яндекс Карт.</span>
-        </div>
-      </div>
-    );
-  }
+  const message = provider === "yandex"
+    ? "Для Яндекс Карт нужен NEXT_PUBLIC_YANDEX_MAPS_API_KEY."
+    : provider === "2gis"
+      ? "Для 2ГИС нужен NEXT_PUBLIC_2GIS_MAPS_API_KEY."
+      : "OpenStreetMap работает без отдельного ключа.";
 
   return (
     <div className="basgo-real-map">
       <div ref={containerRef} className="basgo-yandex-map" />
-      {!process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY && (
-        <div className="basgo-map-key-warning">
-          Добавьте NEXT_PUBLIC_YANDEX_MAPS_API_KEY в переменные Vercel.
-        </div>
-      )}
+      <div className="basgo-map-provider">{provider === "yandex" ? "Яндекс Карты" : provider === "2gis" ? "2ГИС" : "OpenStreetMap"}</div>
       {livePoint && <div className="basgo-map-live-label">● LIVE • исполнитель</div>}
+      {((provider === "yandex" && !process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY) || (provider === "2gis" && !process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY)) && (
+        <div className="basgo-map-key-warning">{message}</div>
+      )}
     </div>
   );
+}
+
+function addYandexMarkers(ymaps: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
+  if (client) {
+    clientMarker = new ymaps.Placemark([client.longitude, client.latitude], { balloonContent: "Точка клиента" }, { preset: "islands#blueCircleDotIcon" });
+    map.geoObjects.add(clientMarker);
+    clientMarkerRefValue = clientMarker;
+  }
+  if (live) {
+    const marker = new ymaps.Placemark([live.longitude, live.latitude], { balloonContent: "Исполнитель • LIVE" }, { preset: "islands#redCircleDotIcon" });
+    map.geoObjects.add(marker);
+    markerRefValue = marker;
+  }
+}
+
+let clientMarker: any = null;
+let clientMarkerRefValue: any = null;
+let markerRefValue: any = null;
+
+function add2GISMarkers(mapgl: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
+  if (client) {
+    const marker = new mapgl.Marker(map, { coordinates: [client.longitude, client.latitude], color: "#2f80ed" });
+    clientMarkerRefValue = marker;
+  }
+  if (live) {
+    const marker = new mapgl.Marker(map, { coordinates: [live.longitude, live.latitude], color: "#e53935" });
+    markerRefValue = marker;
+  }
+}
+
+function addLeafletMarkers(L: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
+  if (client) clientMarkerRefValue = L.marker([client.latitude, client.longitude]).addTo(map).bindPopup("Точка клиента");
+  if (live) markerRefValue = L.marker([live.latitude, live.longitude]).addTo(map).bindPopup("Исполнитель • LIVE");
 }
