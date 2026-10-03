@@ -186,3 +186,9 @@
   transform:scale(1.16)!important;
   object-position:center center!important;
 }
+
+/* AutoKZ category labels: keep titles visible outside image frames */
+.categoryPhoto{contain:none!important;overflow:visible!important}
+.categoryGrid{contain:none!important;overflow:visible!important}
+.categoryPhoto>span{display:block!important;position:absolute!important;top:auto!important;bottom:-28px!important;left:2px!important;right:2px!important;width:auto!important;height:auto!important;visibility:visible!important;opacity:1!important;color:#303743!important;background:transparent!important;font-size:10px!important;font-weight:800!important;line-height:1.15!important;text-align:center!important;white-space:normal!important;z-index:20!important}
+@media(max-width:520px){.categoryPhoto>span{bottom:-26px!important;font-size:10px!important}}
