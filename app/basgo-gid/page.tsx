@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Navigation, Search, Mic, Menu, Layers3, Download, Car, Footprints, BusFront, Fuel, Coffee, Hospital, Wrench, Globe2, ShieldCheck, WifiOff, Route, ChevronRight, X, LocateFixed, Map, Mountain, Languages, Database, Truck, Compass } from "lucide-react";
 
 const regions = [
@@ -33,6 +33,9 @@ export default function BasgoGidPage(){
   const [offline,setOffline]=useState(false);
   const [region,setRegion]=useState("Весь Казахстан");
 
+  const recordMetric = (metric: string) => { fetch("/api/basgo-gid/metric", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ metric, region }) }).catch(() => {}); };
+  useEffect(() => { recordMetric("app_open"); }, []);
+
   const filtered=useMemo(()=>places.filter(p=>
     p.name.toLowerCase().includes(query.toLowerCase()) ||
     p.city.toLowerCase().includes(query.toLowerCase())
@@ -58,11 +61,11 @@ export default function BasgoGidPage(){
           <Search size={19}/>
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Куда едем? Адрес, город, село или объект"/>
           <button onClick={()=>setPanel("languages")} aria-label="Язык"><Globe2 size={18}/></button>
-          <button className="gidMic" onClick={()=>alert("BASGO GID: голосовой поиск подключим к маршрутам, адресам и AI-гиду.")} aria-label="Голосовой поиск"><Mic size={18}/></button>
+          <button className="gidMic" onClick={()=>{recordMetric("voice_search");alert("BASGO GID: голосовой поиск подключим к маршрутам, адресам и AI-гиду.")}} aria-label="Голосовой поиск"><Mic size={18}/></button>
         </div>
 
         {query && <div className="gidSearchResults">
-          {filtered.length ? filtered.map(p=><button key={p.name} onClick={()=>setQuery(p.name)}><MapPin size={16}/><span><b>{p.name}</b><small>{p.type} · {p.city}</small></span><ChevronRight size={16}/></button>) : <div className="gidNoResult">Ищем по всей стране: адрес, населённый пункт или объект.</div>}
+          {filtered.length ? filtered.map(p=><button key={p.name} onClick={()=>{setQuery(p.name);recordMetric("map_search")}}><MapPin size={16}/><span><b>{p.name}</b><small>{p.type} · {p.city}</small></span><ChevronRight size={16}/></button>) : <div className="gidNoResult">Ищем по всей стране: адрес, населённый пункт или объект.</div>}
         </div>}
 
         <div className="gidCategoryRow">
@@ -76,7 +79,7 @@ export default function BasgoGidPage(){
           <button onClick={()=>alert("Геолокация будет использоваться только после разрешения пользователя.")}><LocateFixed size={18}/></button>
         </div>
 
-        <button className="gidRouteFab" onClick={()=>setPanel("route")}><Navigation size={18}/><span>Маршрут</span></button>
+        <button className="gidRouteFab" onClick={()=>{recordMetric("route_build");setPanel("route")}}><Navigation size={18}/><span>Маршрут</span></button>
 
         <div className="gidNationalBadge"><Compass size={15}/><b>ВЕСЬ КАЗАХСТАН</b><span>20 регионов</span></div>
 
@@ -88,7 +91,7 @@ export default function BasgoGidPage(){
             <button className={mode==="walk"?"active":""} onClick={()=>setMode("walk")}><Footprints size={17}/>Пешком</button>
           </div>
           <div className="gidFeatureGrid">
-            <button onClick={()=>setPanel("offline")}><div className="gidFeatureIcon"><WifiOff size={18}/></div><b>Офлайн First</b><span>Регионы без связи</span></button>
+            <button onClick={()=>{recordMetric("offline_use");setPanel("offline")}}><div className="gidFeatureIcon"><WifiOff size={18}/></div><b>Офлайн First</b><span>Регионы без связи</span></button>
             <button onClick={()=>setPanel("route")}><div className="gidFeatureIcon"><Route size={18}/></div><b>Умный маршрут</b><span>Авто · пешком · курьер</span></button>
             <button onClick={()=>setPanel("regions")}><div className="gidFeatureIcon"><Map size={18}/></div><b>Карта страны</b><span>17 областей + 3 города</span></button>
           </div>
@@ -101,7 +104,7 @@ export default function BasgoGidPage(){
 
           {panel==="route" && <><div className="gidEyebrow">BASGO SMART ROUTE</div><h2>Умный маршрут по Казахстану</h2><p>Один маршрут для города, трассы, степи и курьерской доставки. Дальше подключаем дорожный граф, ограничения, пробки и офлайн-навигацию.</p><div className="gidRouteLine"><div className="gidRouteDot"/>{region}<div className="gidRouteStroke"/><div className="gidRoutePin"><MapPin size={15}/></div>Куда едем?</div><button className="gidPrimary"><Navigation size={17}/>Построить маршрут</button></>}
 
-          {panel==="offline" && <><div className="gidEyebrow">OFFLINE FIRST · NATIONAL</div><h2>Офлайн-карта всего Казахстана</h2><p>Национальный слой строим из региональных векторных пакетов. Пользователь сможет заранее скачать область или город и продолжить навигацию без интернета.</p><div className="gidDownloadCard"><div><b>Казахстан · национальный пакет</b><span>Дороги · здания · адреса · POI · дорожный граф</span></div><strong>{offline?"Подготовлен":"В разработке"}</strong></div><button className="gidPrimary" onClick={()=>setOffline(true)}><Download size={17}/>Подготовить национальный пакет</button></>}
+          {panel==="offline" && <><div className="gidEyebrow">OFFLINE FIRST · NATIONAL</div><h2>Офлайн-карта всего Казахстана</h2><p>Национальный слой строим из региональных векторных пакетов. Пользователь сможет заранее скачать область или город и продолжить навигацию без интернета.</p><div className="gidDownloadCard"><div><b>Казахстан · национальный пакет</b><span>Дороги · здания · адреса · POI · дорожный граф</span></div><strong>{offline?"Подготовлен":"В разработке"}</strong></div><button className="gidPrimary" onClick={()=>{recordMetric("offline_use");setOffline(true)}}><Download size={17}/>Подготовить национальный пакет</button></>}
 
           {panel==="regions" && <><div className="gidEyebrow">KAZAKHSTAN · 2026</div><h2>Выберите регион</h2><p>Архитектура BASGO GID сразу рассчитана на 17 областей и 3 города республиканского значения. По данным Бюро национальной статистики на 1 июля 2026 года — 20 административных единиц этого уровня.</p><div className="gidRegionGrid">{regions.map(x=><button key={x} className={region===x?"active":""} onClick={()=>{setRegion(x);setPanel("none")}}><MapPin size={14}/><span>{x}</span></button>)}</div></>}
 
