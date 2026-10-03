@@ -55,7 +55,6 @@ export default function BasgoPrototype() {
         lastSentAt = now;
         try {
           await sendDriverLocationFromBrowser(driverRideId, {
-            ride_id: driverRideId,
             latitude: p.coords.latitude,
             longitude: p.coords.longitude,
             accuracy_meters: p.coords.accuracy,
