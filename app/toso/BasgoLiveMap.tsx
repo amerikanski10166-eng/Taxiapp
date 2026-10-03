@@ -91,7 +91,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
           mapRef.current = new ymaps.Map(containerRef.current, { center, zoom: initial ? 15 : 11 }, {
             suppressMapOpenBlock: true,
           });
-          addYandexMarkers(ymaps, mapRef.current, livePoint, clientPoint);
+          addYandexMarkers(ymaps, mapRef.current, livePoint, clientPoint, markerRef, clientMarkerRef);
         } else if (provider === "2gis") {
           const mapgl = await load2GIS();
           if (cancelled || !containerRef.current) return;
@@ -100,7 +100,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
             zoom: initial ? 15 : 11,
             key: process.env.NEXT_PUBLIC_2GIS_MAPS_API_KEY,
           });
-          add2GISMarkers(mapgl, mapRef.current, livePoint, clientPoint);
+          add2GISMarkers(mapgl, mapRef.current, livePoint, clientPoint, markerRef, clientMarkerRef);
         } else {
           const L = await loadLeaflet();
           if (cancelled || !containerRef.current) return;
@@ -109,7 +109,7 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19,
           }).addTo(mapRef.current);
-          addLeafletMarkers(L, mapRef.current, livePoint, clientPoint);
+          addLeafletMarkers(L, mapRef.current, livePoint, clientPoint, markerRef, clientMarkerRef);
         }
       } catch (error) {
         if (!cancelled) console.warn("BASGO map", error);
@@ -168,35 +168,23 @@ export default function BasgoLiveMap({ livePoint, clientPoint, provider }: Props
   );
 }
 
-function addYandexMarkers(ymaps: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
+function addYandexMarkers(ymaps: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null, liveRef: any, clientRef: any) {
   if (client) {
-    clientMarker = new ymaps.Placemark([client.longitude, client.latitude], { balloonContent: "Точка клиента" }, { preset: "islands#blueCircleDotIcon" });
-    map.geoObjects.add(clientMarker);
-    clientMarkerRefValue = clientMarker;
+    clientRef.current = new ymaps.Placemark([client.longitude, client.latitude], { balloonContent: "Точка клиента" }, { preset: "islands#blueCircleDotIcon" });
+    map.geoObjects.add(clientRef.current);
   }
   if (live) {
-    const marker = new ymaps.Placemark([live.longitude, live.latitude], { balloonContent: "Исполнитель • LIVE" }, { preset: "islands#redCircleDotIcon" });
-    map.geoObjects.add(marker);
-    markerRefValue = marker;
+    liveRef.current = new ymaps.Placemark([live.longitude, live.latitude], { balloonContent: "Исполнитель • LIVE" }, { preset: "islands#redCircleDotIcon" });
+    map.geoObjects.add(liveRef.current);
   }
 }
 
-let clientMarker: any = null;
-let clientMarkerRefValue: any = null;
-let markerRefValue: any = null;
-
-function add2GISMarkers(mapgl: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
-  if (client) {
-    const marker = new mapgl.Marker(map, { coordinates: [client.longitude, client.latitude], color: "#2f80ed" });
-    clientMarkerRefValue = marker;
-  }
-  if (live) {
-    const marker = new mapgl.Marker(map, { coordinates: [live.longitude, live.latitude], color: "#e53935" });
-    markerRefValue = marker;
-  }
+function add2GISMarkers(mapgl: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null, liveRef: any, clientRef: any) {
+  if (client) clientRef.current = new mapgl.Marker(map, { coordinates: [client.longitude, client.latitude], color: "#2f80ed" });
+  if (live) liveRef.current = new mapgl.Marker(map, { coordinates: [live.longitude, live.latitude], color: "#e53935" });
 }
 
-function addLeafletMarkers(L: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null) {
-  if (client) clientMarkerRefValue = L.marker([client.latitude, client.longitude]).addTo(map).bindPopup("Точка клиента");
-  if (live) markerRefValue = L.marker([live.latitude, live.longitude]).addTo(map).bindPopup("Исполнитель • LIVE");
+function addLeafletMarkers(L: any, map: any, live: TrackingPoint | null, client: TrackingPoint | null, liveRef: any, clientRef: any) {
+  if (client) clientRef.current = L.marker([client.latitude, client.longitude]).addTo(map).bindPopup("Точка клиента");
+  if (live) liveRef.current = L.marker([live.latitude, live.longitude]).addTo(map).bindPopup("Исполнитель • LIVE");
 }
