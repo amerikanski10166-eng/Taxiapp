@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const trackingToken = String(body.trackingToken || "").trim();
     const rideId = String(body.rideId || "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(rideId)) return NextResponse.json({ error: "Некорректный идентификатор заказа" }, { status: 400 });
     if (!trackingToken || !rideId) return NextResponse.json({ error: "Не указан заказ или код отслеживания" }, { status: 400 });
     const { data, error } = await supabase.rpc("basgo_confirm_payment", { p_tracking_token: trackingToken, p_ride_id: rideId });
     if (error) throw error;
