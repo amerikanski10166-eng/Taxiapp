@@ -48,3 +48,53 @@ begin
   return v_row;
 end
 $function$;
+
+-- BASGO completion and payment confirmation
+alter table public.ride_requests
+  add column if not exists payment_status text not null default 'pending',
+  add column if not exists completed_at timestamptz,
+  add column if not exists payment_confirmed_at timestamptz,
+  add column if not exists payment_confirmed_by text;
+
+alter table public.ride_requests
+  drop constraint if exists ride_requests_payment_status_check;
+alter table public.ride_requests
+  add constraint ride_requests_payment_status_check
+  check (payment_status in ('pending','confirmed','failed'));
+
+create or replace function public.basgo_driver_complete_order(
+  p_token text, p_ride_id uuid
+) returns jsonb
+language plpgsql security definer set search_path=public
+as $function$
+declare v_driver_id uuid; r public.ride_requests;
+begin
+  select driver_id into v_driver_id from public.driver_sessions where token=p_token and expires_at>now();
+  if v_driver_id is null then raise exception 'invalid_or_expired_session'; end if;
+  update public.ride_requests set status='completed',completed_at=now(),tracking_finished_at=now(),updated_at=now()
+  where id=p_ride_id and (driver_id=v_driver_id or accepted_driver_id=v_driver_id)
+    and status in ('accepted','in_progress','picked_up') returning * into r;
+  if not found then raise exception 'order_not_active_or_not_assigned'; end if;
+  insert into public.ride_messages(ride_id,sender,message) values(r.id,'driver','BASGO: заказ завершён исполнителем');
+  return jsonb_build_object('id',r.id,'status',r.status,'payment_status',r.payment_status,'completed_at',r.completed_at,'tracking_finished_at',r.tracking_finished_at,'payment_method',r.payment_method,'agreed_price',coalesce(r.agreed_price,r.offer_price));
+end $function$;
+
+create or replace function public.basgo_confirm_payment(
+  p_tracking_token text, p_ride_id uuid
+) returns jsonb
+language plpgsql security definer set search_path=public
+as $function$
+declare r public.ride_requests;
+begin
+  update public.ride_requests set payment_status='confirmed',payment_confirmed_at=now(),payment_confirmed_by='customer',updated_at=now()
+  where id=p_ride_id and tracking_token=p_tracking_token and status='completed' and payment_status='pending'
+  returning * into r;
+  if not found then raise exception 'order_not_ready_for_payment_confirmation'; end if;
+  insert into public.ride_messages(ride_id,sender,message) values(r.id,'passenger','BASGO: оплата подтверждена заказчиком');
+  return jsonb_build_object('id',r.id,'status',r.status,'payment_status',r.payment_status,'payment_confirmed_at',r.payment_confirmed_at,'payment_method',r.payment_method,'agreed_price',coalesce(r.agreed_price,r.offer_price));
+end $function$;
+
+revoke execute on function public.basgo_driver_complete_order(text,uuid) from public;
+grant execute on function public.basgo_driver_complete_order(text,uuid) to anon,authenticated;
+revoke execute on function public.basgo_confirm_payment(text,uuid) from public;
+grant execute on function public.basgo_confirm_payment(text,uuid) to anon,authenticated;
