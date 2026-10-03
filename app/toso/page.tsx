@@ -2,7 +2,7 @@
 
 import "./basgo.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Bike, Check, ChevronLeft, FileCheck2, Headphones, ShieldCheck, UserRound, WalletCards, MapPin, PackageCheck, Navigation, Radio } from "lucide-react";
 import { sendDriverLocationFromBrowser, subscribeToOrderTracking, type TrackingPoint } from "../../lib/basgo-tracking";
 import BasgoLiveMap from "./BasgoLiveMap";
@@ -32,6 +32,12 @@ export default function BasgoPrototype() {
   const [driverGpsText, setDriverGpsText] = useState("GPS исполнителя выключен");
   const [driverGpsError, setDriverGpsError] = useState("");
   const [driverRideId, setDriverRideId] = useState<string | null>(null);
+  const [identityFile, setIdentityFile] = useState<File | null>(null);
+  const [selfieFile, setSelfieFile] = useState<File | null>(null);
+  const [vehicleFile, setVehicleFile] = useState<File | null>(null);
+  const identityRef = useRef<HTMLInputElement | null>(null);
+  const selfieRef = useRef<HTMLInputElement | null>(null);
+  const vehicleRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("tracking");
@@ -169,7 +175,7 @@ export default function BasgoPrototype() {
             <div className="basgo-kicker">BASGO COURIER</div>
             <h2>Проверка исполнителя</h2>
             <p className="basgo-muted">До доступа к заказам — идентификация, документы и обязательные проверки.</p>
-            <div className="basgo-verify"><div className="verify-line"><span>01</span><b>Удостоверение личности</b><em>обязательно</em></div><div className="verify-line"><span>02</span><b>Селфи-проверка</b><em>обязательно</em></div><div className="verify-line"><span>03</span><b>Транспорт и техпаспорт</b><em>если используется авто</em></div></div>
+            <div className="basgo-verify"><input ref={identityRef} className="basgo-file-input" type="file" accept="image/*,.pdf" onChange={(e)=>setIdentityFile(e.target.files?.[0]||null)} /><input ref={selfieRef} className="basgo-file-input" type="file" accept="image/*" capture="user" onChange={(e)=>setSelfieFile(e.target.files?.[0]||null)} /><input ref={vehicleRef} className="basgo-file-input" type="file" accept="image/*,.pdf" onChange={(e)=>setVehicleFile(e.target.files?.[0]||null)} /><button type="button" className={"verify-line verify-action "+(identityFile?"done":"")} onClick={()=>identityRef.current?.click()}><span>01</span><b>{identityFile ? "Удостоверение загружено" : "Загрузить удостоверение личности"}</b><em>{identityFile ? identityFile.name : "нажмите для выбора"}</em></button><button type="button" className={"verify-line verify-action verify-action-selfie "+(selfieFile?"done":"")} onClick={()=>selfieRef.current?.click()}><span>02</span><b>{selfieFile ? "Селфи загружено" : "Сделать селфи-проверку"}</b><em>{selfieFile ? selfieFile.name : "откроется камера"}</em></button><button type="button" className={"verify-line verify-action "+(vehicleFile?"done":"")} onClick={()=>vehicleRef.current?.click()}><span>03</span><b>{vehicleFile ? "Техпаспорт загружен" : "Загрузить техпаспорт"}</b><em>{vehicleFile ? vehicleFile.name : "если используется авто"}</em></button></div><button type="button" className="basgo-primary" disabled={!identityFile || !selfieFile} onClick={()=>setDriverGpsText("Документы и селфи приняты на проверку")}>Отправить на проверку <ShieldCheck size={18}/></button>
             <div className="basgo-security"><ShieldCheck size={22} /><div><b>Контроль доступа</b><span>Заказы и GPS открываются только после входа и назначения заказа.</span></div></div>
             <BasgoCourierPanel onActiveRide={(rideId) => setActiveRideId(rideId)} />
             <div className={"basgo-gps " + (driverGpsEnabled ? "active" : "")}><div className={"basgo-gps-dot " + (driverGpsEnabled ? "on" : "")}/><div><b>GPS исполнителя</b><span>{driverRideId ? driverGpsText : "Сначала войдите и примите активное поручение"}</span>{driverGpsError ? <small>{driverGpsError}</small> : <small>{driverRideId ? "Координаты передаются только для активного заказа" : "GPS не передаётся"}</small>}</div></div>
