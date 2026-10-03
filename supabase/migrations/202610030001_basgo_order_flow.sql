@@ -114,3 +114,26 @@ as $function$
 $function$;
 revoke execute on function public.basgo_get_order_status(text) from public;
 grant execute on function public.basgo_get_order_status(text) to anon,authenticated;
+
+
+-- BASGO security hardening: accept orders only with an active driver session.
+create or replace function public.basgo_driver_accept_order(p_token text,p_ride_id uuid,p_agreed_price integer)
+returns jsonb language plpgsql security definer set search_path=public
+as $function$
+declare v_driver uuid; r public.ride_requests;
+begin
+  select driver_id into v_driver from public.driver_sessions where token=p_token and expires_at>now() limit 1;
+  if v_driver is null then raise exception 'invalid_driver_session'; end if;
+  if p_agreed_price is null or p_agreed_price <= 0 then raise exception 'invalid_agreed_price'; end if;
+  update public.ride_requests
+  set status='accepted',driver_id=v_driver,accepted_at=now(),accepted_driver_id=v_driver,
+      driver_reply='BASGO: заказ принят исполнителем',agreed_price=p_agreed_price,updated_at=now()
+  where id=p_ride_id and status='pending' and (driver_id is null or driver_id=v_driver)
+  returning * into r;
+  if not found then raise exception 'order_already_taken_or_unavailable'; end if;
+  insert into public.ride_messages(ride_id,sender,message) values(r.id,'driver','BASGO: заказ принят исполнителем');
+  return jsonb_build_object('id',r.id,'status',r.status,'offer_price',r.offer_price,'agreed_price',r.agreed_price,
+    'driver_reply',r.driver_reply,'accepted_driver_id',r.accepted_driver_id,'accepted_at',r.accepted_at,'driver_id',r.driver_id);
+end $function$;
+revoke execute on function public.basgo_driver_accept_order(text,uuid,integer) from public;
+grant execute on function public.basgo_driver_accept_order(text,uuid,integer) to anon,authenticated;
