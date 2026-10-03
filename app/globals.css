@@ -220,3 +220,17 @@
 .cabinetHeader .cabinetBackBtn,.cabinetHeader .cabinetSettingsBtn{position:relative!important;inset:auto!important;width:40px!important;height:40px!important;margin:0!important;display:grid!important;place-items:center!important}
 .cabinetHeader .cabinetBackBtn{grid-column:1!important;grid-row:1!important;transform:rotate(180deg)!important}
 .cabinetHeader .cabinetSettingsBtn{grid-column:3!important;grid-row:1!important}
+
+/* AutoKZ strict category vehicle framing: full item visible, no crop or stretch */
+.categoryPhoto img{
+  width:100%!important;
+  height:100%!important;
+  padding:8px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+  display:block!important;
+  box-sizing:border-box!important;
+}
+.categoryPassenger img,.categoryCommercial img,.categoryCredit img,.categoryNew img,.categoryMoto img{transform:none!important;}
+.categoryParts img{transform:none!important;padding:10px!important;}
