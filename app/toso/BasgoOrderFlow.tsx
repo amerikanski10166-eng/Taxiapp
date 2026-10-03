@@ -16,6 +16,7 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [created, setCreated] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
 
   const submit = async () => {
     setError("");
@@ -41,6 +42,34 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
     }
   };
 
+  const trackingUrl = created?.tracking_token ? `${window.location.origin}/toso?tracking=${encodeURIComponent(created.tracking_token)}` : "";
+
+  const copyTracking = async () => {
+    if (!created?.tracking_token) return;
+    try {
+      await navigator.clipboard.writeText(created.tracking_token);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("Не удалось скопировать код. Удерживайте код, чтобы скопировать вручную.");
+    }
+  };
+
+  const shareTracking = async () => {
+    if (!trackingUrl) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: "BASGO — отслеживание заказа", text: `Код отслеживания: ${created.tracking_token}`, url: trackingUrl }); } catch {}
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(trackingUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("Не удалось поделиться ссылкой.");
+    }
+  };
+
   if (created) {
     return <div className="basgo-order-created">
       <div className="basgo-order-number"><span>ЗАКАЗ СОЗДАН</span><b>BASGO-{String(created.id).slice(0, 8).toUpperCase()}</b></div>
@@ -54,7 +83,7 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
           <small>Сохраните этот код — он нужен для отслеживания заказа.</small>
         </div>
       )}
-      <button className="basgo-secondary" onClick={() => setCreated(null)}>Создать ещё поручение</button>
+      <button className="basgo-secondary" onClick={() => { setCreated(null); setCopied(false); setError(""); }}>Создать ещё поручение</button>
     </div>;
   }
 
