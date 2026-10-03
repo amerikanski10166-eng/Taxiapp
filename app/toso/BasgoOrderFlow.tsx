@@ -42,8 +42,6 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
     }
   };
 
-  const trackingUrl = created?.tracking_token ? `${window.location.origin}/toso?tracking=${encodeURIComponent(created.tracking_token)}` : "";
-
   const copyTracking = async () => {
     if (!created?.tracking_token) return;
     try {
@@ -56,7 +54,8 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
   };
 
   const shareTracking = async () => {
-    if (!trackingUrl) return;
+    if (!created?.tracking_token) return;
+    const trackingUrl = `${window.location.origin}/toso?tracking=${encodeURIComponent(created.tracking_token)}`;
     if (navigator.share) {
       try { await navigator.share({ title: "BASGO — отслеживание заказа", text: `Код отслеживания: ${created.tracking_token}`, url: trackingUrl }); } catch {}
       return;
@@ -81,6 +80,10 @@ export default function BasgoOrderFlow({ onTrackingToken }: Props) {
           <span>Код отслеживания</span>
           <b>{created.tracking_token}</b>
           <small>Сохраните этот код — он нужен для отслеживания заказа.</small>
+          <div className="basgo-tracking-actions">
+            <button type="button" onClick={copyTracking}>{copied ? "Скопировано ✓" : "Копировать код"}</button>
+            <button type="button" onClick={shareTracking}>Поделиться</button>
+          </div>
         </div>
       )}
       <button className="basgo-secondary" onClick={() => { setCreated(null); setCopied(false); setError(""); }}>Создать ещё поручение</button>
