@@ -67,3 +67,12 @@
 .categoryPhoto,.categoryPhoto img,.feedPhoto,.feedPhoto img{contain:paint}
 .categoryPhoto{overflow:hidden}
 .categoryPhoto img,.feedPhoto img{max-width:100%;max-height:100%;box-sizing:border-box}
+
+/* AutoKZ category hero photos */
+.categoryPhoto img{object-fit:cover!important;object-position:center!important;transform:scale(1.01)}
+.categoryPassenger img{object-position:center center!important}
+.categoryCommercial img{object-position:center center!important}
+.categoryNew img{object-position:center center!important}
+.categoryMoto img{object-position:center center!important}
+.categoryPhoto:after{background:linear-gradient(180deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.12) 45%,rgba(10,18,30,.28) 100%)}
+.categoryPassenger>span,.categoryCommercial>span,.categoryNew>span,.categoryMoto>span{ text-shadow:0 1px 2px rgba(255,255,255,.95),0 1px 5px rgba(255,255,255,.55)}
