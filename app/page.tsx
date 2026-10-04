@@ -80,7 +80,7 @@ export default function Jup(){
       <button className="mainBtn" disabled={!birth||!adult(birth)||!allRead||!Object.values(accepted).every(Boolean)} onClick={createProfile}>Создать профиль и продолжить</button>
       <small className="legalNote">Версия документов: {LEGAL_VERSION}. Фиксируются дата рождения, версия документов, дата/время согласия и факт прочтения.</small>
       {openedDoc&&<div className="docOverlay"><section className="doc"><button className="iconBtn" onClick={()=>setOpenedDoc(null)}><X/></button><h3>{LEGAL_DOCS[openedDoc].title}</h3><p>{LEGAL_DOCS[openedDoc].text}</p><button className="mainBtn" onClick={()=>{setReadDocs(r=>({...r,[openedDoc]:true}));setOpenedDoc(null)}}>Я прочитал документ</button></section></div>}
-   </section></div>}}
+   </section></div>}
  </main>;
 
  return <main className="jup">
