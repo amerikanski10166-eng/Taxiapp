@@ -8,6 +8,10 @@ on:
     paths-ignore:
       - "public/basgo-gid/city-data/**"
 
+concurrency:
+  group: basgo-gid-preload
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
