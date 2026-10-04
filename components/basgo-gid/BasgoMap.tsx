@@ -5,6 +5,7 @@ import maplibregl, { type Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ASTANA_BASGO_SEED } from "../../lib/basgo-gid/astana-seed";
 import { ASTANA_BASGO_ROADS, ASTANA_BASGO_BUILDINGS } from "../../lib/basgo-gid/astana-map";
+import { BASGO_NATIONAL_SCOPE, getBasgoPackage } from "../../lib/basgo-gid/national-map";
 
 type Props = {
   region: string;
@@ -58,6 +59,9 @@ export default function BasgoMap({ region, onReady }: Props) {
     if (!container.current || mapRef.current) return;
 
     const initial = views[region] ?? views["Весь Казахстан"];
+    const regionPackage = region === "Астана" ? getBasgoPackage("astana") : undefined;
+    void BASGO_NATIONAL_SCOPE;
+    void regionPackage;
     const map = new maplibregl.Map({
       container: container.current,
       center: initial.center,
@@ -86,9 +90,9 @@ export default function BasgoMap({ region, onReady }: Props) {
     map.on("load", () => {
       map.addSource("basgo-astana-roads", { type: "geojson", data: roadsGeoJson });
       map.addLayer({
-        id: "basgo-astana-roads",
+        id: "basgo-national-roads",
         type: "line",
-        source: "basgo-astana-roads",
+        source: "basgo-national-roads",
         minzoom: 9,
         paint: {
           "line-color": ["match", ["get", "className"], "motorway", "#c026d3", "primary", "#f59e0b", "secondary", "#2563eb", "#64748b"],
@@ -101,7 +105,7 @@ export default function BasgoMap({ region, onReady }: Props) {
       map.addLayer({
         id: "basgo-astana-building-fill",
         type: "fill",
-        source: "basgo-astana-buildings",
+        source: "basgo-national-buildings",
         minzoom: 12,
         paint: {
           "fill-color": ["match", ["get", "kind"], "landmark", "#f97316", "public", "#0ea5e9", "commercial", "#8b5cf6", "#64748b"],
@@ -120,7 +124,7 @@ export default function BasgoMap({ region, onReady }: Props) {
       map.addLayer({
         id: "basgo-seed-points",
         type: "circle",
-        source: "basgo-astana-seed",
+        source: "basgo-national-poi",
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 4, 14, 7],
           "circle-color": ["match", ["get", "kind"], "transport", "#0ea5e9", "service", "#22c55e", "#f97316"],
@@ -131,7 +135,7 @@ export default function BasgoMap({ region, onReady }: Props) {
       map.addLayer({
         id: "basgo-seed-labels",
         type: "symbol",
-        source: "basgo-astana-seed",
+        source: "basgo-national-poi",
         minzoom: 11,
         layout: {
           "text-field": ["get", "name"],
