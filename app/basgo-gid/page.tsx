@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import BasgoMap from "@/components/basgo-gid/BasgoMap";
 import { MapPin, Navigation, Search, Mic, Menu, Layers3, Download, Car, Footprints, BusFront, Fuel, Coffee, Hospital, Wrench, Globe2, ShieldCheck, WifiOff, Route, ChevronRight, X, LocateFixed, Map, Mountain, Languages, Database, Truck, Compass } from "lucide-react";
 
 const regions = [
@@ -36,6 +37,7 @@ export default function BasgoGidPage(){
   const [destination,setDestination]=useState("");
   const [notice,setNotice]=useState("");
   const [locationLoading,setLocationLoading]=useState(false);
+  const [mapReady,setMapReady]=useState(false);
   const [layers,setLayers]=useState<Record<string,boolean>>({});
   const showNotice=(message:string)=>{setNotice(message);window.setTimeout(()=>setNotice(""),2600)};
   const regionBbox:Record<string,string>={
@@ -44,8 +46,6 @@ export default function BasgoGidPage(){
     "Алматы":"76.75%2C43.10%2C77.15%2C43.40",
     "Шымкент":"69.45%2C42.15%2C69.80%2C42.45"
   };
-  const mapBbox=regionBbox[region] || regionBbox["Весь Казахстан"];
-  const mapSrc=`https://www.openstreetmap.org/export/embed.html?bbox=${mapBbox}&layer=mapnik`;
   const requestLocation=()=>{
     if(!navigator.geolocation){showNotice("Геолокация недоступна на этом устройстве.");return;}
     setLocationLoading(true);
@@ -67,12 +67,9 @@ export default function BasgoGidPage(){
   return (
     <main className="gid">
       <section className="gidMap">
-        <iframe
-          title="BASGO GID — Казахстан"
-          src={mapSrc}
-          className="gidMapFrame"
-        />
+        <BasgoMap region={region} onReady={()=>setMapReady(true)} />
         <div className="gidMapShade"/>
+        {!mapReady && <div className="gidMapLoading">BASGO GID · загружаем карту</div>}
 
         <header className="gidTop">
           <button className="gidIconBtn" onClick={()=>setPanel(panel==="layers"?"none":"layers")} aria-label="Меню"><Menu size={21}/></button>
@@ -138,7 +135,7 @@ export default function BasgoGidPage(){
         </div>
       </div>}
 
-      <div className="gidAttribution">© OpenStreetMap contributors · BASGO GID</div>{notice&&<div className="gidToast">{notice}</div>}
+      <div className="gidAttribution">BASGO GID · собственный картографический движок · данные OpenStreetMap используются на этапе сборки</div>{notice&&<div className="gidToast">{notice}</div>}
     </main>
   );
 }
