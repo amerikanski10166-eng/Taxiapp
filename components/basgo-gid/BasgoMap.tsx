@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import maplibregl, { type Map as MapLibreMap, type Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { ASTANA_BASGO_SEED } from "../../lib/basgo-gid/astana-seed";
 
 type Props = {
   region: string;
