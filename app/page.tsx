@@ -5,6 +5,9 @@ import { Heart, X, MessageCircle, UserRound, ShieldCheck, SlidersHorizontal, Arr
 type Profile={id:string;name:string;birth:string;city:string;gender:string;looking:string;interests:string[];about:string;photo:string};
 type Match={id:string;profile:Profile;messages:string[]};
 
+const LEGAL_VERSION="2026-10-04-v2";
+const LEGAL_DOCS={terms:{title:"Пользовательское соглашение",text:"JUP — сервис знакомств только для совершеннолетних. Пользователь обязуется указывать достоверные данные, уважать других людей и не использовать сервис для мошенничества, спама, угроз, шантажа или незаконного контента."},privacy:{title:"Политика конфиденциальности",text:"JUP обрабатывает данные, необходимые для работы сервиса: данные профиля, дату рождения, город, фотографии и сведения безопасности. Они используются для создания профиля, подбора анкет, защиты от мошенничества и обработки жалоб. Полный юридический текст политики должен быть утверждён перед публичным запуском с учётом законодательства Республики Казахстан."},rules:{title:"Правила безопасности и поведения 18+",text:"JUP предназначен только для людей, которым исполнилось 18 лет. Несовершеннолетним регистрация запрещена. Запрещены угрозы, преследование, шантаж, мошенничество, опасные действия и любой сексуальный контент с участием несовершеннолетних. При подозрении на несовершеннолетнего или опасное поведение нужно пожаловаться. JUP может запросить дополнительное подтверждение возраста."}};
+
 const demo:Profile[]=[
  {id:"1",name:"Алия",birth:"1999-04-12",city:"Астана",gender:"Женщина",looking:"Мужчина",interests:["Путешествия","Кино","Кофе"],about:"Люблю хорошие разговоры, прогулки и новые места.",photo:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=85"},
  {id:"2",name:"Мадина",birth:"2000-08-21",city:"Алматы",gender:"Женщина",looking:"Мужчина",interests:["Музыка","Спорт","Книги"],about:"Ищу доброго и открытого человека для серьёзных отношений.",photo:"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=85"},
@@ -17,6 +20,9 @@ function adult(b:string){return age(b)>=18}
 export default function Jup(){
  const [legal,setLegal]=useState(false);
  const [accepted,setAccepted]=useState({terms:false,privacy:false,rules:false,adult:false});
+ const [birth,setBirth]=useState("");
+ const [openedDoc,setOpenedDoc]=useState<keyof typeof LEGAL_DOCS|null>(null);
+ const [readDocs,setReadDocs]=useState<Record<string,boolean>>({terms:false,privacy:false,rules:false});
  const [profile,setProfile]=useState<Profile|null>(null);
  const [profiles,setProfiles]=useState<Profile[]>(demo);
  const [index,setIndex]=useState(0);
@@ -30,7 +36,7 @@ export default function Jup(){
  const [msg,setMsg]=useState("");
  const [notice,setNotice]=useState("");
 
- useEffect(()=>{try{const p=localStorage.getItem("jup-profile");if(p)setProfile(JSON.parse(p));const m=localStorage.getItem("jup-matches");if(m)setMatches(JSON.parse(m));}catch{}},[]);
+ useEffect(()=>{try{const p=localStorage.getItem("jup-profile");if(p){const parsed=JSON.parse(p);if(parsed.birth&&adult(parsed.birth)&&localStorage.getItem("jup-legal-version")==LEGAL_VERSION)setProfile(parsed)}const m=localStorage.getItem("jup-matches");if(m)setMatches(JSON.parse(m));}catch{}},[]);
  useEffect(()=>{try{localStorage.setItem("jup-matches",JSON.stringify(matches));}catch{}},[matches]);
 
  const current=profiles[index];
@@ -43,10 +49,15 @@ export default function Jup(){
    setTimeout(()=>setNotice(""),1800);
  };
 
+ const calculatedAge=birth?age(birth):0;
+ const allRead=Object.values(readDocs).every(Boolean);
  const createProfile=()=>{
-   if(!accepted.adult){setNotice("Доступ только для пользователей 18+.");return}
-   const p:Profile={id:crypto.randomUUID(),name:"Мой профиль",birth:"1990-01-01",city:"Астана",gender:"Мужчина",looking:"Женщина",interests:["Общение"],about:"Заполните информацию о себе.",photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85"};
-   setProfile(p);try{localStorage.setItem("jup-profile",JSON.stringify(p))}catch{};setLegal(false);
+   if(!birth){setNotice("Укажите дату рождения.");return}
+   if(!adult(birth)){setNotice("Регистрация доступна только с 18 лет.");return}
+   if(!allRead){setNotice("Сначала откройте и прочитайте все документы.");return}
+   if(!Object.values(accepted).every(Boolean)){setNotice("Подтвердите все обязательные условия.");return}
+   const p:Profile={id:crypto.randomUUID(),name:"Мой профиль",birth,city:"Астана",gender:"Мужчина",looking:"Женщина",interests:["Общение"],about:"Заполните информацию о себе.",photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85"};
+   setProfile(p);try{localStorage.setItem("jup-profile",JSON.stringify(p));localStorage.setItem("jup-legal-version",LEGAL_VERSION)}catch{};setLegal(false);
  };
 
  if(!profile) return <main className="jupAuth">
@@ -58,13 +69,18 @@ export default function Jup(){
    <small className="authFoot">Казахстан · JUP</small>
    {legal&&<div className="overlay"><section className="legal">
       <button className="iconBtn" onClick={()=>setLegal(false)}><X/></button>
-      <div className="miniLogo">JUP ♥</div><h2>Перед регистрацией</h2>
-      <p>Прочитайте правила. JUP предназначен только для совершеннолетних.</p>
-      <div className="legalDocs"><b>Пользовательское соглашение</b><span>Правила сервиса и общения</span><b>Политика конфиденциальности</b><span>Как мы обрабатываем данные</span><b>Правила безопасности 18+</b><span>Запрет несовершеннолетним и опасного контента</span></div>
-      {Object.entries({terms:"Я ознакомился и принимаю Пользовательское соглашение",privacy:"Я ознакомился с Политикой конфиденциальности",rules:"Я согласен соблюдать Правила сервиса",adult:"Мне уже исполнилось 18 лет"}).map(([k,v])=><label className="check" key={k}><input type="checkbox" checked={(accepted as any)[k]} onChange={e=>setAccepted(a=>({...a,[k]:e.target.checked}))}/><span>{v}</span></label>)}
-      <button className="mainBtn" disabled={!Object.values(accepted).every(Boolean)} onClick={createProfile}>Принять и продолжить</button>
-      <small className="legalNote">Согласия фиксируются вместе с версией документов и временем регистрации.</small>
-   </section></div>}
+      <div className="miniLogo">JUP ♥</div><h2>Сначала ознакомьтесь</h2>
+      <p>Перед регистрацией укажите дату рождения и откройте каждый документ. Галочка станет доступна только после нажатия «Я прочитал документ».</p>
+      <div className="birthBox"><label>Дата рождения</label><input type="date" value={birth} max={new Date().toISOString().slice(0,10)} onChange={e=>setBirth(e.target.value)}/>{birth&&<strong>{"Ваш возраст: "+calculatedAge+" лет"}</strong>}{birth&&!adult(birth)&&<em>Регистрация невозможна: сервис только для 18+.</em>}</div>
+      <div className="legalDocs">{(Object.entries(LEGAL_DOCS) as [keyof typeof LEGAL_DOCS,typeof LEGAL_DOCS.terms][]).map(([k,d])=><div className="docRow" key={k}><div><b>{d.title}</b><span>{readDocs[k]?"✓ Прочитано":"Нужно открыть и прочитать"}</span></div><button onClick={()=>setOpenedDoc(k)}>Открыть</button></div>)}</div>
+      <label className="check"><input type="checkbox" checked={accepted.adult} onChange={e=>setAccepted(a=>({...a,adult:e.target.checked}))}/><span>Я подтверждаю, что мне исполнилось 18 лет</span></label>
+      <label className="check"><input type="checkbox" disabled={!readDocs.terms} checked={accepted.terms} onChange={e=>setAccepted(a=>({...a,terms:e.target.checked}))}/><span>Я прочитал и принимаю Пользовательское соглашение</span></label>
+      <label className="check"><input type="checkbox" disabled={!readDocs.privacy} checked={accepted.privacy} onChange={e=>setAccepted(a=>({...a,privacy:e.target.checked}))}/><span>Я прочитал Политику конфиденциальности</span></label>
+      <label className="check"><input type="checkbox" disabled={!readDocs.rules} checked={accepted.rules} onChange={e=>setAccepted(a=>({...a,rules:e.target.checked}))}/><span>Я прочитал и согласен с Правилами безопасности 18+</span></label>
+      <button className="mainBtn" disabled={!birth||!adult(birth)||!allRead||!Object.values(accepted).every(Boolean)} onClick={createProfile}>Создать профиль и продолжить</button>
+      <small className="legalNote">Версия документов: {LEGAL_VERSION}. Фиксируются дата рождения, версия документов, дата/время согласия и факт прочтения.</small>
+      {openedDoc&&<div className="docOverlay"><section className="doc"><button className="iconBtn" onClick={()=>setOpenedDoc(null)}><X/></button><h3>{LEGAL_DOCS[openedDoc].title}</h3><p>{LEGAL_DOCS[openedDoc].text}</p><button className="mainBtn" onClick={()=>{setReadDocs(r=>({...r,[openedDoc]:true}));setOpenedDoc(null)}}>Я прочитал документ</button></section></div>}
+   </section></div>}}
  </main>;
 
  return <main className="jup">
