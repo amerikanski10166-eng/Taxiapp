@@ -32,6 +32,29 @@ export default function BasgoGidPage(){
   const [language,setLanguage]=useState("Русский");
   const [offline,setOffline]=useState(false);
   const [region,setRegion]=useState("Весь Казахстан");
+  const [activeCategory,setActiveCategory]=useState<string | null>(null);
+  const [destination,setDestination]=useState("");
+  const [notice,setNotice]=useState("");
+  const [locationLoading,setLocationLoading]=useState(false);
+  const [layers,setLayers]=useState<Record<string,boolean>>({});
+  const showNotice=(message:string)=>{setNotice(message);window.setTimeout(()=>setNotice(""),2600)};
+  const regionBbox:Record<string,string>={
+    "Весь Казахстан":"46.45%2C40.50%2C87.35%2C55.45",
+    "Астана":"71.20%2C51.05%2C71.65%2C51.30",
+    "Алматы":"76.75%2C43.10%2C77.15%2C43.40",
+    "Шымкент":"69.45%2C42.15%2C69.80%2C42.45"
+  };
+  const mapBbox=regionBbox[region] || regionBbox["Весь Казахстан"];
+  const mapSrc=`https://www.openstreetmap.org/export/embed.html?bbox=${mapBbox}&layer=mapnik`;
+  const requestLocation=()=>{
+    if(!navigator.geolocation){showNotice("Геолокация недоступна на этом устройстве.");return;}
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      ()=>{setLocationLoading(false);showNotice("Позиция получена. Подключение BASGO-навигации готовится.");},
+      ()=>{setLocationLoading(false);showNotice("Не удалось получить позицию. Проверьте разрешение геолокации.");},
+      {enableHighAccuracy:true,timeout:8000}
+    );
+  };
 
   const recordMetric = (metric: string) => { fetch("/api/basgo-gid/metric", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ metric, region }) }).catch(() => {}); };
   useEffect(() => { recordMetric("app_open"); }, []);
@@ -46,14 +69,14 @@ export default function BasgoGidPage(){
       <section className="gidMap">
         <iframe
           title="BASGO GID — Казахстан"
-          src="https://www.openstreetmap.org/export/embed.html?bbox=46.45%2C40.50%2C87.35%2C55.45&layer=mapnik"
+          src={mapSrc}
           className="gidMapFrame"
         />
         <div className="gidMapShade"/>
 
         <header className="gidTop">
           <button className="gidIconBtn" onClick={()=>setPanel(panel==="layers"?"none":"layers")} aria-label="Меню"><Menu size={21}/></button>
-          <div className="gidBrand"><b>BASGO</b><span>GID</span></div>
+          <div className="gidBrand"><b>BASGO</b><span>GID</span><small>КАЗАХСТАН</small></div>
           <button className={"gidIconBtn "+(offline?"gidOnline":"")} onClick={()=>setPanel("offline")} aria-label="Офлайн-карты">{offline?<WifiOff size={19}/>:<Download size={19}/>}</button>
         </header>
 
@@ -61,7 +84,7 @@ export default function BasgoGidPage(){
           <Search size={19}/>
           <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Куда едем? Адрес, город, село или объект"/>
           <button onClick={()=>setPanel("languages")} aria-label="Язык"><Globe2 size={18}/></button>
-          <button className="gidMic" onClick={()=>{recordMetric("voice_search");alert("BASGO GID: голосовой поиск подключим к маршрутам, адресам и AI-гиду.")}} aria-label="Голосовой поиск"><Mic size={18}/></button>
+          <button className="gidMic" onClick={()=>{recordMetric("voice_search");showNotice("Голосовой BASGO GID готовится: поиск адресов, маршрутов и AI-гид.")}} aria-label="Голосовой поиск"><Mic size={18}/></button>
         </div>
 
         {query && <div className="gidSearchResults">
@@ -69,14 +92,14 @@ export default function BasgoGidPage(){
         </div>}
 
         <div className="gidCategoryRow">
-          {categories.map(({label,icon:Icon})=><button key={label}><Icon size={16}/><span>{label}</span></button>)}
+          {categories.map(({label,icon:Icon})=><button className={activeCategory===label?"active":""} key={label} onClick={()=>{setActiveCategory(label);setQuery(label);recordMetric("map_search")}}><Icon size={16}/><span>{label}</span></button>)}
         </div>
 
         <div className="gidMapControls">
           <button onClick={()=>setPanel("layers")}><Layers3 size={18}/></button>
           <button onClick={()=>setPanel("regions")}><Map size={18}/></button>
           <button onClick={()=>setPanel("offline")}><Download size={18}/></button>
-          <button onClick={()=>alert("Геолокация будет использоваться только после разрешения пользователя.")}><LocateFixed size={18}/></button>
+          <button onClick={requestLocation} disabled={locationLoading} aria-label="Моё местоположение"><LocateFixed size={18}/></button>
         </div>
 
         <button className="gidRouteFab" onClick={()=>{recordMetric("route_build");setPanel("route")}}><Navigation size={18}/><span>Маршрут</span></button>
@@ -102,20 +125,20 @@ export default function BasgoGidPage(){
         <div className="gidPanel" onClick={e=>e.stopPropagation()}>
           <button className="gidClose" onClick={()=>setPanel("none")}><X size={20}/></button>
 
-          {panel==="route" && <><div className="gidEyebrow">BASGO SMART ROUTE</div><h2>Умный маршрут по Казахстану</h2><p>Один маршрут для города, трассы, степи и курьерской доставки. Дальше подключаем дорожный граф, ограничения, пробки и офлайн-навигацию.</p><div className="gidRouteLine"><div className="gidRouteDot"/>{region}<div className="gidRouteStroke"/><div className="gidRoutePin"><MapPin size={15}/></div>Куда едем?</div><button className="gidPrimary"><Navigation size={17}/>Построить маршрут</button></>}
+          {panel==="route" && <><div className="gidEyebrow">BASGO SMART ROUTE</div><h2>Умный маршрут</h2><p>Сейчас интерфейс готов; собственный дорожный граф BASGO подключим следующим этапом. Выберите пункт назначения, чтобы подготовить запрос.</p><div className="gidRouteLine"><div className="gidRouteDot"/>{region}<div className="gidRouteStroke"/><div className="gidRoutePin"><MapPin size={15}/></div><input className="gidRouteInput" value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Адрес или объект назначения"/></div><button className="gidPrimary" onClick={()=>{recordMetric("route_build");showNotice(destination?`Маршрут подготовлен: ${destination}`:"Укажите пункт назначения")}}><Navigation size={17}/>Подготовить маршрут</button></>}
 
-          {panel==="offline" && <><div className="gidEyebrow">OFFLINE FIRST · NATIONAL</div><h2>Офлайн-карта всего Казахстана</h2><p>Национальный слой строим из региональных векторных пакетов. Пользователь сможет заранее скачать область или город и продолжить навигацию без интернета.</p><div className="gidDownloadCard"><div><b>Казахстан · национальный пакет</b><span>Дороги · здания · адреса · POI · дорожный граф</span></div><strong>{offline?"Подготовлен":"В разработке"}</strong></div><button className="gidPrimary" onClick={()=>{recordMetric("offline_use");setOffline(true)}}><Download size={17}/>Подготовить национальный пакет</button></>}
+          {panel==="offline" && <><div className="gidEyebrow">OFFLINE FIRST · NATIONAL</div><h2>Офлайн-карта</h2><p>Подготовка региональных пакетов уже заложена в архитектуру. Реальные векторные данные и дорожный граф ещё подключаются.</p><div className="gidDownloadCard"><div><b>{region} · пакет BASGO</b><span>Дороги · здания · адреса · POI · routing graph</span></div><strong>{offline?"Готово":"Подготовка"}</strong></div><button className="gidPrimary" onClick={()=>{recordMetric("offline_use");setOffline(true);showNotice("Регион отмечен для офлайн-пакета.")}}><Download size={17}/>{offline?"Пакет отмечен":"Подготовить пакет"}</button></>}
 
           {panel==="regions" && <><div className="gidEyebrow">KAZAKHSTAN · 2026</div><h2>Выберите регион</h2><p>Архитектура BASGO GID сразу рассчитана на 17 областей и 3 города республиканского значения. По данным Бюро национальной статистики на 1 июля 2026 года — 20 административных единиц этого уровня.</p><div className="gidRegionGrid">{regions.map(x=><button key={x} className={region===x?"active":""} onClick={()=>{setRegion(x);setPanel("none")}}><MapPin size={14}/><span>{x}</span></button>)}</div></>}
 
-          {panel==="layers" && <><div className="gidEyebrow">BASGO DATA LAYERS</div><h2>Настроить BASGO GID</h2>{["Дороги и здания","Адреса и населённые пункты","Пробки и ограничения","АЗС и СТО","Кафе и сервисы","Туризм и достопримечательности","Общественный транспорт","Курьерские подъезды","Зимние пешеходные маршруты"].map((x,i)=><button className="gidLayerRow" key={x}><span>{x}</span><span className={i<6?"gidToggle on":"gidToggle"}><i/></span></button>)}</>}
+          {panel==="layers" && <><div className="gidEyebrow">BASGO DATA LAYERS</div><h2>Настроить BASGO GID</h2>{["Дороги и здания","Адреса и населённые пункты","Пробки и ограничения","АЗС и СТО","Кафе и сервисы","Туризм и достопримечательности","Общественный транспорт","Курьерские подъезды","Зимние пешеходные маршруты"].map((x,i)=>{const enabled=layers[x] ?? i<6; return <button className="gidLayerRow" key={x} onClick={()=>setLayers(prev=>({...prev,[x]:!enabled}))}><span>{x}</span><span className={enabled?"gidToggle on":"gidToggle"}><i/></span></button>})}</>}
 
           {panel==="languages" && <><div className="gidEyebrow">AI GUIDE · LANGUAGES</div><h2>Язык BASGO GID</h2>{["Русский","Қазақша","English","中文","العربية","Türkçe"].map(x=><button className={"gidLang "+(language===x?"active":"")} key={x} onClick={()=>{setLanguage(x);setPanel("none")}}><span>{x}</span>{language===x&&<b>✓</b>}</button>)}<div className="gidAiCard"><Languages size={18}/><div><b>AI-гид</b><span>Голос, перевод и ответы о местах — следующий слой BASGO GID.</span></div></div></>}
 
         </div>
       </div>}
 
-      <div className="gidAttribution">© OpenStreetMap contributors · BASGO GID</div>
+      <div className="gidAttribution">© OpenStreetMap contributors · BASGO GID</div>{notice&&<div className="gidToast">{notice}</div>}
     </main>
   );
 }
