@@ -1,4 +1,5 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, rm } from "node:fs/promises";
+import { gzipSync } from "node:zlib";
 
 const cities = [
   ["astana","Астана",71.24,51.01,71.62,51.25],["almaty","Алматы",76.68,43.12,77.10,43.36],
@@ -68,7 +69,9 @@ for (const city of cities) {
   console.log(`Ingesting ${city.name} (${city.id})...`);
   try {
     const pack=await fetchCity(city);
-    await writeFile(`public/basgo-gid/city-data/${city.id}.json`,JSON.stringify(pack));
+    const output = `public/basgo-gid/city-data/${city.id}.json.gz`;
+    await rm(`public/basgo-gid/city-data/${city.id}.json`, { force: true });
+    await writeFile(output, gzipSync(JSON.stringify(pack), { level: 9 }));
     console.log(`OK ${city.id}: ${pack.counts.roads} roads, ${pack.counts.buildings} buildings`);
   } catch(error) { console.error(`FAILED ${city.id}:`,error); process.exitCode=1; }
   await sleep(15000);
