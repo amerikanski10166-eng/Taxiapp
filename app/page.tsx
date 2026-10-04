@@ -39,7 +39,6 @@ export default function Jup(){
  useEffect(()=>{try{const p=localStorage.getItem("jup-profile");if(p){const parsed=JSON.parse(p);if(parsed.birth&&adult(parsed.birth)&&localStorage.getItem("jup-legal-version")==LEGAL_VERSION)setProfile(parsed)}const m=localStorage.getItem("jup-matches");if(m)setMatches(JSON.parse(m));}catch{}},[]);
  useEffect(()=>{try{localStorage.setItem("jup-matches",JSON.stringify(matches));}catch{}},[matches]);
 
- const current=visible[index];
  const visible=useMemo(()=>profiles.filter(p=>(city==="Все"||p.city===city)&&age(p.birth)>=minAge&&age(p.birth)<=maxAge),[profiles,city,minAge,maxAge]);
 
  const action=(kind:"like"|"skip")=>{
