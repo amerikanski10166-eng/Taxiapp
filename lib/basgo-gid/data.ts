@@ -6,7 +6,7 @@ export type BasgoRegion = {
   status: "planned" | "pilot";
 };
 
-export const BASGO_GID_DATA_VERSION = "2026.07";
+export const BASGO_GID_DATA_VERSION = "2026.10";
 
 export const basgoRegions: BasgoRegion[] = [
   ["abai","Абайская область","region"],["akmola","Акмолинская область","region"],["aktobe","Актюбинская область","region"],
