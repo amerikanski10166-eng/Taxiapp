@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import BasgoMap from "@/components/basgo-gid/BasgoMap";
+import BasgoMap from "../../components/basgo-gid/BasgoMap";
 import { MapPin, Navigation, Search, Mic, Menu, Layers3, Download, Car, Footprints, BusFront, Fuel, Coffee, Hospital, Wrench, Globe2, ShieldCheck, WifiOff, Route, ChevronRight, X, LocateFixed, Map, Mountain, Languages, Database, Truck, Compass } from "lucide-react";
 
 const regions = [
