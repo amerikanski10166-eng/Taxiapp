@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2, Home, MessageCircle, Settings, Globe2, Info, BookOpen, UsersRound, Truck, Wrench, Bike, Calculator, Megaphone, BadgeCheck } from "lucide-react";
+import { Search, Plus, Heart, User, Wallet, CarFront, X, Images, Zap, ChevronRight, SlidersHorizontal, Share2, Home, MessageCircle, Settings, Globe2, Info, BookOpen, UsersRound, Truck, Wrench, Bike, Calculator, Megaphone, BadgeCheck, Bell } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 const KZ_CITIES=["Все города","Астана","Алматы","Шымкент","Караганда","Актобе","Тараз","Павлодар","Усть-Каменогорск","Семей","Костанай","Кызылорда","Атырау","Актау","Петропавловск","Кокшетау","Талдыкорган","Туркестан","Жезказган","Темиртау","Экибастуз","Рудный","Балхаш","Каскелен","Другой город"];
@@ -116,7 +116,10 @@ export default function HomePage(){
   const promote=()=>{if(!selected)return;setListings(xs=>xs.map(x=>x.id===selected.id?{...x,promoted:true}:x));setSelected({...selected,promoted:true});setNotice("Объявление отмечено как ТОП в этом браузере. Платные функции пока отключены.");};
 
   return <main className="market">
-    <header className="kolesaTop"><div className="brand">Auto<span>KZ</span></div></header>
+    <header className="kolesaTop">
+      <div className="autoKzHeaderBrand"><div className="autoKzMark">🚗</div><div><div className="brand">Auto<span>KZ</span></div><div className="brandSub">Авто · Мототехника · Запчасти · Всё для твоего движения</div></div></div>
+      <div className="autoKzHeaderActions"><button aria-label="Поиск" onClick={()=>document.querySelector<HTMLInputElement>(".marketSearch input")?.focus()}><Search size={22}/></button><button aria-label="Уведомления" onClick={()=>setNotice("Новых уведомлений пока нет.")}><Bell size={21}/></button><button className="headerPlus" aria-label="Подать объявление" onClick={()=>{setNotice("");setModal("add")}}><Plus size={23}/></button></div>
+    </header>
     <section className="marketSearch"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Марка, модель или город"/><button onClick={()=>setSort(sort==="priceAsc"?"new":"priceAsc")}><SlidersHorizontal size={18}/></button></section>
     <section className="categoryGrid">
       <button className="categoryPhoto categoryPassenger" onClick={()=>setCategory("all")}><img src="https://www.paramat.in/cdn/shop/articles/91_87019d76-6eb7-491f-9909-cd675bd4e0bd.png?v=1756385331" alt="Легковые автомобили"/><span>Легковые<br/>авто</span></button>
