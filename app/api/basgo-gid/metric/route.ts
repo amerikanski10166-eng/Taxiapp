@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../../../../lib/supabase";
 
 const ALLOWED = new Set(["app_open","map_search","route_build","offline_use","voice_search","business_view"]);
 
