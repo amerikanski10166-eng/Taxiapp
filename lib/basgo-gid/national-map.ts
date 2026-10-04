@@ -4,13 +4,14 @@ export type BasgoMapRegionId =
   | "kyzylorda" | "mangystau" | "pavlodar" | "north-kazakhstan" | "turkistan"
   | "ulytau" | "astana" | "almaty" | "shymkent";
 
-export type BasgoLayerPackageStatus = "planned" | "pilot" | "ready";
+export type BasgoLayerPackageStatus = "planned" | "city-pilot" | "regional-pilot" | "ready";
 
 export type BasgoMapPackage = {
   regionId: BasgoMapRegionId;
   name: string;
   status: BasgoLayerPackageStatus;
-  source: "basgo-curated-pilot" | "ingestion-pipeline" | "osm-overpass-ingestion";
+  coverage: "city" | "region";
+  source: "basgo-curated-pilot" | "ingestion-pipeline" | "preloaded-basgo-storage";
   roads: boolean;
   buildings: boolean;
   addresses: boolean;
@@ -27,27 +28,41 @@ export const BASGO_NATIONAL_SCOPE = {
   layerModel: "national-vector-schema",
 } as const;
 
+const cityPilot = (regionId: BasgoMapRegionId, name: string): BasgoMapPackage => ({
+  regionId,
+  name,
+  status: "city-pilot",
+  coverage: "city",
+  source: "preloaded-basgo-storage",
+  roads: true,
+  buildings: true,
+  addresses: false,
+  poi: false,
+  routingGraph: false,
+  offline: false,
+});
+
 export const BASGO_NATIONAL_PACKAGES: BasgoMapPackage[] = [
-  { regionId: "abai", name: "Абайская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "akmola", name: "Акмолинская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "aktobe", name: "Актюбинская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "almaty-region", name: "Алматинская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "atyrau", name: "Атырауская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "east-kazakhstan", name: "Восточно-Казахстанская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "zhambyl", name: "Жамбылская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "zhetisu", name: "Жетысуская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "west-kazakhstan", name: "Западно-Казахстанская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "karaganda", name: "Карагандинская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "kostanay", name: "Костанайская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "kyzylorda", name: "Кызылординская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "mangystau", name: "Мангистауская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "pavlodar", name: "Павлодарская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "north-kazakhstan", name: "Северо-Казахстанская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "turkistan", name: "Туркестанская область", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "ulytau", name: "Ұлытау облысы", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "astana", name: "Астана", status: "pilot", source: "basgo-curated-pilot", roads: true, buildings: true, addresses: false, poi: true, routingGraph: false, offline: false },
-  { regionId: "almaty", name: "Алматы", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
-  { regionId: "shymkent", name: "Шымкент", status: "pilot", source: "osm-overpass-ingestion", roads: true, buildings: true, addresses: false, poi: false, routingGraph: false, offline: false },
+  cityPilot("abai", "Абайская область"),
+  cityPilot("akmola", "Акмолинская область"),
+  cityPilot("aktobe", "Актюбинская область"),
+  cityPilot("almaty-region", "Алматинская область"),
+  cityPilot("atyrau", "Атырауская область"),
+  cityPilot("east-kazakhstan", "Восточно-Казахстанская область"),
+  cityPilot("zhambyl", "Жамбылская область"),
+  cityPilot("zhetisu", "Жетысуская область"),
+  cityPilot("west-kazakhstan", "Западно-Казахстанская область"),
+  cityPilot("karaganda", "Карагандинская область"),
+  cityPilot("kostanay", "Костанайская область"),
+  cityPilot("kyzylorda", "Кызылординская область"),
+  cityPilot("mangystau", "Мангистауская область"),
+  cityPilot("pavlodar", "Павлодарская область"),
+  cityPilot("north-kazakhstan", "Северо-Казахстанская область"),
+  cityPilot("turkistan", "Туркестанская область"),
+  cityPilot("ulytau", "Ұлытау облысы"),
+  { ...cityPilot("astana", "Астана"), source: "basgo-curated-pilot", poi: true },
+  cityPilot("almaty", "Алматы"),
+  cityPilot("shymkent", "Шымкент"),
 ];
 
 export const BASGO_MAP_LAYERS = [
@@ -59,6 +74,7 @@ export const BASGO_INGESTION_PIPELINE = [
   "source-data",
   "normalization",
   "quality-control",
+  "preloaded-basgo-storage",
   "basgo-vector-tiles",
   "routing-graph",
   "address-index",
