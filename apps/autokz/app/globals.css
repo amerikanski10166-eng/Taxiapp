@@ -1,0 +1,236 @@
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#f4f5f7;color:#111;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{border:0;cursor:pointer}.market{width:min(100%,760px);margin:0 auto;min-height:100vh;padding:22px 18px 105px}.marketTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-size:25px;font-weight:950;letter-spacing:-.06em}.brand span{color:#f0b900}.brandSub{font-size:10px;color:#888;margin-top:1px}.roundBtn{width:42px;height:42px;border-radius:14px;background:#fff;display:grid;place-items:center;box-shadow:0 5px 18px #0000000a}.hero{background:#111;color:#fff;border-radius:25px;padding:22px;margin-bottom:14px;display:flex;justify-content:space-between;gap:12px;align-items:flex-end}.eyebrow{font-size:10px;font-weight:900;letter-spacing:.16em;color:#888}.hero .eyebrow{color:#aaa}.hero h1{font-size:29px;line-height:1.02;letter-spacing:-.055em;margin:6px 0}.hero p{font-size:12px;color:#aaa;margin:8px 0 0}.addBtn,.primaryBtn{background:#f5c400;color:#111;border-radius:12px;padding:11px 13px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}.searchBox{height:53px;background:#fff;border-radius:16px;display:flex;align-items:center;padding:0 12px;gap:9px;box-shadow:0 5px 18px #00000008}.searchBox input{border:0;outline:0;flex:1;min-width:0;font-size:13px}.searchBox button{background:#f5f5f6;border-radius:10px;width:34px;height:34px;display:grid;place-items:center}.chips{display:flex;gap:7px;overflow:auto;padding:12px 0 5px}.chip{background:#fff;border-radius:20px;padding:8px 12px;font-size:11px;white-space:nowrap;color:#666}.chip.active{background:#111;color:#fff}.marketSection{margin-top:19px}.sectionHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.sectionHead h2{font-size:18px;margin:0;letter-spacing:-.03em}.sectionHead span{font-size:10px;color:#888}.textBtn{background:transparent;color:#777;display:flex;align-items:center;gap:2px;font-size:10px}.carGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.carCard{background:#fff;border-radius:19px;text-align:left;overflow:hidden;box-shadow:0 5px 17px #00000008;padding:0}.carPhoto{height:145px;background:linear-gradient(135deg,#e9ebee,#d7d9dc);display:grid;place-items:center;color:#777;position:relative}.carPhoto b{position:absolute;top:9px;left:9px;background:#f5c400;color:#111;border-radius:8px;padding:5px 7px;font-size:9px;display:flex;align-items:center;gap:3px}.carBody{padding:12px}.carBody h3{margin:0 0 4px;font-size:14px}.carBody strong{font-size:16px}.carBody p{font-size:10px;color:#666;margin:6px 0}.carBody small{font-size:9px;color:#999}.carCard.promoted{outline:2px solid #f5c400}.sellerBanner{background:#f5c400;border-radius:22px;padding:19px;margin-top:15px}.sellerBanner span{font-size:9px;font-weight:950}.sellerBanner h2{font-size:22px;line-height:1.02;margin:7px 0}.sellerBanner p{font-size:11px;max-width:430px;margin:0 0 13px}.sellerBanner button{background:#111;color:#fff;border-radius:11px;padding:10px 12px;font-size:11px;font-weight:900;display:flex;align-items:center;gap:4px}.marketNav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(calc(100% - 28px),500px);height:67px;background:#111;border-radius:23px;padding:5px;display:grid;grid-template-columns:repeat(4,1fr);z-index:20;box-shadow:0 12px 30px #0003}.marketNav button{background:transparent;color:#888;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:18px;font-size:9px}.marketNav button.active{background:#f5c400;color:#111;font-weight:900}.marketBackdrop{position:fixed;inset:0;background:#0008;z-index:30;display:grid;place-items:end center;padding:12px}.marketModal{width:min(100%,600px);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;padding:21px;position:relative;box-shadow:0 20px 60px #0005}.closeBtn{position:absolute;right:12px;top:12px;background:#f3f3f4;border-radius:10px;width:34px;height:34px;display:grid;place-items:center}.marketModal h2{font-size:22px;margin:6px 0}.muted{color:#777;font-size:12px;line-height:1.5}.photoUpload{height:100px;border:1px dashed #bbb;border-radius:14px;margin:12px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#777;gap:3px;position:relative;overflow:hidden;cursor:pointer}.photoUpload span{font-size:12px;font-weight:800}.photoUpload .photoInput{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;z-index:10;display:block;-webkit-tap-highlight-color:transparent}.photoUpload small{font-size:9px}.marketInput{width:100%;border:1px solid #e1e2e5;border-radius:12px;padding:12px;margin-top:8px;background:#fff;outline:none}.marketInput:focus{border-color:#111}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.primaryBtn{width:100%;margin-top:12px;padding:13px;background:#111;color:#fff}.carPhoto.big{height:190px;border-radius:17px;margin-bottom:14px}.listingHead{display:flex;justify-content:space-between;align-items:flex-start}.listingHead h2{margin-top:5px}.bigPrice{font-size:24px;display:block;margin:4px 0}.sellerBox{background:#f6f6f7;border-radius:13px;padding:12px;margin-top:13px;display:grid;gap:3px}.sellerBox span{font-size:10px;color:#888}.paymentNote{display:block;font-size:9px;color:#999;margin-top:8px;text-align:center}.cabStat{background:#111;color:#fff;border-radius:15px;padding:16px;margin:12px 0;display:grid}.cabStat b{font-size:26px}.cabStat span{font-size:10px;color:#aaa}.cabRow{width:100%;padding:12px;background:#f6f6f7;border-radius:11px;margin-top:7px;display:flex;justify-content:space-between;text-align:left;font-size:11px}.cabRow b{white-space:nowrap}.incomeBox{background:#111;color:#fff;border-radius:17px;padding:20px;margin:15px 0;display:grid;gap:7px}.incomeBox b{font-size:29px}.incomeBox span{font-size:10px;color:#aaa}.marketToast{position:fixed;bottom:91px;left:50%;transform:translateX(-50%);background:#111;color:#fff;border-radius:12px;padding:10px 14px;font-size:11px;z-index:50;max-width:calc(100% - 30px);text-align:center}@media(max-width:520px){.hero{align-items:flex-start;flex-direction:column}.addBtn{width:100%}} .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.filters select{width:100%;border:0;background:#fff;border-radius:12px;padding:10px 11px;font-size:11px;outline:0;box-shadow:0 5px 18px #00000006}.carCard{position:relative}.cardMain{width:100%;display:block;background:transparent;text-align:left;padding:0}.favBtn{position:absolute;right:9px;top:9px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#777;box-shadow:0 4px 12px #0002;z-index:2}.favBtn.favOn,.favoriteLarge.favOn{color:#e11}.favoriteLarge{background:#f3f3f4;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#777}.favBtn:hover,.favoriteLarge:hover{transform:scale(1.04)} :root{--auto-primary:#2563eb;--auto-primary-dark:#1d4ed8;--auto-ink:#0f172a;--auto-bg:#f8fafc;--auto-soft:#eff6ff;--auto-border:#e2e8f0;--auto-muted:#64748b} html,body{background:var(--auto-bg);color:var(--auto-ink)}.brand span{color:var(--auto-primary)}.hero{background:linear-gradient(135deg,#0f172a,#1e293b)}.eyebrow{color:var(--auto-primary)}.hero .eyebrow{color:#93c5fd}.addBtn,.primaryBtn{background:var(--auto-primary);color:#fff}.addBtn:hover,.primaryBtn:hover{background:var(--auto-primary-dark)}.searchBox{border:1px solid var(--auto-border)}.searchBox button{background:var(--auto-soft);color:var(--auto-primary)}.chip{border:1px solid var(--auto-border)}.chip.active{background:var(--auto-primary);color:#fff}.carCard{border:1px solid var(--auto-border)}.carPhoto{background:linear-gradient(135deg,#eff6ff,#dbeafe);color:var(--auto-primary)}.carPhoto b{background:var(--auto-primary);color:#fff}.carCard.promoted{outline:2px solid #93c5fd}.sellerBanner{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff}.sellerBanner button{background:var(--auto-primary);color:#fff}.marketNav{background:#0f172a}.marketNav button.active{background:var(--auto-primary);color:#fff}.marketModal{border:1px solid var(--auto-border)}.photoUpload{border-color:#93c5fd;background:#f8fbff;color:var(--auto-primary)}.photoUpload:hover{border-color:var(--auto-primary);background:var(--auto-soft)}.marketInput:focus{border-color:var(--auto-primary);box-shadow:0 0 0 3px #2563eb1a}.cabStat,.incomeBox{background:var(--auto-ink)}.marketToast{background:var(--auto-ink)}.sellerBox,.cabRow{background:#f1f5f9}.favBtn.favOn,.favoriteLarge.favOn{color:#ef4444} .carCard{transition:transform .18s ease,box-shadow .18s ease}.carCard:hover{transform:translateY(-2px);box-shadow:0 12px 30px #0f172a12}.carPhoto{overflow:hidden}.carPhotoGlow{position:absolute;width:180px;height:110px;border-radius:50%;background:#fff8;filter:blur(18px)}.carPhoto svg{position:relative;z-index:1;filter:drop-shadow(0 8px 10px #2563eb18)}.photoCount{position:absolute;right:9px;bottom:9px;z-index:2;background:#ffffffdd;color:#334155;border-radius:8px;padding:5px 7px;font-size:9px;font-weight:800;display:flex;align-items:center;gap:4px}.cardCity{font-size:9px;color:#64748b;font-weight:800;margin-bottom:3px}.carBody h3{font-size:15px;margin:0 0 5px}.carBody strong{font-size:17px;letter-spacing:-.02em}.carSpecs{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0 5px}.carSpecs span{background:#f1f5f9;color:#475569;border-radius:7px;padding:4px 6px;font-size:8px;font-weight:700}.carBody small{color:#94a3b8}.detailTop{margin:-21px -21px 17px}.carPhoto.big{height:230px;border-radius:24px 24px 17px 17px;margin:0;background:linear-gradient(135deg,#eff6ff,#dbeafe)}.carPhoto.big svg{width:82px;height:82px}.listingHead h2{font-size:25px;letter-spacing:-.045em;margin:5px 0}.bigPrice{font-size:27px;letter-spacing:-.04em;color:#0f172a}.detailSpecs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:15px 0}.detailSpecs div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;padding:11px 9px}.detailSpecs span{display:block;color:#94a3b8;font-size:8px;margin-bottom:4px}.detailSpecs b{font-size:11px}.detailDescription{font-size:12px;line-height:1.55;color:#475569;background:#f8fafc;border-radius:14px;padding:12px}.sellerBox{background:#f8fafc;border:1px solid #e2e8f0;padding:12px}.sellerIdentity{display:flex;align-items:center;gap:9px}.sellerAvatar{width:36px;height:36px;border-radius:11px;background:#dbeafe;color:#2563eb;display:grid;place-items:center}.sellerIdentity span{display:block;color:#94a3b8;font-size:9px;margin-top:2px}.callBtn{margin-top:11px;width:100%;display:flex;justify-content:center;align-items:center;text-decoration:none;background:#0f172a;color:#fff;border-radius:11px;padding:11px;font-size:11px;font-weight:900}.callBtn:hover{background:#1e293b}.detailTop .photoCount{bottom:12px}.detailTop .carPhoto b{top:12px;left:12px}@media(max-width:520px){.carGrid{gap:8px}.carBody{padding:11px}.detailSpecs{grid-template-columns:1fr 1fr}.detailSpecs div:last-child{grid-column:1/-1}} .profileCard{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;margin-bottom:10px}.profileAvatar{width:42px;height:42px;border-radius:13px;background:#dbeafe;color:#2563eb;display:grid;place-items:center}.profileInfo{flex:1}.profileInfo b{display:block;font-size:12px}.profileInfo span{display:block;color:#94a3b8;font-size:9px;margin-top:3px}.profileBadge{background:#eff6ff;color:#2563eb;border-radius:8px;padding:6px 8px;font-size:8px;font-weight:900}.cabStat{grid-template-columns:repeat(3,1fr);gap:8px}.cabStat>div{display:grid;gap:2px}.secondaryAction{width:100%;margin-top:10px;padding:12px;border:1px solid #bfdbfe;background:#eff6ff;color:#2563eb;border-radius:12px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px}.secondaryAction:hover{background:#dbeafe}.freePublishNote{margin-top:12px;padding:11px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px}.freePublishNote b{display:block;color:#166534;font-size:11px}.freePublishNote span{display:block;color:#64748b;font-size:9px;line-height:1.4;margin-top:3px}.paymentNote{line-height:1.4} .detailActions{display:flex;gap:7px;align-items:center}.shareBtn,.favoriteLarge{width:40px;height:40px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;color:#475569;display:grid;place-items:center;cursor:pointer}.shareBtn:hover{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}.favoriteLarge{background:#fff}.favoriteLarge.favOn{color:#ef4444;border-color:#fecaca;background:#fff5f5}
+/* Vehicle photos: one photo at a time, with thumbnails and arrows */
+.listingGallery{position:relative;margin:0 0 17px;padding:0;background:#f1f5f9;border-radius:18px;overflow:hidden}
+.galleryStage{position:relative;width:100%;height:min(58vw,360px);min-height:220px;background:#eaf2fb;display:grid;place-items:center}
+.galleryStage>img{width:100%;height:100%;object-fit:contain;display:block}
+.galleryArrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:#ffffffdd;color:#0f172a;font-size:28px;line-height:1;display:grid;place-items:center;box-shadow:0 5px 16px #0002;z-index:3}
+.galleryPrev{left:10px}.galleryNext{right:10px}
+.galleryThumbs{display:flex;gap:7px;padding:8px;overflow-x:auto;background:#fff}
+.galleryThumb{flex:0 0 58px;width:58px;height:45px;padding:0;border-radius:8px;overflow:hidden;background:#eaf2fb;border:2px solid transparent}
+.galleryThumb.active{border-color:#2563eb}
+.galleryThumb img{width:100%;height:100%;object-fit:cover;display:block}
+.galleryCounter{position:absolute;right:10px;top:10px;background:#0f172add;color:#fff;border-radius:9px;padding:5px 8px;font-size:10px;font-weight:800;z-index:3}
+.photoThumb img{width:100%;height:100%;object-fit:contain;background:#f1f5f9;display:block}
+
+.cardVehiclePhoto{width:100%;height:100%;object-fit:cover;display:block;background:#eaf2fb}
+
+.quickActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.quickActions button,.offerRow button{border:1px solid #dbe3ef;background:#fff;border-radius:10px;padding:10px 8px;font-size:11px;font-weight:800;cursor:pointer}.quickActions button:hover{background:#f8fafc}.offerInbox{margin-top:12px;padding:12px;border:1px solid #dbe3ef;border-radius:14px;background:#f8fafc}.offerInbox>b{display:block;margin-bottom:8px}.offerRow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;padding:9px 0;border-top:1px solid #e5e7eb}.offerRow>div{grid-column:1/-1;display:flex;gap:7px}.offerRow button{padding:7px 10px}.offerStatus{font-size:10px;color:#64748b}.offerBuyerStatus{margin-top:10px;padding:10px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700}.creditResult{margin-top:12px;padding:14px;border-radius:14px;background:#f8fafc;border:1px solid #dbe3ef;display:grid;gap:5px}.creditResult b{font-size:22px}.creditResult span{font-size:10px;color:#64748b}.secondaryAction{display:block;width:100%;margin-top:8px;text-decoration:none;text-align:center}.paymentNote{display:block;margin-top:8px}
+@media(max-width:650px){.quickActions{grid-template-columns:1fr 1fr}.quickActions button{font-size:10px}}
+
+.galleryImageButton{width:100%;height:100%;padding:0;border:0;background:transparent;display:grid;place-items:center;cursor:zoom-in}
+.galleryImageButton img{width:100%;height:100%;object-fit:contain;display:block}
+.photoLightbox{position:fixed;inset:0;z-index:100;background:#000f;display:flex;align-items:center;justify-content:center;padding:24px}
+.lightboxImageButton{width:100%;height:100%;padding:0;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:default}
+.lightboxImageButton img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+.lightboxClose{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;background:#ffffffea;color:#0f172a;display:grid;place-items:center;z-index:4;box-shadow:0 6px 20px #0006}
+.lightboxArrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:#ffffffea;color:#0f172a;font-size:32px;line-height:1;display:grid;place-items:center;z-index:4;box-shadow:0 6px 20px #0006}
+.lightboxPrev{left:14px}.lightboxNext{right:14px}
+.lightboxCounter{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:#000b;color:#fff;border-radius:12px;padding:7px 11px;font-size:11px;font-weight:800;z-index:4}
+@media(max-width:520px){.photoLightbox{padding:8px}.lightboxArrow{width:42px;height:42px}.lightboxPrev{left:8px}.lightboxNext{right:8px}.lightboxClose{right:10px;top:10px}}
+
+.offerVehicle{display:flex;gap:12px;align-items:center;margin:8px 0 10px;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px}.offerVehiclePhoto{width:88px;height:68px;flex:0 0 88px;border-radius:10px;overflow:hidden;background:#eaf2fb;display:grid;place-items:center;color:#2563eb}.offerVehiclePhoto img{width:100%;height:100%;object-fit:cover;display:block}.offerVehicle h2{margin:0 0 3px;font-size:18px}.offerVehicle .muted{margin:0}
+
+/* AutoKZ cabinet landing */
+.cabinetLanding{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:18px;margin-top:8px}.cabinetLanding h2{font-size:24px;margin:7px 0}.cabinetLoginBtn{width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}.cabinetPublish{margin-top:12px;border-radius:18px;padding:18px;background:#0f172a;color:#fff}.cabinetPublishBrand{font-size:12px;font-weight:950;letter-spacing:.08em}.cabinetPublishBrand span{color:#60a5fa}.cabinetPublish h3{font-size:20px;margin:8px 0 5px}.cabinetPublish p{margin:0 0 14px;color:#cbd5e1;font-size:11px}.cabinetPublishBtn{width:100%;padding:13px;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+
+.creditVehicle{display:flex;justify-content:space-between;align-items:center;background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:13px 14px;margin:10px 0 14px}.creditVehicle span{font-size:11px;color:#64748b}.creditVehicle b{font-size:17px;color:#0f172a}.creditLabel{display:block;font-size:11px;font-weight:800;color:#475569;margin:10px 0 6px}.creditTerms{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}.creditTerms button{border:1px solid #dbe3ee;background:#fff;color:#334155;border-radius:10px;padding:10px 3px;font-size:10px;font-weight:800;cursor:pointer}.creditTerms button.active{background:#2563eb;color:#fff;border-color:#2563eb}.creditResult{display:grid;gap:9px;margin-top:14px;padding:14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}.creditResult div{display:flex;justify-content:space-between;gap:12px}.creditResult span{color:#64748b;font-size:11px}.creditResult b{color:#0f172a}.creditResult div:nth-child(2) b{font-size:18px}.creditResult small{color:#64748b;font-size:9px;line-height:1.4}
+
+.marketNav{grid-template-columns:repeat(5,1fr);padding-left:6px;padding-right:6px}.marketNav button{min-width:0;gap:3px}.marketNav button span:last-child{white-space:nowrap;font-size:9px}.marketNavAdd{position:relative;transform:translateY(-7px)}.navPlus{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.28);border:4px solid #fff}.marketNavAdd span:last-child{font-weight:900;color:#2563eb}
+
+
+/* AutoKZ cabinet settings */
+.cabinetHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.cabinetHeader h2{margin:0;font-size:25px;letter-spacing:-.04em}.cabinetSettingsBtn{width:42px;height:42px;border:1px solid #dbe3ef;background:#fff;color:#334155;border-radius:12px;display:grid;place-items:center;cursor:pointer}.cabinetSettingsBtn:hover{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}.cabinetSettings{margin-top:10px;background:#fff;border:1px solid #dbe3ef;border-radius:18px;padding:15px;box-shadow:0 12px 35px #0f172a12}.cabinetSettingsHead{display:flex;align-items:center;justify-content:space-between;gap:10px}.cabinetSettingsHead h3{margin:4px 0 0;font-size:21px}.settingsClose{width:36px;height:36px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;display:grid;place-items:center;cursor:pointer}.settingsLabel{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:900;color:#334155;margin:16px 0 8px}.languageOptions{display:grid;gap:7px}.languageOptions button{width:100%;padding:12px;border:1px solid #e2e8f0;background:#fff;border-radius:11px;text-align:left;font-size:12px;font-weight:800;color:#334155;display:flex;justify-content:space-between;align-items:center;cursor:pointer}.languageOptions button.active{background:#eff6ff;border-color:#93c5fd;color:#2563eb}.languageOptions button.active span{font-size:14px}.cabinetMenuList{margin-top:16px;border-top:1px solid #eef2f7}.cabinetMenuList button{width:100%;padding:14px 2px;border:0;border-bottom:1px solid #eef2f7;background:transparent;display:flex;align-items:center;gap:9px;color:#334155;text-align:left;cursor:pointer}.cabinetMenuList button span{flex:1;font-size:12px;font-weight:800}.cabinetMenuList button svg:first-child{color:#2563eb}.aboutMore{margin-top:14px;padding:14px;border-radius:13px;background:#f8fafc}.aboutMore b{font-size:12px}.aboutMore p{margin:5px 0 0;color:#64748b;font-size:10px;line-height:1.45}
+
+
+/* AutoKZ mobile marketplace — reference-inspired mobile UI */
+.market{width:min(100%,760px);padding:14px 0 88px;background:#fff;min-height:100vh}
+.kolesaTop{height:44px;display:flex;align-items:center;padding:0 16px}.kolesaTop .brand{font-size:24px;font-weight:800;letter-spacing:-.06em;color:#172033}.kolesaTop .brand span{color:#2563eb}
+.marketSearch{height:46px;margin:4px 12px 10px;border:1px solid #edf0f5;background:#f7f8fa;border-radius:13px;display:flex;align-items:center;padding:0 12px;gap:8px;color:#7b8492}.marketSearch input{border:0;background:transparent;outline:0;flex:1;font-size:13px;min-width:0;color:#172033}.marketSearch button{width:32px;height:32px;border:0;background:#fff;border-radius:9px;display:grid;place-items:center;color:#64748b}
+.categoryGrid{display:grid;grid-template-columns:1.12fr 1fr 1fr;grid-template-rows:92px 92px 76px;gap:8px;padding:0 12px}
+.categoryGrid button{border:0;background:#f3f4f7;border-radius:17px;color:#4e5663;position:relative;text-align:left;overflow:hidden;min-width:0}
+.categoryLarge{height:auto;padding:12px}
+.categoryPassenger{grid-row:1 / span 2;grid-column:1}
+.categoryCommercial{grid-column:2;grid-row:1}.categoryParts{grid-column:3;grid-row:1}.categoryCredit{grid-column:1;grid-row:3}.categoryNew{grid-column:2;grid-row:3}.categoryMoto{grid-column:3;grid-row:3}
+.categoryPhoto{padding:0!important;isolation:isolate}.categoryPhoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:block}.categoryPhoto:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.18) 48%,rgba(10,18,30,.35) 100%);z-index:1;pointer-events:none}.categoryPhoto>span{position:absolute;left:11px;top:10px;z-index:2;color:#303743;font-size:12px;line-height:1.08;font-weight:700;text-shadow:0 1px 3px #fff}.categoryPassenger>span{font-size:14px}.categoryCommercial img,.categoryParts img{object-position:center 52%}.categoryPassenger img{object-position:center 58%}.categoryCredit img{object-position:center 52%}.categoryNew img{object-position:center 45%}.categoryMoto img{object-position:center 50%}.categorySmall>span{font-size:10px}
+.categoryBadge{position:absolute!important;z-index:3;right:8px;bottom:7px;width:29px;height:29px;border-radius:50%;background:#f4c400;color:#fff;display:grid;place-items:center;font-size:17px;font-weight:900;font-style:normal;box-shadow:0 3px 8px #0003}
+.giftBow{position:absolute!important;z-index:4;right:8px;bottom:4px;width:46px;height:36px;display:block!important;font-style:normal}.giftBow:before,.giftBow:after{content:"";position:absolute;top:2px;width:23px;height:18px;background:#e51f42;border-radius:16px 16px 5px 16px;box-shadow:inset 0 1px 2px #fff6}.giftBow:before{left:1px;transform:rotate(28deg)}.giftBow:after{right:1px;transform:scaleX(-1) rotate(28deg)}.giftBow b{position:absolute;left:17px;top:10px;width:12px;height:12px;background:#c91436;border-radius:50%;z-index:2}.giftBow b:before,.giftBow b:after{content:"";position:absolute;top:8px;width:13px;height:24px;background:#e51f42}.giftBow b:before{left:-7px;transform:rotate(25deg);border-radius:3px 3px 8px 8px}.giftBow b:after{right:-7px;transform:rotate(-25deg);border-radius:3px 3px 8px 8px}
+.serviceGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-top:8px solid #fafafa;border-bottom:8px solid #fafafa;margin-top:10px;padding:11px 7px}.serviceGrid button{background:#fff;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#747b87;min-height:73px}.serviceGrid svg{color:#4382df}.serviceGrid span{font-size:10px;text-align:center;line-height:1.05}
+.listingFeed{padding:4px 0 0}.feedTitle{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px}.feedTitle h2{font-size:17px;margin:0;color:#252b36}.feedTitle button{background:transparent;color:#7b8490;font-size:10px;display:flex;align-items:center;gap:2px}.feedCard{position:relative;display:flex;min-height:145px;border-top:1px solid #edf0f4;background:#fff;padding:12px 12px 12px 14px}.feedOpen{display:flex;gap:12px;flex:1;min-width:0;text-align:left;background:transparent;padding:0;border:0}.feedPhoto{width:150px;height:116px;flex:0 0 150px;border-radius:13px;background:#eef2f7;overflow:hidden;display:grid;place-items:center;position:relative;color:#9aa6b7}.feedPhoto img{width:100%;height:100%;object-fit:cover;display:block}.feedPhoto>span{position:absolute;right:6px;bottom:6px;background:#222b;color:#fff;border-radius:6px;padding:3px 5px;font-size:8px}.feedInfo{min-width:0;padding-right:22px}.feedInfo h3{font-size:14px;font-weight:500;margin:0 0 5px;color:#3d434d;line-height:1.15}.feedInfo>strong{font-size:17px;color:#20252d;display:inline-block;letter-spacing:-.02em}.creditTag{display:inline-block;background:#f2c800;color:#fff;border-radius:5px;padding:4px 6px;margin-left:6px;font-size:9px;font-weight:800;vertical-align:2px}.creditTag small{font-weight:500;opacity:.75}.feedInfo p{font-size:10px;line-height:1.35;color:#69717d;margin:7px 0 5px}.feedInfo>small{font-size:9px;color:#9aa1ab}.feedFav{position:absolute;right:10px;top:11px;width:32px;height:32px;border:0;background:transparent;color:#a6adb7;display:grid;place-items:center;z-index:2}.feedFav.favOn{color:#e85b69}
+.favoritesScreen,.messagesScreen{min-height:calc(100vh - 82px);padding:5px 14px 100px;background:#fff}.favoritesScreen>h2,.messagesScreen>h2{font-size:20px;font-weight:600;margin:5px 0 18px;color:#202630}.favoritesEmpty,.messagesEmpty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:55vh;color:#b7bdc7}.favoritesEmpty h3,.messagesEmpty h3{color:#303641;font-size:18px;margin:12px 0 5px}.favoritesEmpty p,.messagesEmpty p{font-size:11px;color:#818895;margin:0}.messagesEmpty svg,.favoritesEmpty svg{color:#d7dbe1;stroke-width:1.2}.messageAd{margin-top:auto;min-height:84px;border-radius:10px;background:linear-gradient(90deg,#f4f6f9,#fff);display:flex;align-items:center;justify-content:space-between;padding:12px 16px;color:#333;overflow:hidden}.messageAd b{font-size:14px;line-height:1.05;font-weight:500;display:block}.messageAd strong{display:block;font-size:17px;margin-top:6px}.messageAd svg{color:#74a6ee;margin-right:10px}
+.marketNav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,760px);height:72px;background:#fff;border-radius:0;padding:5px 7px 6px;display:grid;grid-template-columns:repeat(5,1fr);z-index:20;box-shadow:0 -3px 15px #0f172a10;border-top:1px solid #edf0f4}.marketNav button{background:transparent;color:#a0a6af;border-radius:0;font-size:9px;gap:3px}.marketNav button.active{background:transparent;color:#172033;font-weight:700}.marketNavAdd{transform:none!important}.navPlus{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;border:0;box-shadow:0 5px 12px #2563eb44}.marketNavAdd span:last-child{font-weight:600;color:#6c7480}
+.marketBackdrop{background:#fff;padding:0;place-items:stretch;z-index:30}.marketModal{width:min(100%,760px);max-height:100vh;height:100%;border-radius:0;border:0;padding:18px 14px 92px;box-shadow:none;overflow:auto}.closeBtn{right:10px;top:10px;background:#f4f5f7}.cabinetHeader{height:46px;margin:0 -14px 12px;padding:0 14px;border-bottom:1px solid #edf0f4}.cabinetHeader h2{font-size:18px;font-weight:600}.cabinetLanding{border:0;border-radius:0;border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;padding:18px 2px 20px;margin:0}.cabinetLanding .eyebrow{display:none}.cabinetLanding h2{font-size:15px;font-weight:600;margin:0 0 8px}.cabinetLanding .muted{font-size:11px;max-width:320px}.cabinetLoginBtn{width:auto;background:transparent;color:#477bc8;padding:0;margin-top:9px;justify-content:flex-start;font-size:12px;font-weight:500}.cabinetPublish{margin:0 -14px;border-radius:0;padding:22px 14px;background:#fff;color:#333;border-bottom:1px solid #edf0f4}.cabinetPublishBrand{display:none}.cabinetPublish h3{font-size:15px;font-weight:600;margin:0 0 6px}.cabinetPublish p{color:#666f7b;font-size:11px;margin:0 0 15px}.cabinetPublishBtn{background:#2563eb;border-radius:4px;font-size:12px;padding:13px}.cabinetSettings{position:absolute;inset:0;z-index:40;margin:0;border:0;border-radius:0;padding:18px 14px;background:#fff;box-shadow:none}
+@media(max-width:520px){.market{padding-bottom:78px}.feedPhoto{width:145px;flex-basis:145px;height:108px}.feedCard{min-height:132px}.feedInfo p{max-height:40px;overflow:hidden}.categoryGrid{grid-template-rows:90px 90px 74px;gap:7px;padding:0 10px}.categoryGrid button{border-radius:15px}.categoryPassenger>span{font-size:13px}}
+/* Clear navigation and strict image clipping */
+.backBtn{position:absolute;left:10px;top:10px;z-index:12;width:40px;height:40px;border:1px solid #e2e8f0;background:#fff;color:#334155;border-radius:12px;display:grid;place-items:center;cursor:pointer;transform:rotate(180deg);box-shadow:0 4px 14px #0f172a12}
+.settingsBackBtn{width:40px;height:40px;border:1px solid #e2e8f0;background:#f8fafc;color:#334155;border-radius:12px;display:grid;place-items:center;cursor:pointer;transform:rotate(180deg);position:absolute;right:14px;left:auto;top:14px;z-index:50}
+.cabinetSettings{position:absolute;overflow:auto}
+.categoryPhoto,.categoryPhoto img,.feedPhoto,.feedPhoto img{contain:paint}
+.categoryPhoto{overflow:hidden}
+.categoryPhoto img,.feedPhoto img{max-width:100%;max-height:100%;box-sizing:border-box}
+
+/* AutoKZ category hero photos — show the whole vehicle/item */
+.categoryPhoto{background:#f3f5f7!important}
+.categoryPhoto img{object-fit:contain!important;object-position:center center!important;transform:none!important;padding:5px;box-sizing:border-box}
+.categoryPassenger img{padding:8px!important}
+.categoryCommercial img{padding:5px!important}
+.categoryParts img{padding:10px!important}
+.categoryCredit img{padding:7px!important}
+.categoryNew img{padding:2px!important}
+.categoryMoto img{padding:3px!important}
+.categoryPhoto:after{background:linear-gradient(180deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.04) 34%,rgba(255,255,255,.03) 100%)}
+.categoryPhoto>span{background:rgba(255,255,255,.82);padding:4px 7px;border-radius:8px;line-height:1.05;text-shadow:none;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.categoryPassenger>span,.categoryCommercial>span,.categoryNew>span,.categoryMoto>span{ text-shadow:none}
+
+
+/* AutoKZ categories: equal frames, larger vehicle photos, labels below each frame */
+.categoryGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,112px)!important;
+  gap:24px 8px!important;
+  padding:0 12px!important;
+  overflow:visible!important;
+}
+.categoryGrid .categoryPhoto{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  height:112px!important;
+  min-height:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  border-radius:17px!important;
+}
+.categoryPhoto img{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:scale(1.12)!important;
+  z-index:0!important;
+}
+.categoryPassenger img{transform:scale(1.08)!important}
+.categoryCommercial img{transform:scale(1.16)!important}
+.categoryParts img{transform:scale(.82)!important}
+.categoryCredit img{transform:scale(1.13)!important}
+.categoryNew img{transform:scale(1.13)!important}
+.categoryMoto img{transform:scale(1.13)!important}
+.categoryPhoto:after{
+  background:linear-gradient(180deg,rgba(255,255,255,0) 45%,rgba(15,23,42,.06) 72%,rgba(15,23,42,.22) 100%)!important;
+  z-index:1;
+  pointer-events:none;
+  border-radius:inherit;
+}
+.categoryPhoto>span{
+  top:auto!important;
+  bottom:-22px!important;
+  left:2px!important;
+  right:2px!important;
+  width:auto!important;
+  display:block!important;
+  text-align:left!important;
+  color:#303743!important;
+  background:transparent!important;
+  padding:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  font-size:11px!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+  z-index:5!important;
+}
+.categoryPassenger>span{font-size:11px!important}
+.categoryBadge{
+  z-index:6!important;
+  bottom:7px!important;
+}
+@media(max-width:520px){
+  .categoryGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,108px)!important;
+    gap:25px 7px!important;
+    padding:0 10px!important;
+  }
+  .categoryGrid .categoryPhoto{
+    height:108px!important;
+    border-radius:15px!important;
+  }
+  .categoryPhoto>span{
+    bottom:-22px!important;
+    font-size:10px!important;
+  }
+  .categoryPassenger>span{font-size:10px!important}
+}
+
+/* AutoKZ category polish: remove inner photo rims */
+.categoryPhoto:after{
+  display:none!important;
+  background:none!important;
+}
+.categoryPhoto{
+  background:#eef0f2!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.categoryPhoto img{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+.categoryCommercial img{
+  transform:scale(1.08)!important;
+  object-position:center center!important;
+}
+.categoryCredit img{
+  transform:scale(1.16)!important;
+  object-position:center center!important;
+}
+
+/* AutoKZ category labels: keep titles visible outside image frames */
+.categoryPhoto{contain:none!important;overflow:visible!important}
+.categoryGrid{contain:none!important;overflow:visible!important}
+.categoryPhoto>span{display:block!important;position:absolute!important;top:auto!important;bottom:-28px!important;left:2px!important;right:2px!important;width:auto!important;height:auto!important;visibility:visible!important;opacity:1!important;color:#303743!important;background:transparent!important;font-size:10px!important;font-weight:800!important;line-height:1.15!important;text-align:center!important;white-space:normal!important;z-index:20!important}
+@media(max-width:520px){.categoryPhoto>span{bottom:-26px!important;font-size:10px!important}}
+
+/* AutoKZ: category tiles use full-frame real photographs */
+.categoryPhoto img{
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+  display:block!important;
+}
+.categoryPassenger img{object-position:center 58%!important}
+.categoryCommercial img{object-position:center 55%!important}
+.categoryParts img{object-position:center 52%!important}
+.categoryCredit img{object-position:center 55%!important}
+.categoryNew img{object-position:center 55%!important}
+.categoryMoto img{object-position:center 55%!important}
+.categoryPhoto{
+  background:#e9edf2!important;
+  overflow:visible!important;
+}
+
+/* AutoKZ cabinet header: centered listings title */
+.cabinetHeader{position:relative!important;display:grid!important;grid-template-columns:44px 1fr 44px!important;align-items:center!important;justify-items:center!important;height:50px!important;padding:0 14px!important}
+.cabinetHeader h2{grid-column:2!important;margin:0!important;text-align:center!important;white-space:nowrap!important}
+.cabinetHeader .cabinetBackBtn,.cabinetHeader .cabinetSettingsBtn{position:relative!important;inset:auto!important;width:40px!important;height:40px!important;margin:0!important;display:grid!important;place-items:center!important}
+.cabinetHeader .cabinetBackBtn{grid-column:1!important;grid-row:1!important;transform:rotate(180deg)!important}
+.cabinetHeader .cabinetSettingsBtn{grid-column:3!important;grid-row:1!important}
+
+/* AutoKZ strict category vehicle framing: full item visible, no crop or stretch */
+.categoryPhoto img{
+  width:100%!important;
+  height:100%!important;
+  padding:8px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+  display:block!important;
+  box-sizing:border-box!important;
+}
+.categoryPassenger img,.categoryCommercial img,.categoryCredit img,.categoryNew img,.categoryMoto img{transform:none!important;}
+.categoryParts img{transform:none!important;padding:10px!important;}
