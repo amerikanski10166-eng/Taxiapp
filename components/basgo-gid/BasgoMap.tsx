@@ -150,7 +150,7 @@ export default function BasgoMap({ region, onReady }: Props) {
       map.remove();
       mapRef.current = null;
     };
-  }, [region]);
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
