@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Heart, X, MessageCircle, UserRound, ShieldCheck, SlidersHorizontal, ArrowLeft, Flag, Ban, CheckCircle2 } from "lucide-react";
+import { Heart, X, MessageCircle, UserRound, ShieldCheck, SlidersHorizontal, MoreVertical, ArrowLeft, Flag, Ban, CheckCircle2 } from "lucide-react";
 
 type Profile={id:string;name:string;birth:string;city:string;gender:string;looking:string;interests:string[];about:string;photo:string};
 type Match={id:string;profile:Profile;messages:string[]};
@@ -28,7 +28,7 @@ export default function Jup(){
  const [index,setIndex]=useState(0);
  const [matches,setMatches]=useState<Match[]>([]);
  const [tab,setTab]=useState<"discover"|"likes"|"chat"|"me">("discover");
- const [filter,setFilter]=useState(true);
+ const [filter,setFilter]=useState(false);
  const [city,setCity]=useState("Все");
  const [minAge,setMinAge]=useState(18);
  const [maxAge,setMaxAge]=useState(70);
@@ -85,8 +85,8 @@ export default function Jup(){
  </main>;
 
  return <main className="jup">
-   <header><div className="logo">JUP <span>♥</span></div><button className="filterBtn" aria-label="Настроить поиск" onClick={()=>setFilter(!filter)}><SlidersHorizontal size={18}/></button></header>
-   {filter&&<div className="filters"><div className="filterIntro"><b>Настройте, кого вы хотите встретить</b><span>Эти настройки определяют, какие анкеты показывать вам. Например: Астана и возраст от 25 до 35 лет.</span></div><label>Город, где хотите знакомиться<select value={city} onChange={e=>{setCity(e.target.value);setIndex(0)}}><option value="Все">Все города</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Актобе</option><option>Тараз</option></select></label><label>Возраст людей, которых хотите видеть<div className="ageRow"><div><small>От</small><input min="18" max="70" type="number" value={minAge} onChange={e=>{setMinAge(Math.max(18,Math.min(70,+e.target.value||18)));setIndex(0)}}/></div><div><small>До</small><input min="18" max="70" type="number" value={maxAge} onChange={e=>{setMaxAge(Math.max(18,Math.min(70,+e.target.value||70)));setIndex(0)}}/></div></div><span className="filterHint">Выберите желаемый диапазон возраста — например, от 25 до 35 лет.</span></label></div>}
+   <header><div className="logo">JUP <span>♥</span></div><button className="filterBtn" aria-label="Настроить поиск" onClick={()=>setFilter(!filter)}><MoreVertical size={20}/></button></header>
+   {filter&&<div className="filters"><div className="filterIntro"><b>Настройте, кого вы хотите встретить</b><span>Эти настройки определяют, какие анкеты показывать вам.</span></div><label>Город, где хотите знакомиться<select value={city} onChange={e=>{setCity(e.target.value);setIndex(0)}}><option value="Все">Все города</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Актобе</option><option>Тараз</option></select></label><label>Возраст людей, которых хотите видеть<div className="ageRow"><div><small>От</small><select value={minAge} onChange={e=>{const v=Math.max(18,Math.min(70,Number(e.target.value)));setMinAge(v);if(v>maxAge)setMaxAge(v);setIndex(0)}}>{Array.from({length:53},(_,i)=>18+i).map(v=><option key={v} value={v}>{v}</option>)}</select></div><div><small>До</small><select value={maxAge} onChange={e=>{const v=Math.max(18,Math.min(70,Number(e.target.value)));setMaxAge(v);if(v<minAge)setMinAge(v);setIndex(0)}}>{Array.from({length:53},(_,i)=>18+i).map(v=><option key={v} value={v}>{v}</option>)}</select></div></div><span className="filterHint">Возраст: {minAge}–{maxAge} лет · найдено анкет: {visible.length}</span></label></div>}
    {tab==="discover"&&<section className="discover"><div className="titleRow"><div><small>ЗНАКОМСТВА В КАЗАХСТАНЕ</small><h2>Кто тебе понравится?</h2></div><span>{visible.length} анкет</span></div>
     {current?<div className="card"><img src={current.photo} alt={current.name}/><div className="shade"/><div className="cardInfo"><div className="verified"><CheckCircle2 size={14}/> Профиль подтверждён</div><h1>{current.name}, {age(current.birth)}</h1><b>{current.city}</b><p>{current.about}</p><div className="tags">{current.interests.map(x=><span key={x}>{x}</span>)}</div></div></div>:<div className="empty">Анкеты закончились.<br/>Измени фильтр и попробуй снова.</div>}
     <div className="actions"><button onClick={()=>action("skip")}><X/></button><button className="like" onClick={()=>action("like")}><Heart fill="currentColor"/></button></div>
