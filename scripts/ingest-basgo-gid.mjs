@@ -27,11 +27,18 @@ async function fetchCity(city) {
     for (let attempt = 1; attempt <= 4; attempt += 1) {
       try {
         const response = await fetch(endpoint, {
-          method:"POST", headers:{"content-type":"application/x-www-form-urlencoded"},
-          body:new URLSearchParams({data:query}), signal:AbortSignal.timeout(150000),
+          method:"POST",
+          headers:{
+            "content-type":"text/plain",
+            "accept":"application/json",
+            "user-agent":"BASGO-GID/1.0 (Kazakhstan map preload; OpenStreetMap attribution)",
+          },
+          body:"data=" + encodeURIComponent(query),
+          signal:AbortSignal.timeout(150000),
         });
         if (response.status === 429) { await sleep(60000 * attempt); continue; }
-        if (!response.ok) throw new Error(`${endpoint} returned ${response.status}`);
+        if (response.status === 406) { throw new Error(endpoint + " returned 406; trying next Overpass endpoint"); }
+        if (!response.ok) throw new Error(endpoint + " returned " + response.status);
         const data = await response.json();
         const roads=[]; const buildings=[];
 
