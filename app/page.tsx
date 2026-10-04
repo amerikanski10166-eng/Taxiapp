@@ -28,7 +28,7 @@ export default function Jup(){
  const [index,setIndex]=useState(0);
  const [matches,setMatches]=useState<Match[]>([]);
  const [tab,setTab]=useState<"discover"|"likes"|"chat"|"me">("discover");
- const [filter,setFilter]=useState(false);
+ const [filter,setFilter]=useState(true);
  const [city,setCity]=useState("Все");
  const [minAge,setMinAge]=useState(18);
  const [maxAge,setMaxAge]=useState(70);
@@ -39,7 +39,7 @@ export default function Jup(){
  useEffect(()=>{try{const p=localStorage.getItem("jup-profile");if(p){const parsed=JSON.parse(p);if(parsed.birth&&adult(parsed.birth)&&localStorage.getItem("jup-legal-version")==LEGAL_VERSION)setProfile(parsed)}const m=localStorage.getItem("jup-matches");if(m)setMatches(JSON.parse(m));}catch{}},[]);
  useEffect(()=>{try{localStorage.setItem("jup-matches",JSON.stringify(matches));}catch{}},[matches]);
 
- const current=profiles[index];
+ const current=visible[index];
  const visible=useMemo(()=>profiles.filter(p=>(city==="Все"||p.city===city)&&age(p.birth)>=minAge&&age(p.birth)<=maxAge),[profiles,city,minAge,maxAge]);
 
  const action=(kind:"like"|"skip")=>{
@@ -84,8 +84,8 @@ export default function Jup(){
  </main>;
 
  return <main className="jup">
-   <header><div className="logo">JUP <span>♥</span></div><button className="filterBtn" onClick={()=>setFilter(!filter)}><SlidersHorizontal size={18}/></button></header>
-   {filter&&<div className="filters"><label>Город<select value={city} onChange={e=>{setCity(e.target.value);setIndex(0)}}><option>Все</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Актобе</option><option>Тараз</option></select></label><label>Возраст<div className="ageRow"><input type="number" value={minAge} onChange={e=>setMinAge(+e.target.value)}/><input type="number" value={maxAge} onChange={e=>setMaxAge(+e.target.value)}/></div></label></div>}
+   <header><div className="logo">JUP <span>♥</span></div><button className="filterBtn" aria-label="Настроить поиск" onClick={()=>setFilter(!filter)}><SlidersHorizontal size={18}/></button></header>
+   {filter&&<div className="filters"><div className="filterIntro"><b>Настройте, кого вы хотите встретить</b><span>Эти настройки определяют, какие анкеты показывать вам. Например: Астана и возраст от 25 до 35 лет.</span></div><label>Город, где хотите знакомиться<select value={city} onChange={e=>{setCity(e.target.value);setIndex(0)}}><option>Все города</option><option>Астана</option><option>Алматы</option><option>Шымкент</option><option>Караганда</option><option>Актобе</option><option>Тараз</option></select></label><label>Возраст людей, которых хотите видеть<div className="ageRow"><div><small>От</small><input min="18" max="70" type="number" value={minAge} onChange={e=>setMinAge(Math.max(18,Math.min(70,+e.target.value||18)))}/></div><div><small>До</small><input min="18" max="70" type="number" value={maxAge} onChange={e=>setMaxAge(Math.max(18,Math.min(70,+e.target.value||70)))}/></div></div><span className="filterHint">Выберите желаемый диапазон возраста — например, от 25 до 35 лет.</span></label></div>}
    {tab==="discover"&&<section className="discover"><div className="titleRow"><div><small>ЗНАКОМСТВА В КАЗАХСТАНЕ</small><h2>Кто тебе понравится?</h2></div><span>{visible.length} анкет</span></div>
     {current?<div className="card"><img src={current.photo} alt={current.name}/><div className="shade"/><div className="cardInfo"><div className="verified"><CheckCircle2 size={14}/> Профиль подтверждён</div><h1>{current.name}, {age(current.birth)}</h1><b>{current.city}</b><p>{current.about}</p><div className="tags">{current.interests.map(x=><span key={x}>{x}</span>)}</div></div></div>:<div className="empty">Анкеты закончились.<br/>Измени фильтр и попробуй снова.</div>}
     <div className="actions"><button onClick={()=>action("skip")}><X/></button><button className="like" onClick={()=>action("like")}><Heart fill="currentColor"/></button></div>
