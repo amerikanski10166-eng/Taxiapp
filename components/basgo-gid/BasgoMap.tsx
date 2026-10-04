@@ -88,7 +88,7 @@ export default function BasgoMap({ region, onReady }: Props) {
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
-      map.addSource("basgo-astana-roads", { type: "geojson", data: roadsGeoJson });
+      map.addSource("basgo-national-roads", { type: "geojson", data: roadsGeoJson as any });
       map.addLayer({
         id: "basgo-national-roads",
         type: "line",
@@ -101,7 +101,7 @@ export default function BasgoMap({ region, onReady }: Props) {
         },
       });
 
-      map.addSource("basgo-astana-buildings", { type: "geojson", data: buildingsGeoJson });
+      map.addSource("basgo-national-buildings", { type: "geojson", data: buildingsGeoJson as any });
       map.addLayer({
         id: "basgo-astana-building-fill",
         type: "fill",
@@ -120,7 +120,7 @@ export default function BasgoMap({ region, onReady }: Props) {
         paint: { "line-color": "#334155", "line-width": 1, "line-opacity": 0.72 },
       });
 
-      map.addSource("basgo-astana-seed", { type: "geojson", data: seedGeoJson });
+      map.addSource("basgo-national-poi", { type: "geojson", data: seedGeoJson as any });
       map.addLayer({
         id: "basgo-seed-points",
         type: "circle",
