@@ -11,5 +11,4 @@ export const ASTANA_BASGO_SEED: BasgoSeedFeature[] = [
   { id: "hazret-sultan", name: "Мечеть Хазрет Султан", kind: "landmark", coordinates: [71.4586, 51.1240] },
   { id: "expo", name: "EXPO", kind: "landmark", coordinates: [71.4091, 51.0900] },
   { id: "astana-baiterek-bus", name: "Остановка у Байтерека", kind: "transport", coordinates: [71.4300, 51.1297] },
-  { id: "astana-center-service", name: "BASGO Service Point", kind: "service", coordinates: [71.4240, 51.1265] },
 ];
