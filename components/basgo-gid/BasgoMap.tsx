@@ -5,8 +5,6 @@ import maplibregl, { type Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ASTANA_BASGO_SEED } from "../../lib/basgo-gid/astana-seed";
 import { ASTANA_BASGO_ROADS, ASTANA_BASGO_BUILDINGS } from "../../lib/basgo-gid/astana-map";
-import { BASGO_NATIONAL_SCOPE } from "../../lib/basgo-gid/national-map";
-import { getBasgoCityPackage } from "../../lib/basgo-gid/city-packages";
 
 type Props = { region: string; onReady?: () => void };
 
@@ -92,7 +90,7 @@ export default function BasgoMap({ region, onReady }: Props) {
     }
     const requestCity = cityId;
     try {
-      const response = await fetch(`/api/basgo-gid/real-map?city=${encodeURIComponent(requestCity)}`, { cache: "no-store" });
+      const response = await fetch(`/api/basgo-gid/real-map?city=${encodeURIComponent(requestCity)}`);
       if (!response.ok) return;
       const data = await response.json();
       if (requestCity !== cityByRegion[region]) return;
