@@ -40,12 +40,6 @@ export default function BasgoGidPage(){
   const [mapReady,setMapReady]=useState(false);
   const [layers,setLayers]=useState<Record<string,boolean>>({});
   const showNotice=(message:string)=>{setNotice(message);window.setTimeout(()=>setNotice(""),2600)};
-  const regionBbox:Record<string,string>={
-    "Весь Казахстан":"46.45%2C40.50%2C87.35%2C55.45",
-    "Астана":"71.20%2C51.05%2C71.65%2C51.30",
-    "Алматы":"76.75%2C43.10%2C77.15%2C43.40",
-    "Шымкент":"69.45%2C42.15%2C69.80%2C42.45"
-  };
   const requestLocation=()=>{
     if(!navigator.geolocation){showNotice("Геолокация недоступна на этом устройстве.");return;}
     setLocationLoading(true);
