@@ -15,6 +15,7 @@ const seed = [
 
 const money=(n:number|string)=>{const value=Number(String(n??"").replace(/[^0-9.-]/g,""));return (Number.isFinite(value)?value:0).toLocaleString("ru-RU")+" ₸";};
 const normalizePrice=(n:number|string)=>Number(String(n??"").replace(/[^0-9.-]/g,""))||0;
+const formatPublishedDate=(value:any)=>{const d=value?new Date(value):new Date();if(Number.isNaN(d.getTime()))return "";const today=new Date();const sameYear=d.getFullYear()===today.getFullYear();return d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",...(sameYear?{}:{year:"numeric"})});};
 const normalizePhone=(n:string)=>String(n||"").replace(/\\D/g,"");
 const validateVin=(value:string)=>{const vin=String(value||"").trim().toUpperCase();if(!vin)return false;if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin))return false;const v:any={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};const w=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];const sum=vin.split("").reduce((s,ch,i)=>s+(v[ch]??Number(ch))*w[i],0);return vin[8]===(sum%11===10?"X":String(sum%11));};
 const fileToDataUrl=(file:File,maxSize=1600,quality=.82)=>new Promise<string>((resolve,reject)=>{
@@ -89,7 +90,8 @@ export default function HomePage(){
     setNotice("Публикуем объявление…");
     const id=crypto.randomUUID();
     const sharePhotos=await uploadSharePhotos(id,photos);
-    const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),engineVolume:Number(form.engineVolume)||0,mileage:mileage,vehicleCondition:form.vehicleCondition,seller:"Частник",promoted:false,photos:[...photos],share_code:id};
+    const createdAt=new Date().toISOString();
+    const item={id,...form,year:Number(form.year)||2020,price:normalizePrice(form.price),engineVolume:Number(form.engineVolume)||0,mileage:mileage,vehicleCondition:form.vehicleCondition,seller:"Частник",promoted:false,photos:[...photos],share_code:id,created_at:createdAt};
     const {data:created,error}=await supabase.from("listings").insert({id,title:item.title,year:item.year,price:item.price,city:item.city,mileage:item.mileage,fuel:item.fuel,description:item.description,status:"published",promoted:false,photos:sharePhotos,share_code:id,phone:item.phone,vehicle_condition:item.vehicleCondition,generation:item.generation||null,engine_volume:item.engineVolume||null,transmission:item.transmission||null,drive:item.drive||null,steering:item.steering||null,color:item.color||null,customs_cleared:item.customsCleared==="yes",vin:form.vin||null,vin_valid:!!form.vin&&validateVin(form.vin)}).select("id,status,moderation_status,moderation_score,moderation_reason").maybeSingle();
     if(error){setNotice("Не удалось опубликовать объявление в AutoKZ. Попробуйте ещё раз.");return;}
     const finalStatus=created?.status||"published";
@@ -136,7 +138,7 @@ export default function HomePage(){
       <div className="feedTitle"><h2>Объявления</h2><button onClick={()=>setSort(sort==="new"?"priceAsc":"new")}>Сортировка <ChevronRight size={15}/></button></div>
       {filtered.map(car=><article key={car.id} className="feedCard"><button className="feedOpen" onClick={()=>{setSelected(car);setModal("listing")}}>
         <div className="feedPhoto">{car.photos?.[0]?<img src={car.photos[0]} alt={car.title}/>:<CarFront size={58}/>}<span>{car.photos?.length||0}</span></div>
-        <div className="feedInfo"><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><div className="creditTag">{Math.round(normalizePrice(car.price)*0.037).toLocaleString("ru-RU")} ₸ <small>×36</small></div><p>Б/у · {car.year} г. · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel} · {car.city}</p><small>{car.city}</small></div>
+        <div className="feedInfo"><h3>{car.title}</h3><strong>{money(normalizePrice(car.price))}</strong><div className="creditTag">{Math.round(normalizePrice(car.price)*0.037).toLocaleString("ru-RU")} ₸ <small>×36</small></div><p>Б/у · {car.year} г. · {car.mileage.toLocaleString("ru-RU")} км · {car.fuel} · {car.city}</p><small className="feedDate">Опубликовано {formatPublishedDate(car.created_at)}</small></div>
       </button><button className={"feedFav "+(favorites.includes(car.id)?"favOn":"")} onClick={()=>toggleFavorite(car.id)}><Heart size={22} fill={favorites.includes(car.id)?"currentColor":"none"}/></button></article>)}
     </section>
 
