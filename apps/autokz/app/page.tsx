@@ -15,7 +15,7 @@ const seed = [
 
 const money=(n:number|string)=>{const value=Number(String(n??"").replace(/[^0-9.-]/g,""));return (Number.isFinite(value)?value:0).toLocaleString("ru-RU")+" ₸";};
 const normalizePrice=(n:number|string)=>Number(String(n??"").replace(/[^0-9.-]/g,""))||0;
-const formatPublishedDate=(value:any)=>{const d=value?new Date(value):new Date();if(Number.isNaN(d.getTime()))return "";const today=new Date();const sameYear=d.getFullYear()===today.getFullYear();return d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",...(sameYear?{}:{year:"numeric"})});};
+const formatPublishedDate=(value:any)=>{const d=value?new Date(value):new Date();if(Number.isNaN(d.getTime()))return "";return d.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}).replace(/\s*г\.?$/," года");};
 const normalizePhone=(n:string)=>String(n||"").replace(/\\D/g,"");
 const validateVin=(value:string)=>{const vin=String(value||"").trim().toUpperCase();if(!vin)return false;if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin))return false;const v:any={A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,J:1,K:2,L:3,M:4,N:5,P:7,R:9,S:2,T:3,U:4,V:5,W:6,X:7,Y:8,Z:9};const w=[8,7,6,5,4,3,2,10,0,9,8,7,6,5,4,3,2];const sum=vin.split("").reduce((s,ch,i)=>s+(v[ch]??Number(ch))*w[i],0);return vin[8]===(sum%11===10?"X":String(sum%11));};
 const fileToDataUrl=(file:File,maxSize=1600,quality=.82)=>new Promise<string>((resolve,reject)=>{
