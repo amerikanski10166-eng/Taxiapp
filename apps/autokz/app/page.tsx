@@ -111,31 +111,35 @@ export default function HomePage(){
     "Мои объявления":"Менің хабарландыруларым","Личный кабинет":"Жеке кабинет"
   };
   useEffect(()=>{
-    document.documentElement.lang=language==="Қазақша"?"kk":language==="English"?"en":"ru";
-    if(language!=="Қазақша") return;
-    const apply=()=>{
+    let observer:any=null;
+    try{
+      document.documentElement.lang=language==="Қазақша"?"kk":language==="English"?"en":"ru";
+      if(language!=="Қазақша") return;
       const keys=Object.keys(kazakhUi).sort((a,b)=>b.length-a.length);
       const replace=(value:string)=>{
-        let out=value;
+        let out=String(value??"");
         for(const k of keys) if(out.includes(k)) out=out.split(k).join(kazakhUi[k]);
         return out;
       };
-      const walk=(root:Node)=>{
-        const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-        const nodes:Text[]=[]; let n;
-        while((n=walker.nextNode())) nodes.push(n as Text);
-        nodes.forEach(node=>{if(node.parentElement&&!["SCRIPT","STYLE"].includes(node.parentElement.tagName)) node.nodeValue=replace(node.nodeValue||"");});
-        root instanceof Element && root.querySelectorAll("input,textarea,button,a,[aria-label],[title]").forEach((el:any)=>{
-          for(const attr of ["placeholder","aria-label","title"]) if(el.getAttribute(attr)) el.setAttribute(attr,replace(el.getAttribute(attr)));
-        });
+      const apply=()=>{
+        try{
+          if(!document.body) return;
+          const walker=document.createTreeWalker(document.body,4);
+          const nodes:Text[]=[]; let n:any;
+          while((n=walker.nextNode())) nodes.push(n as Text);
+          nodes.forEach(node=>{const parent=node.parentElement;if(parent&&!["SCRIPT","STYLE"].includes(parent.tagName)){const next=replace(node.nodeValue||"");if(next!==node.nodeValue) node.nodeValue=next;}});
+          document.body.querySelectorAll("input,textarea,button,a,[aria-label],[title]").forEach((el:any)=>{
+            for(const attr of ["placeholder","aria-label","title"]){const value=el.getAttribute(attr);if(value){const next=replace(value);if(next!==value)el.setAttribute(attr,next);}}
+          });
+        }catch{}
       };
       apply();
-      const observer=new MutationObserver(()=>apply());
-      observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["placeholder","aria-label","title"]});
-      return()=>observer.disconnect();
-    };
-    const cleanup=apply();
-    return typeof cleanup==="function"?cleanup:undefined;
+      if(typeof window!=="undefined" && "MutationObserver" in window){
+        observer=new MutationObserver(()=>{try{apply();}catch{}});
+        observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["placeholder","aria-label","title"]});
+      }
+    }catch{}
+    return()=>{try{observer?.disconnect();}catch{}};
   },[language]);
 
   useEffect(()=>{try{const saved=localStorage.getItem("autokz-language");if(saved&&languageText[saved])setLanguage(saved);}catch{}},[]);
