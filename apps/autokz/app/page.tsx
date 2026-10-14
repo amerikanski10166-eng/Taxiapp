@@ -152,8 +152,7 @@ export default function HomePage(){
     const attrMemory = (window as any).__atshanaAttrTranslationMemory || ((window as any).__atshanaAttrTranslationMemory = new WeakMap());
     document.documentElement.lang=language==="Қазақша"?"kk":language==="English"?"en":"ru";
     document.title=language==="Қазақша"?"ATSHANA — Қазақстандағы автокөліктер":language==="English"?"ATSHANA — cars in Kazakhstan":"ATSHANA — автомобили Казахстана";
-    if(language==="Русский") return;
-    const map=language==="Қазақша"?kazakhUiComplete:englishUi;
+    const map=language==="Қазақша"?kazakhUiComplete:language==="English"?englishUi:{};
     const keys=Object.keys(map).sort((a,b)=>b.length-a.length);
     const translate=(source:string)=>{
       let out=String(source??"");
