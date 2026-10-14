@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AutoKZ — автомобили Казахстана",
-  description: "Маркетплейс автомобилей Казахстана: купить, продать и продвинуть объявление.",
+  title: "ATSHANA — автомобили Казахстана",
+  description: "ATSHANA — автомобильный маркетплейс Казахстана: купить, продать и разместить объявление бесплатно.",
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
