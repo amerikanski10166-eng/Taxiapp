@@ -234,3 +234,8 @@
 }
 .categoryPassenger img,.categoryCommercial img,.categoryCredit img,.categoryNew img,.categoryMoto img{transform:none!important;}
 .categoryParts img{transform:none!important;padding:10px!important;}
+
+
+/* Hidden native picker; opened from the photo selection button to work reliably on mobile. */
+.photoInputHidden{position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.photoUpload:disabled{opacity:.65;cursor:wait}
